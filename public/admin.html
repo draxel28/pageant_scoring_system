@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Pageant Admin</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="wrap">
+  <h1>&#127942; Pageant Control Panel</h1>
+
+  <div class="card">
+    <h2>Contestants</h2>
+    <div class="row">
+      <input id="cNumber" placeholder="No." style="width:70px">
+      <input id="cName" placeholder="Contestant name">
+      <button onclick="addContestant()">Add Contestant</button>
+    </div>
+    <table id="contestantTable"><thead><tr><th>#</th><th>Name</th><th></th></tr></thead><tbody></tbody></table>
+  </div>
+
+  <div class="card">
+    <h2>Judges</h2>
+    <div class="row">
+      <input id="jName" placeholder="Judge name">
+      <button onclick="addJudge()">Add Judge</button>
+    </div>
+    <p class="muted">Give each judge their PIN below — that's how they log in on their laptop.</p>
+    <table id="judgeTable"><thead><tr><th>Name</th><th>PIN</th><th></th></tr></thead><tbody></tbody></table>
+  </div>
+
+  <div class="card">
+    <h2>Segments &amp; Criteria</h2>
+    <div class="row">
+      <input id="sName" placeholder="Segment name (e.g. Evening Gown)">
+    </div>
+    <div id="critRows" style="margin-top:10px"></div>
+    <div class="row" style="margin-top:8px">
+      <button class="secondary" onclick="addCritRow()">+ Add Criterion</button>
+      <button onclick="addSegment()">Create Segment</button>
+    </div>
+    <table id="segmentTable"><thead><tr><th>Segment</th><th>Criteria</th><th>Status</th><th>Reveal</th><th></th></tr></thead><tbody></tbody></table>
+  </div>
+
+  <div class="card">
+    <h2>Live Submission Tracker</h2>
+    <div id="tracker" class="muted">Select an active segment to see who has submitted.</div>
+  </div>
+
+  <div class="card">
+    <h2>Export</h2>
+    <a href="/api/export/csv"><button class="secondary">Download All Scores (CSV)</button></a>
+  </div>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="admin.js"></script>
+</body>
+</html>

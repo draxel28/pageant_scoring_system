@@ -1,0 +1,42 @@
+{
+  "event": {
+    "name": "Pageant Night",
+    "activeSegmentId": null
+  },
+  "judges": [
+    {
+      "id": "j_mseqmuo84qd8v",
+      "name": "Francis Jan Santos",
+      "pin": "8237"
+    },
+    {
+      "id": "j_mseqoa1xj1lnm",
+      "name": "Drexel Santos",
+      "pin": "9328"
+    }
+  ],
+  "contestants": [
+    {
+      "id": "c_mseqluk6tq8fa",
+      "number": "",
+      "name": "Maksin Salamat"
+    },
+    {
+      "id": "c_mseqlz7v2mjg7",
+      "number": "",
+      "name": "Alexandra Salamat"
+    },
+    {
+      "id": "c_mseqmaonfjb8w",
+      "number": "",
+      "name": "Maria Clara"
+    },
+    {
+      "id": "c_mseqmjd5mggdp",
+      "number": "",
+      "name": "Ashley Nigoza"
+    }
+  ],
+  "segments": [],
+  "scores": {}
+}

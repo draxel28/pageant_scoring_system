@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Pageant Results</title>
+<link rel="stylesheet" href="style.css">
+<style>
+  body { display:flex; align-items:center; justify-content:center; min-height:100vh; }
+  .stage { width:100%; max-width:1400px; padding:40px; text-align:center; }
+  .segTitle { font-size:3rem; color:var(--gold); margin-bottom:10px; }
+  .waiting { font-size:2rem; color:var(--muted); margin-top:60px; }
+  table.results { width:100%; font-size:2rem; margin-top:30px; }
+  table.results th { font-size:1.1rem; }
+  table.results td, table.results th { padding:18px; }
+  .rank1 { color: var(--gold); font-weight:800; }
+  .rank2 { color: #c7c7c7; font-weight:700; }
+  .rank3 { color: #cd7f32; font-weight:700; }
+  .pulse { animation: pulse 1.6s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="segTitle" id="segTitle">Welcome</div>
+  <div id="body"></div>
+</div>
+<script src="/socket.io/socket.io.js"></script>
+<script src="display.js"></script>
+</body>
+</html>

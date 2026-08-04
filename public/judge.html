@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Judge Scoring</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="wrap" style="max-width:700px">
+  <h1>&#127942; Judge Scoring</h1>
+
+  <div id="loginCard" class="card">
+    <h2>Enter your PIN</h2>
+    <div class="row">
+      <input id="pinInput" type="password" inputmode="numeric" placeholder="4-digit PIN" style="width:160px">
+      <button onclick="login()">Login</button>
+    </div>
+    <p id="loginError" class="muted"></p>
+  </div>
+
+  <div id="scoringArea" style="display:none">
+    <div class="card">
+      <div class="row" style="justify-content:space-between">
+        <div>Judge: <strong id="judgeName"></strong></div>
+        <div class="muted" id="segmentName"></div>
+      </div>
+    </div>
+    <div id="contestantCards"></div>
+  </div>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="judge.js"></script>
+</body>
+</html>
