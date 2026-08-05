@@ -1,7 +1,7 @@
 {
   "event": {
     "name": "Pageant Night",
-    "activeSegmentId": "seg_msexoj0rvha5k",
+    "activeSegmentId": "seg_mseyv830tma9t",
     "displayMode": "combined"
   },
   "judges": [
@@ -69,7 +69,7 @@
           "maxScore": 20
         }
       ],
-      "revealed": false
+      "revealed": true
     },
     {
       "id": "seg_msexoj0rvha5k",
@@ -96,7 +96,7 @@
           "maxScore": 20
         }
       ],
-      "revealed": true
+      "revealed": false
     },
     {
       "id": "seg_mseyhn6p0z4kl",

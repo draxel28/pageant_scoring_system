@@ -21,6 +21,13 @@ function render(state) {
     return;
   }
 
+  // Handle Overall Leaderboard Active State
+  if (activeSegmentId === 'overall') {
+    segTitleEl.textContent = '⭐ Overall Competition Leaderboard';
+    renderOverallSummary(state);
+    return;
+  }
+
   const segment = state.segments.find(s => s.id === activeSegmentId);
   if (!segment) {
     segTitleEl.textContent = 'Pageant Scoring';
@@ -42,6 +49,109 @@ function render(state) {
   } else {
     renderCombinedResults(segment.results);
   }
+}
+
+function renderOverallSummary(state) {
+  const bodyEl = document.getElementById('body');
+  const overallMap = {};
+  
+  state.contestants.forEach(c => {
+    overallMap[c.id] = {
+      contestantId: c.id,
+      number: c.number,
+      name: c.name,
+      totalScoreSum: 0,
+      segmentsCompleted: 0
+    };
+  });
+
+  state.segments.forEach(s => {
+    if (s.results && s.results.length > 0) {
+      s.results.forEach(r => {
+        if (r.average !== null && overallMap[r.contestantId]) {
+          overallMap[r.contestantId].totalScoreSum += r.average;
+          overallMap[r.contestantId].segmentsCompleted += 1;
+        }
+      });
+    }
+  });
+
+  const overallList = Object.values(overallMap).map(item => ({
+    ...item,
+    overallAverage: item.segmentsCompleted > 0 ? (item.totalScoreSum / item.segmentsCompleted) : null
+  }));
+
+  overallList.sort((a, b) => {
+    if (a.overallAverage === null && b.overallAverage === null) return 0;
+    if (a.overallAverage === null) return 1;
+    if (b.overallAverage === null) return -1;
+    return b.overallAverage - a.overallAverage;
+  });
+
+  let currentRank = 0;
+  let lastScore = null;
+  let skipped = 1;
+  overallList.forEach((item) => {
+    if (item.overallAverage === null) {
+      item.rank = '—';
+    } else {
+      if (item.overallAverage === lastScore) {
+        skipped++;
+      } else {
+        currentRank += skipped;
+        skipped = 1;
+        lastScore = item.overallAverage;
+      }
+      item.rank = currentRank;
+    }
+  });
+
+  let html = `
+    <div class="table-container">
+      <table class="results">
+        <thead>
+          <tr>
+            <th style="width: 100px;">Rank</th>
+            <th style="width: 120px;">No.</th>
+            <th>Contestant Name</th>
+            <th style="text-align: right;">Segments Completed</th>
+            <th style="text-align: right;">Overall Average</th>
+          </tr>
+        </thead>
+        <tbody>
+  `;
+
+  overallList.forEach(r => {
+    let rankClass = '';
+    let awardIcon = '';
+
+    if (r.rank === 1) {
+      rankClass = 'rank1';
+      awardIcon = '<span class="award-icon">👑</span>';
+    } else if (r.rank === 2) {
+      rankClass = 'rank2';
+      awardIcon = '<span class="award-icon">🏆</span>';
+    } else if (r.rank === 3) {
+      rankClass = 'rank3';
+      awardIcon = '<span class="award-icon">🥉</span>';
+    }
+
+    const avgDisplay = r.overallAverage !== null ? r.overallAverage.toFixed(2) : '—';
+    const numDisplay = r.number ? `#${r.number}` : '';
+
+    html += `
+      <tr class="${rankClass}">
+        <td>${awardIcon} ${r.rank}</td>
+        <td>${numDisplay}</td>
+        <td>${r.name}</td>
+        <td style="text-align: right; color: var(--text-muted);">${r.segmentsCompleted} / ${state.segments.length}</td>
+        <td style="text-align: right; font-weight: 800; color: var(--gold);">${avgDisplay}</td>
+      </tr>
+    `;
+  });
+
+  html += `</tbody></table></div>`;
+  bodyEl.innerHTML = html;
 }
 
 function renderCombinedResults(results) {
@@ -118,7 +228,6 @@ function renderJudgesMatrix(state, segment) {
             <th>Contestant</th>
   `;
 
-  // Map judges anonymously to Judge #1, Judge #2, etc.
   judges.forEach((j, index) => {
     html += `<th style="text-align: right;">Judge #${index + 1}</th>`;
   });

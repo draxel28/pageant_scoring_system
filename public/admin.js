@@ -155,6 +155,10 @@ async function activateSegment(id) {
   await fetch(`/api/admin/segments/${id}/activate`, { method: 'POST' });
 }
 
+async function setOverallActive() {
+  await fetch('/api/admin/segments/overall/activate', { method: 'POST' });
+}
+
 async function toggleReveal(id, revealed) {
   await fetch(`/api/admin/segments/${id}/reveal`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ revealed }) });
 }
@@ -283,6 +287,8 @@ function renderSegmentScoreTabs() {
     activeScoreTabId = segmentIds[0];
   }
 
+  const isOverallActive = state.event && state.event.activeSegmentId === 'overall';
+
   tabsContainer.innerHTML = state.segments.map(s => `
     <button type="button" class="tab-btn ${s.id === activeScoreTabId ? 'active' : ''}" onclick="switchSegmentTab('${s.id}')">${s.name}</button>
   `).join('') + `
@@ -290,17 +296,34 @@ function renderSegmentScoreTabs() {
   `;
 
   if (activeScoreTabId === 'overall') {
-    contentContainer.innerHTML = getOverallSummaryHtml();
+    contentContainer.innerHTML = `
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <p class="muted" style="margin: 0;">Activate the overall leaderboard to bypass segment screens and display cumulative scores.</p>
+        <button type="button" class="${isOverallActive ? 'secondary' : 'primary'}" onclick="setOverallActive()" style="padding: 10px 20px; font-weight: bold;">
+          ${isOverallActive ? '✓ Overall Leaderboard Active' : '⭐ Set Overall Active'}
+        </button>
+      </div>
+    ` + getOverallSummaryHtml();
     return;
   }
 
   const currentSegment = state.segments.find(s => s.id === activeScoreTabId);
+
+  let segmentActionHtml = '';
+  if (currentSegment) {
+    segmentActionHtml = `
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <p class="muted" style="margin: 0;">Manage display status for this specific segment.</p>
+      </div>
+    `;
+  }
+
   if (!currentSegment || !currentSegment.results || currentSegment.results.length === 0) {
-    contentContainer.innerHTML = '<span class="muted">No scores recorded for this segment yet.</span>';
+    contentContainer.innerHTML = segmentActionHtml + '<span class="muted">No scores recorded for this segment yet.</span>';
     return;
   }
 
-  contentContainer.innerHTML = getSegmentReportHtml(currentSegment);
+  contentContainer.innerHTML = segmentActionHtml + getSegmentReportHtml(currentSegment);
 }
 
 function getOverallSummaryHtml() {
