@@ -25,7 +25,18 @@ async function login() {
   }
   judge = await res.json();
   localStorage.setItem('judge', JSON.stringify(judge));
+  document.getElementById('pinInput').value = '';
+  document.getElementById('loginError').textContent = '';
   refresh();
+}
+
+function logoutJudge() {
+  judge = null;
+  localStorage.removeItem('judge');
+  document.getElementById('scoringArea').style.display = 'none';
+  document.getElementById('loginCard').style.display = 'block';
+  document.getElementById('pinInput').value = '';
+  document.getElementById('loginError').textContent = '';
 }
 
 function render() {

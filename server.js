@@ -14,6 +14,10 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // ---------- Persistence ----------
 function loadData() {
+  if (!fs.existsSync(DATA_FILE)) {
+    const initial = { event: { displayMode: 'combined' }, judges: [], contestants: [], segments: [], scores: {} };
+    fs.writeFileSync(DATA_FILE, JSON.stringify(initial, null, 2));
+  }
   return JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
 }
 function saveData(data) {
@@ -26,14 +30,18 @@ function broadcast() {
   io.emit('state-updated', publicState());
 }
 
-// Strip judge PINs before sending to display/admin broadcasts (admin fetches full state via its own endpoint)
+// Strip judge PINs before sending to display/admin broadcasts
 function publicState() {
   const data = loadData();
+  const segmentsWithResults = data.segments.map(seg => ({
+    ...seg,
+    results: computeSegmentResults(data, seg.id)
+  }));
   return {
     event: data.event,
     judges: data.judges.map(j => ({ id: j.id, name: j.name })),
     contestants: data.contestants,
-    segments: data.segments,
+    segments: segmentsWithResults,
     scores: data.scores
   };
 }
@@ -100,15 +108,32 @@ app.get('/api/state', (req, res) => res.json(loadData()));
 app.post('/api/admin/contestants', (req, res) => {
   const data = loadData();
   const { number, name } = req.body;
-  const c = { id: newId('c'), number, name };
+  const c = { id: newId('c'), number: number || '', name: name || '' };
   data.contestants.push(c);
-  saveData(data); broadcast();
+  saveData(data); 
+  broadcast();
   res.json(c);
 });
+
+app.put('/api/admin/contestants/:id', (req, res) => {
+  const data = loadData();
+  const { number, name } = req.body;
+  const c = data.contestants.find(item => item.id === req.params.id);
+  if (!c) return res.status(404).json({ error: 'Contestant not found' });
+  
+  if (number !== undefined) c.number = number;
+  if (name !== undefined) c.name = name;
+  
+  saveData(data); 
+  broadcast();
+  res.json(c);
+});
+
 app.delete('/api/admin/contestants/:id', (req, res) => {
   const data = loadData();
   data.contestants = data.contestants.filter(c => c.id !== req.params.id);
-  saveData(data); broadcast();
+  saveData(data); 
+  broadcast();
   res.json({ ok: true });
 });
 
@@ -119,20 +144,32 @@ app.post('/api/admin/judges', (req, res) => {
   const pin = Math.floor(1000 + Math.random() * 9000).toString();
   const j = { id: newId('j'), name, pin };
   data.judges.push(j);
-  saveData(data); broadcast();
+  saveData(data); 
+  broadcast();
   res.json(j);
 });
 app.delete('/api/admin/judges/:id', (req, res) => {
   const data = loadData();
   data.judges = data.judges.filter(j => j.id !== req.params.id);
-  saveData(data); broadcast();
+  saveData(data); 
+  broadcast();
+  res.json({ ok: true });
+});
+
+// ---------- Admin: display mode setting ----------
+app.post('/api/admin/display-mode', (req, res) => {
+  const data = loadData();
+  if (!data.event) data.event = {};
+  data.event.displayMode = req.body.mode || 'combined';
+  saveData(data);
+  broadcast();
   res.json({ ok: true });
 });
 
 // ---------- Admin: segments & criteria ----------
 app.post('/api/admin/segments', (req, res) => {
   const data = loadData();
-  const { name, criteria } = req.body; // criteria: [{name, maxScore}]
+  const { name, criteria } = req.body;
   const seg = {
     id: newId('seg'),
     name,
@@ -141,7 +178,8 @@ app.post('/api/admin/segments', (req, res) => {
   };
   data.segments.push(seg);
   data.scores[seg.id] = {};
-  saveData(data); broadcast();
+  saveData(data); 
+  broadcast();
   res.json(seg);
 });
 app.delete('/api/admin/segments/:id', (req, res) => {
@@ -149,20 +187,23 @@ app.delete('/api/admin/segments/:id', (req, res) => {
   data.segments = data.segments.filter(s => s.id !== req.params.id);
   delete data.scores[req.params.id];
   if (data.event.activeSegmentId === req.params.id) data.event.activeSegmentId = null;
-  saveData(data); broadcast();
+  saveData(data); 
+  broadcast();
   res.json({ ok: true });
 });
 app.post('/api/admin/segments/:id/activate', (req, res) => {
   const data = loadData();
   data.event.activeSegmentId = req.params.id;
-  saveData(data); broadcast();
+  saveData(data); 
+  broadcast();
   res.json({ ok: true });
 });
 app.post('/api/admin/segments/:id/reveal', (req, res) => {
   const data = loadData();
   const seg = data.segments.find(s => s.id === req.params.id);
   if (seg) seg.revealed = !!req.body.revealed;
-  saveData(data); broadcast();
+  saveData(data); 
+  broadcast();
   res.json({ ok: true });
 });
 
@@ -178,12 +219,11 @@ app.post('/api/judge/login', (req, res) => {
 // ---------- Judge scoring ----------
 app.post('/api/judge/score', (req, res) => {
   const data = loadData();
-  const { judgeId, segmentId, contestantId, scores } = req.body; // scores: { criteriaId: value }
+  const { judgeId, segmentId, contestantId, scores } = req.body;
   const judge = data.judges.find(j => j.id === judgeId);
   const segment = data.segments.find(s => s.id === segmentId);
   if (!judge || !segment) return res.status(400).json({ error: 'Invalid judge or segment' });
 
-  // validate against max scores
   for (const cr of segment.criteria) {
     const val = Number(scores[cr.id]);
     if (isNaN(val) || val < 0 || val > cr.maxScore) {
@@ -195,7 +235,8 @@ app.post('/api/judge/score', (req, res) => {
   if (!data.scores[segmentId][judgeId]) data.scores[segmentId][judgeId] = {};
   data.scores[segmentId][judgeId][contestantId] = scores;
 
-  saveData(data); broadcast();
+  saveData(data); 
+  broadcast();
   res.json({ ok: true });
 });
 
@@ -247,8 +288,8 @@ server.listen(PORT, '0.0.0.0', () => {
   Object.values(nets).flat().forEach(n => {
     if (n.family === 'IPv4' && !n.internal) {
       console.log(`On the network:     http://${n.address}:${PORT}/admin.html`);
-      console.log(`  Judges go to:     http://${n.address}:${PORT}/judge.html`);
-      console.log(`  Display goes to:  http://${n.address}:${PORT}/display.html`);
+      console.log(`   Judges go to:    http://${n.address}:${PORT}/judge.html`);
+      console.log(`   Display goes to: http://${n.address}:${PORT}/display.html`);
     }
   });
   console.log('=======================================\n');

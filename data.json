@@ -1,42 +1,454 @@
 {
   "event": {
     "name": "Pageant Night",
-    "activeSegmentId": null
+    "activeSegmentId": "seg_msexoj0rvha5k",
+    "displayMode": "combined"
   },
   "judges": [
     {
-      "id": "j_mseqmuo84qd8v",
-      "name": "Francis Jan Santos",
-      "pin": "8237"
+      "id": "j_msevedhdnd1c3",
+      "name": "Val",
+      "pin": "2669"
     },
     {
-      "id": "j_mseqoa1xj1lnm",
-      "name": "Drexel Santos",
-      "pin": "9328"
+      "id": "j_msevir2rimw5a",
+      "name": "Drex",
+      "pin": "1127"
     }
   ],
   "contestants": [
     {
       "id": "c_mseqluk6tq8fa",
-      "number": "",
+      "number": "1",
       "name": "Maksin Salamat"
     },
     {
       "id": "c_mseqlz7v2mjg7",
-      "number": "",
+      "number": "2",
       "name": "Alexandra Salamat"
     },
     {
       "id": "c_mseqmaonfjb8w",
-      "number": "",
+      "number": "3",
       "name": "Maria Clara"
     },
     {
       "id": "c_mseqmjd5mggdp",
-      "number": "",
+      "number": "4",
       "name": "Ashley Nigoza"
+    },
+    {
+      "id": "c_msetzisjlu4rr",
+      "number": "5",
+      "name": "Sophia Beñegas"
     }
   ],
-  "segments": [],
-  "scores": {}
+  "segments": [
+    {
+      "id": "seg_mseuv7gxh4xd7",
+      "name": "Casual Wear",
+      "criteria": [
+        {
+          "id": "cr_mseuv7gxpix33",
+          "name": "Poise & Bearing",
+          "maxScore": 30
+        },
+        {
+          "id": "cr_mseuv7gxzjxfy",
+          "name": "Confidence",
+          "maxScore": 30
+        },
+        {
+          "id": "cr_mseuv7gx85b78",
+          "name": "Style",
+          "maxScore": 20
+        },
+        {
+          "id": "cr_mseuv7gx34x7t",
+          "name": "Overall Appeal",
+          "maxScore": 20
+        }
+      ],
+      "revealed": false
+    },
+    {
+      "id": "seg_msexoj0rvha5k",
+      "name": "Sportswear / Active Wear",
+      "criteria": [
+        {
+          "id": "cr_msexoj0rh7l2r",
+          "name": "Physical Fitness",
+          "maxScore": 30
+        },
+        {
+          "id": "cr_msexoj0ryce3x",
+          "name": "Confidence",
+          "maxScore": 30
+        },
+        {
+          "id": "cr_msexoj0rpuv9b",
+          "name": "Presentation",
+          "maxScore": 20
+        },
+        {
+          "id": "cr_msexoj0ry4dfa",
+          "name": "Overall Impact",
+          "maxScore": 20
+        }
+      ],
+      "revealed": true
+    },
+    {
+      "id": "seg_mseyhn6p0z4kl",
+      "name": "Talent Competition",
+      "criteria": [
+        {
+          "id": "cr_mseyhn6pmzw3t",
+          "name": "Talent",
+          "maxScore": 40
+        },
+        {
+          "id": "cr_mseyhn6pb2z1k",
+          "name": "Creativity",
+          "maxScore": 30
+        },
+        {
+          "id": "cr_mseyhn6pw7wra",
+          "name": "Stage Presence",
+          "maxScore": 20
+        },
+        {
+          "id": "cr_mseyhn6pdcrix",
+          "name": "Audience Impact",
+          "maxScore": 10
+        }
+      ],
+      "revealed": false
+    },
+    {
+      "id": "seg_mseyv830tma9t",
+      "name": "National Costume / Festival Costume",
+      "criteria": [
+        {
+          "id": "cr_mseyv83000o3f",
+          "name": "Costume Design",
+          "maxScore": 40
+        },
+        {
+          "id": "cr_mseyv830awves",
+          "name": "Creativity",
+          "maxScore": 20
+        },
+        {
+          "id": "cr_mseyv8308fut8",
+          "name": "Stage Projection",
+          "maxScore": 20
+        },
+        {
+          "id": "cr_mseyv830d9wfz",
+          "name": "Relevance to Theme",
+          "maxScore": 20
+        }
+      ],
+      "revealed": false
+    }
+  ],
+  "scores": {
+    "seg_mseuv7gxh4xd7": {
+      "j_mseu78a0w8534": {
+        "c_mseqluk6tq8fa": {
+          "cr_mseuv7gxpix33": "25",
+          "cr_mseuv7gxzjxfy": "28",
+          "cr_mseuv7gx85b78": "18",
+          "cr_mseuv7gx34x7t": "19"
+        },
+        "c_mseqlz7v2mjg7": {
+          "cr_mseuv7gxpix33": "26",
+          "cr_mseuv7gxzjxfy": "28",
+          "cr_mseuv7gx85b78": "15",
+          "cr_mseuv7gx34x7t": "15"
+        },
+        "c_mseqmaonfjb8w": {
+          "cr_mseuv7gxpix33": "22",
+          "cr_mseuv7gxzjxfy": "24",
+          "cr_mseuv7gx85b78": "19",
+          "cr_mseuv7gx34x7t": "18"
+        },
+        "c_mseqmjd5mggdp": {
+          "cr_mseuv7gxpix33": "27",
+          "cr_mseuv7gxzjxfy": "26",
+          "cr_mseuv7gx85b78": "18",
+          "cr_mseuv7gx34x7t": "16"
+        },
+        "c_msetzisjlu4rr": {
+          "cr_mseuv7gxpix33": "30",
+          "cr_mseuv7gxzjxfy": "29",
+          "cr_mseuv7gx85b78": "18",
+          "cr_mseuv7gx34x7t": "19"
+        }
+      },
+      "j_msevedhdnd1c3": {
+        "c_mseqluk6tq8fa": {
+          "cr_mseuv7gxpix33": "28",
+          "cr_mseuv7gxzjxfy": "28",
+          "cr_mseuv7gx85b78": "15",
+          "cr_mseuv7gx34x7t": "17"
+        },
+        "c_mseqlz7v2mjg7": {
+          "cr_mseuv7gxpix33": "29",
+          "cr_mseuv7gxzjxfy": "28",
+          "cr_mseuv7gx85b78": "18",
+          "cr_mseuv7gx34x7t": "17"
+        },
+        "c_mseqmaonfjb8w": {
+          "cr_mseuv7gxpix33": "29",
+          "cr_mseuv7gxzjxfy": "25",
+          "cr_mseuv7gx85b78": "18",
+          "cr_mseuv7gx34x7t": "15"
+        },
+        "c_mseqmjd5mggdp": {
+          "cr_mseuv7gxpix33": "30",
+          "cr_mseuv7gxzjxfy": "15",
+          "cr_mseuv7gx85b78": "18",
+          "cr_mseuv7gx34x7t": "14"
+        },
+        "c_msetzisjlu4rr": {
+          "cr_mseuv7gxpix33": "30",
+          "cr_mseuv7gxzjxfy": "30",
+          "cr_mseuv7gx85b78": "18",
+          "cr_mseuv7gx34x7t": "17"
+        }
+      },
+      "j_msevir2rimw5a": {
+        "c_mseqluk6tq8fa": {
+          "cr_mseuv7gxpix33": "27",
+          "cr_mseuv7gxzjxfy": "27",
+          "cr_mseuv7gx85b78": "16",
+          "cr_mseuv7gx34x7t": "14.9"
+        },
+        "c_mseqlz7v2mjg7": {
+          "cr_mseuv7gxpix33": "28",
+          "cr_mseuv7gxzjxfy": "26",
+          "cr_mseuv7gx85b78": "19",
+          "cr_mseuv7gx34x7t": "16"
+        },
+        "c_mseqmaonfjb8w": {
+          "cr_mseuv7gxpix33": "30",
+          "cr_mseuv7gxzjxfy": "22",
+          "cr_mseuv7gx85b78": "17",
+          "cr_mseuv7gx34x7t": "18"
+        },
+        "c_mseqmjd5mggdp": {
+          "cr_mseuv7gxpix33": "28",
+          "cr_mseuv7gxzjxfy": "25",
+          "cr_mseuv7gx85b78": "17",
+          "cr_mseuv7gx34x7t": "17"
+        },
+        "c_msetzisjlu4rr": {
+          "cr_mseuv7gxpix33": "29",
+          "cr_mseuv7gxzjxfy": "30",
+          "cr_mseuv7gx85b78": "18",
+          "cr_mseuv7gx34x7t": "19"
+        }
+      }
+    },
+    "seg_msexoj0rvha5k": {
+      "j_msevir2rimw5a": {
+        "c_mseqluk6tq8fa": {
+          "cr_msexoj0rh7l2r": "25",
+          "cr_msexoj0ryce3x": "25",
+          "cr_msexoj0rpuv9b": "19",
+          "cr_msexoj0ry4dfa": "19"
+        },
+        "c_mseqlz7v2mjg7": {
+          "cr_msexoj0rh7l2r": "28",
+          "cr_msexoj0ryce3x": "28",
+          "cr_msexoj0rpuv9b": "18",
+          "cr_msexoj0ry4dfa": "19"
+        },
+        "c_mseqmaonfjb8w": {
+          "cr_msexoj0rh7l2r": "26",
+          "cr_msexoj0ryce3x": "22",
+          "cr_msexoj0rpuv9b": "18",
+          "cr_msexoj0ry4dfa": "17"
+        },
+        "c_mseqmjd5mggdp": {
+          "cr_msexoj0rh7l2r": "28",
+          "cr_msexoj0ryce3x": "26",
+          "cr_msexoj0rpuv9b": "18",
+          "cr_msexoj0ry4dfa": "18"
+        },
+        "c_msetzisjlu4rr": {
+          "cr_msexoj0rh7l2r": "30",
+          "cr_msexoj0ryce3x": "28",
+          "cr_msexoj0rpuv9b": "18",
+          "cr_msexoj0ry4dfa": "20"
+        }
+      },
+      "j_msevedhdnd1c3": {
+        "c_mseqluk6tq8fa": {
+          "cr_msexoj0rh7l2r": "26",
+          "cr_msexoj0ryce3x": "28",
+          "cr_msexoj0rpuv9b": "17",
+          "cr_msexoj0ry4dfa": "16"
+        },
+        "c_mseqlz7v2mjg7": {
+          "cr_msexoj0rh7l2r": "29",
+          "cr_msexoj0ryce3x": "29",
+          "cr_msexoj0rpuv9b": "17",
+          "cr_msexoj0ry4dfa": "18"
+        },
+        "c_mseqmaonfjb8w": {
+          "cr_msexoj0rh7l2r": "25",
+          "cr_msexoj0ryce3x": "25",
+          "cr_msexoj0rpuv9b": "18",
+          "cr_msexoj0ry4dfa": "17"
+        },
+        "c_mseqmjd5mggdp": {
+          "cr_msexoj0rh7l2r": "27",
+          "cr_msexoj0ryce3x": "26",
+          "cr_msexoj0rpuv9b": "19",
+          "cr_msexoj0ry4dfa": "18"
+        },
+        "c_msetzisjlu4rr": {
+          "cr_msexoj0rh7l2r": "30",
+          "cr_msexoj0ryce3x": "29",
+          "cr_msexoj0rpuv9b": "17",
+          "cr_msexoj0ry4dfa": "20"
+        }
+      }
+    },
+    "seg_mseyhn6p0z4kl": {
+      "j_msevedhdnd1c3": {
+        "c_mseqluk6tq8fa": {
+          "cr_mseyhn6pmzw3t": "35",
+          "cr_mseyhn6pb2z1k": "25",
+          "cr_mseyhn6pw7wra": "20",
+          "cr_mseyhn6pdcrix": "9"
+        },
+        "c_mseqlz7v2mjg7": {
+          "cr_mseyhn6pmzw3t": "39",
+          "cr_mseyhn6pb2z1k": "26",
+          "cr_mseyhn6pw7wra": "18",
+          "cr_mseyhn6pdcrix": "9"
+        },
+        "c_mseqmaonfjb8w": {
+          "cr_mseyhn6pmzw3t": "36",
+          "cr_mseyhn6pb2z1k": "27",
+          "cr_mseyhn6pw7wra": "17",
+          "cr_mseyhn6pdcrix": "8"
+        },
+        "c_mseqmjd5mggdp": {
+          "cr_mseyhn6pmzw3t": "35",
+          "cr_mseyhn6pb2z1k": "27",
+          "cr_mseyhn6pw7wra": "19",
+          "cr_mseyhn6pdcrix": "8"
+        },
+        "c_msetzisjlu4rr": {
+          "cr_mseyhn6pmzw3t": "39",
+          "cr_mseyhn6pb2z1k": "28",
+          "cr_mseyhn6pw7wra": "20",
+          "cr_mseyhn6pdcrix": "10"
+        }
+      },
+      "j_msevir2rimw5a": {
+        "c_mseqluk6tq8fa": {
+          "cr_mseyhn6pmzw3t": "36",
+          "cr_mseyhn6pb2z1k": "22",
+          "cr_mseyhn6pw7wra": "18",
+          "cr_mseyhn6pdcrix": "10"
+        },
+        "c_mseqlz7v2mjg7": {
+          "cr_mseyhn6pmzw3t": "37",
+          "cr_mseyhn6pb2z1k": "28",
+          "cr_mseyhn6pw7wra": "16",
+          "cr_mseyhn6pdcrix": "8"
+        },
+        "c_mseqmaonfjb8w": {
+          "cr_mseyhn6pmzw3t": "38",
+          "cr_mseyhn6pb2z1k": "26",
+          "cr_mseyhn6pw7wra": "18",
+          "cr_mseyhn6pdcrix": "7"
+        },
+        "c_mseqmjd5mggdp": {
+          "cr_mseyhn6pmzw3t": "39",
+          "cr_mseyhn6pb2z1k": "28",
+          "cr_mseyhn6pw7wra": "18",
+          "cr_mseyhn6pdcrix": "7"
+        },
+        "c_msetzisjlu4rr": {
+          "cr_mseyhn6pmzw3t": "38",
+          "cr_mseyhn6pb2z1k": "29",
+          "cr_mseyhn6pw7wra": "19",
+          "cr_mseyhn6pdcrix": "10"
+        }
+      }
+    },
+    "seg_mseyv830tma9t": {
+      "j_msevir2rimw5a": {
+        "c_mseqluk6tq8fa": {
+          "cr_mseyv83000o3f": "38",
+          "cr_mseyv830awves": "19",
+          "cr_mseyv8308fut8": "17",
+          "cr_mseyv830d9wfz": "16"
+        },
+        "c_mseqlz7v2mjg7": {
+          "cr_mseyv83000o3f": "39",
+          "cr_mseyv830awves": "18",
+          "cr_mseyv8308fut8": "18",
+          "cr_mseyv830d9wfz": "19"
+        },
+        "c_mseqmaonfjb8w": {
+          "cr_mseyv83000o3f": "36",
+          "cr_mseyv830awves": "17",
+          "cr_mseyv8308fut8": "19",
+          "cr_mseyv830d9wfz": "16"
+        },
+        "c_mseqmjd5mggdp": {
+          "cr_mseyv83000o3f": "37",
+          "cr_mseyv830awves": "18",
+          "cr_mseyv8308fut8": "18",
+          "cr_mseyv830d9wfz": "17"
+        },
+        "c_msetzisjlu4rr": {
+          "cr_mseyv83000o3f": "38",
+          "cr_mseyv830awves": "19",
+          "cr_mseyv8308fut8": "20",
+          "cr_mseyv830d9wfz": "19"
+        }
+      },
+      "j_msevedhdnd1c3": {
+        "c_mseqluk6tq8fa": {
+          "cr_mseyv83000o3f": "38",
+          "cr_mseyv830awves": "17",
+          "cr_mseyv8308fut8": "17",
+          "cr_mseyv830d9wfz": "17"
+        },
+        "c_mseqlz7v2mjg7": {
+          "cr_mseyv83000o3f": "39",
+          "cr_mseyv830awves": "19",
+          "cr_mseyv8308fut8": "18",
+          "cr_mseyv830d9wfz": "19"
+        },
+        "c_mseqmaonfjb8w": {
+          "cr_mseyv83000o3f": "38",
+          "cr_mseyv830awves": "18",
+          "cr_mseyv8308fut8": "19",
+          "cr_mseyv830d9wfz": "16"
+        },
+        "c_mseqmjd5mggdp": {
+          "cr_mseyv83000o3f": "35",
+          "cr_mseyv830awves": "19",
+          "cr_mseyv8308fut8": "19",
+          "cr_mseyv830d9wfz": "17"
+        },
+        "c_msetzisjlu4rr": {
+          "cr_mseyv83000o3f": "39",
+          "cr_mseyv830awves": "20",
+          "cr_mseyv8308fut8": "20",
+          "cr_mseyv830d9wfz": "19"
+        }
+      }
+    }
+  }
 }

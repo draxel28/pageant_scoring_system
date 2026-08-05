@@ -2,21 +2,143 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Pageant Results</title>
 <link rel="stylesheet" href="style.css">
 <style>
-  body { display:flex; align-items:center; justify-content:center; min-height:100vh; }
-  .stage { width:100%; max-width:1400px; padding:40px; text-align:center; }
-  .segTitle { font-size:3rem; color:var(--gold); margin-bottom:10px; }
-  .waiting { font-size:2rem; color:var(--muted); margin-top:60px; }
-  table.results { width:100%; font-size:2rem; margin-top:30px; }
-  table.results th { font-size:1.1rem; }
-  table.results td, table.results th { padding:18px; }
-  .rank1 { color: var(--gold); font-weight:800; }
-  .rank2 { color: #c7c7c7; font-weight:700; }
-  .rank3 { color: #cd7f32; font-weight:700; }
-  .pulse { animation: pulse 1.6s infinite; }
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+  :root {
+    --bg-gradient: radial-gradient(circle at center, #141622 0%, #08090e 100%);
+    --card-bg: rgba(20, 22, 35, 0.7);
+    --border-color: rgba(255, 255, 255, 0.08);
+    --gold: #f1c40f;
+    --gold-glow: rgba(241, 196, 15, 0.35);
+    --silver: #ecf0f1;
+    --silver-glow: rgba(236, 240, 241, 0.2);
+    --bronze: #e67e22;
+    --bronze-glow: rgba(230, 126, 34, 0.25);
+    --text-main: #f8f9fa;
+    --text-muted: #8c9ea6;
+  }
+
+  body {
+    background: var(--bg-gradient);
+    color: var(--text-main);
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    margin: 0;
+    overflow-x: hidden;
+  }
+
+  .stage {
+    width: 100%;
+    max-width: 1350px;
+    padding: 50px 30px;
+    text-align: center;
+    box-sizing: border-box;
+  }
+
+  .segTitle {
+    font-size: 3.2rem;
+    font-weight: 900;
+    letter-spacing: 3px;
+    color: var(--gold);
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    text-shadow: 0 4px 25px var(--gold-glow);
+  }
+
+  .waiting {
+    font-size: 2rem;
+    color: var(--text-muted);
+    margin-top: 100px;
+    letter-spacing: 1.5px;
+    font-weight: 300;
+  }
+
+  .table-container {
+    background: var(--card-bg);
+    backdrop-filter: blur(16px);
+    border: 1px solid var(--border-color);
+    border-radius: 24px;
+    padding: 30px;
+    margin-top: 35px;
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6);
+    overflow: auto;
+  }
+
+  table.results {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 1.4rem;
+    text-align: left;
+  }
+
+  table.results th {
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--text-muted);
+    padding: 18px 24px;
+    border-bottom: 2px solid var(--border-color);
+  }
+
+  table.results td {
+    padding: 22px 24px;
+    border-bottom: 1px solid var(--border-color);
+    font-weight: 600;
+  }
+
+  table.results tr:last-child td {
+    border-bottom: none;
+  }
+
+  table.results tr {
+    transition: all 0.25s ease;
+  }
+
+  table.results tr:hover {
+    background: rgba(255, 255, 255, 0.03);
+  }
+
+  /* Podium Styling & Crown/Trophy Highlights */
+  .rank1 { 
+    color: var(--gold); 
+    font-weight: 900; 
+    background: linear-gradient(90deg, rgba(241, 196, 15, 0.12) 0%, transparent 100%);
+    border-left: 5px solid var(--gold);
+  }
+  .rank2 { 
+    color: var(--silver); 
+    font-weight: 800; 
+    background: linear-gradient(90deg, rgba(236, 240, 241, 0.07) 0%, transparent 100%);
+    border-left: 5px solid var(--silver);
+  }
+  .rank3 { 
+    color: var(--bronze); 
+    font-weight: 800; 
+    background: linear-gradient(90deg, rgba(230, 126, 34, 0.08) 0%, transparent 100%);
+    border-left: 5px solid var(--bronze);
+  }
+
+  .award-icon {
+    display: inline-block;
+    margin-right: 10px;
+    font-size: 1.5rem;
+    vertical-align: middle;
+    filter: drop-shadow(0 2px 8px rgba(0,0,0,0.4));
+  }
+
+  .pulse {
+    animation: pulse 1.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.98); }
+  }
 </style>
 </head>
 <body>

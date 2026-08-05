@@ -2,28 +2,166 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Judge Scoring</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Judge Scoring Portal</title>
 <link rel="stylesheet" href="style.css">
+<style>
+  :root {
+    --bg-gradient: radial-gradient(circle at center, #1a1c29 0%, #0d0e15 100%);
+    --card-bg: rgba(255, 255, 255, 0.03);
+    --border-color: rgba(255, 255, 255, 0.08);
+    --gold: #f39c12;
+    --text-main: #f8f9fa;
+    --text-muted: #95a5a6;
+    --accent-glow: rgba(243, 156, 18, 0.2);
+  }
+
+  body {
+    background: var(--bg-gradient);
+    color: var(--text-main);
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    min-height: 100vh;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 40px 20px;
+    box-sizing: border-box;
+  }
+
+  .wrap {
+    width: 100%;
+    max-width: 750px;
+  }
+
+  h1 {
+    text-align: center;
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: var(--gold);
+    margin-bottom: 30px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    text-shadow: 0 4px 20px var(--accent-glow);
+  }
+
+  .card {
+    background: var(--card-bg);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 30px;
+    margin-bottom: 25px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  }
+
+  .card h2 {
+    margin-top: 0;
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin-bottom: 15px;
+    color: var(--text-main);
+  }
+
+  .row {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+
+  input[type="password"], input[type="text"], input[type="number"] {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 14px 18px;
+    color: var(--text-main);
+    font-size: 1.1rem;
+    outline: none;
+    transition: all 0.2s ease;
+  }
+
+  input:focus {
+    border-color: var(--gold);
+    box-shadow: 0 0 10px var(--accent-glow);
+  }
+
+  button {
+    background: var(--gold);
+    color: #0d0e15;
+    font-weight: 700;
+    border: none;
+    border-radius: 10px;
+    padding: 14px 24px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: transform 0.1s ease, background 0.2s ease;
+  }
+
+  button:hover {
+    background: #e67e22;
+    transform: translateY(-1px);
+  }
+
+  button:active {
+    transform: translateY(0);
+  }
+
+  button.secondary-btn {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-main);
+    border: 1px solid var(--border-color);
+    padding: 8px 14px;
+    font-size: 0.9rem;
+  }
+
+  button.secondary-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+  }
+
+  .muted {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+  }
+
+  #loginError {
+    color: #e74c3c;
+    margin-top: 12px;
+    font-weight: 500;
+  }
+
+  #scoringArea .card:first-child {
+    background: rgba(243, 156, 18, 0.05);
+    border-color: rgba(243, 156, 18, 0.2);
+  }
+
+  #scoringArea strong {
+    color: var(--gold);
+  }
+</style>
 </head>
 <body>
-<div class="wrap" style="max-width:700px">
-  <h1>&#127942; Judge Scoring</h1>
+<div class="wrap">
+  <h1>&#127942; Judge Scoring Portal</h1>
 
+  <!-- Login Card -->
   <div id="loginCard" class="card">
     <h2>Enter your PIN</h2>
     <div class="row">
-      <input id="pinInput" type="password" inputmode="numeric" placeholder="4-digit PIN" style="width:160px">
+      <input id="pinInput" type="password" inputmode="numeric" placeholder="4-digit PIN" style="flex: 1; max-width: 220px;">
       <button onclick="login()">Login</button>
     </div>
     <p id="loginError" class="muted"></p>
   </div>
 
+  <!-- Scoring Dashboard Area -->
   <div id="scoringArea" style="display:none">
     <div class="card">
-      <div class="row" style="justify-content:space-between">
-        <div>Judge: <strong id="judgeName"></strong></div>
-        <div class="muted" id="segmentName"></div>
+      <div class="row" style="justify-content:space-between; flex-wrap: wrap; gap: 15px;">
+        <div>
+          Judge: <strong id="judgeName"></strong>
+          <div class="muted" id="segmentName" style="margin-top: 4px;"></div>
+        </div>
+        <button class="secondary-btn" onclick="logoutJudge()">Switch Judge / PIN</button>
       </div>
     </div>
     <div id="contestantCards"></div>
