@@ -70,10 +70,54 @@ function renderCritRows() {
 async function addContestant() {
   const number = document.getElementById('cNumber').value.trim();
   const name = document.getElementById('cName').value.trim();
+  const barangay = document.getElementById('cBarangay').value.trim();
+  const photoInput = document.getElementById('cPhoto');
+  
   if (!name) return showNotice('Enter a contestant name');
-  await fetch('/api/admin/contestants', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ number, name }) });
-  document.getElementById('cNumber').value = '';
-  document.getElementById('cName').value = '';
+
+  const formData = new FormData();
+  formData.append('number', number);
+  formData.append('name', name);
+  formData.append('barangay', barangay);
+  if (photoInput && photoInput.files[0]) {
+    formData.append('photo', photoInput.files[0]);
+  }
+
+  const response = await fetch('/api/admin/contestants', { 
+    method: 'POST', 
+    body: formData 
+  });
+
+  if (response.ok) {
+    document.getElementById('cNumber').value = '';
+    document.getElementById('cName').value = '';
+    document.getElementById('cBarangay').value = '';
+    if (photoInput) photoInput.value = '';
+  }
+}
+
+async function saveEditContestant(id) {
+  const number = document.getElementById(`editNum_${id}`).value.trim();
+  const name = document.getElementById(`editName_${id}`).value.trim();
+  const barangay = document.getElementById(`editBarangay_${id}`).value.trim();
+  const photoInput = document.getElementById(`editPhoto_${id}`);
+
+  if (!name) return showNotice('Contestant name cannot be empty.');
+
+  const formData = new FormData();
+  formData.append('number', number);
+  formData.append('name', name);
+  formData.append('barangay', barangay);
+  if (photoInput && photoInput.files[0]) {
+    formData.append('photo', photoInput.files[0]);
+  }
+
+  await fetch(`/api/admin/contestants/${id}`, {
+    method: 'PUT',
+    body: formData
+  });
+
+  editingContestantId = null;
 }
 
 async function removeContestant(id) {
@@ -90,19 +134,6 @@ function startEditContestant(id) {
 function cancelEditContestant() {
   editingContestantId = null;
   render();
-}
-
-async function saveEditContestant(id) {
-  const number = document.getElementById(`editNum_${id}`).value.trim();
-  const name = document.getElementById(`editName_${id}`).value.trim();
-  if (!name) return showNotice('Contestant name cannot be empty.');
-  
-  await fetch(`/api/admin/contestants/${id}`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ number, name })
-  });
-  editingContestantId = null;
 }
 
 async function addJudge() {
@@ -163,6 +194,13 @@ async function toggleReveal(id, revealed) {
   await fetch(`/api/admin/segments/${id}/reveal`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ revealed }) });
 }
 
+function renderContestantAvatar(c) {
+  if (c && c.photo) {
+    return `<img src="${c.photo}" style="width: 32px; height: 32px; object-fit: cover; border-radius: 50%; border: 1px solid var(--gold); vertical-align: middle; margin-right: 8px;">`;
+  }
+  return `<div style="width: 32px; height: 32px; background: rgba(255,255,255,0.05); border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 0.6rem; color: var(--text-muted); vertical-align: middle; margin-right: 8px;">No Img</div>`;
+}
+
 function render() {
   if (!state) return;
 
@@ -170,11 +208,20 @@ function render() {
   if (cTable) {
     cTable.innerHTML = state.contestants.map(c => {
       const isEditing = editingContestantId === c.id;
+      const photoHtml = c.photo 
+        ? `<img src="${c.photo}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 50%; border: 1px solid var(--gold);">` 
+        : `<div style="width: 40px; height: 40px; background: rgba(255,255,255,0.05); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; color: var(--text-muted);">No Img</div>`;
+
       if (isEditing) {
         return `
           <tr>
-            <td><input id="editNum_${c.id}" value="${c.number || ''}" style="width: 70px; padding: 8px 12px; background: rgba(0,0,0,0.5); border: 1px solid var(--gold); border-radius: 8px; color: #fff;"></td>
-            <td><input id="editName_${c.id}" value="${c.name}" style="padding: 8px 12px; background: rgba(0,0,0,0.5); border: 1px solid var(--gold); border-radius: 8px; color: #fff; width: 100%;"></td>
+            <td>
+              ${photoHtml}
+              <input type="file" id="editPhoto_${c.id}" accept="image/*" style="font-size: 0.7rem; width: 100px; margin-top: 4px;">
+            </td>
+            <td><input id="editNum_${c.id}" value="${c.number || ''}" style="width: 60px; padding: 8px; background: rgba(0,0,0,0.5); border: 1px solid var(--gold); border-radius: 8px; color: #fff;"></td>
+            <td><input id="editName_${c.id}" value="${c.name}" placeholder="Name" style="padding: 6px; background: rgba(0,0,0,0.5); border: 1px solid var(--gold); border-radius: 6px; color: #fff; width: 100%;"></td>
+            <td><input id="editBarangay_${c.id}" value="${c.barangay || ''}" placeholder="Barangay" style="padding: 6px; background: rgba(0,0,0,0.5); border: 1px solid var(--gold); border-radius: 6px; color: #fff; width: 100%;"></td>
             <td style="white-space: nowrap; text-align: right;">
               <button type="button" onclick="saveEditContestant('${c.id}')" style="padding: 8px 14px; font-size: 0.85rem;">Save</button>
               <button type="button" class="secondary" onclick="cancelEditContestant()" style="padding: 8px 14px; font-size: 0.85rem; margin-left: 6px;">Cancel</button>
@@ -184,8 +231,10 @@ function render() {
       }
       return `
         <tr>
+          <td>${photoHtml}</td>
           <td>${c.number || ''}</td>
-          <td>${c.name}</td>
+          <td><strong>${c.name}</strong></td>
+          <td><strong>${c.barangay || '—'}</strong></td>
           <td style="white-space: nowrap; text-align: right;">
             <button type="button" class="secondary" onclick="startEditContestant('${c.id}')" style="padding: 8px 14px; font-size: 0.85rem;">Edit</button>
             <button type="button" class="danger" onclick="removeContestant('${c.id}')" style="padding: 8px 14px; font-size: 0.85rem; margin-left: 6px;">Remove</button>
@@ -261,7 +310,10 @@ function renderTracker() {
   if (!seg) { el.innerHTML = '<span class="muted">No active segment.</span>'; return; }
   const segScores = state.scores[seg.id] || {};
   el.innerHTML = `<h3 style="margin-top:0">${seg.name}</h3><table><thead><tr><th>Judge</th>` +
-    state.contestants.map(c => `<th>#${c.number || ''} ${c.name}</th>`).join('') + `</tr></thead><tbody>` +
+    state.contestants.map(c => {
+      const avatar = renderContestantAvatar(c);
+      return `<th>${avatar}#${c.number || ''} ${c.name}</th>`;
+    }).join('') + `</tr></thead><tbody>` +
     state.judges.map(j => `<tr><td>${j.name}</td>` +
       state.contestants.map(c => {
         const done = segScores[j.id] && segScores[j.id][c.id];
@@ -333,6 +385,7 @@ function getOverallSummaryHtml() {
       contestantId: c.id,
       number: c.number,
       name: c.name,
+      photo: c.photo,
       totalScoreSum: 0,
       segmentsCompleted: 0
     };
@@ -393,15 +446,24 @@ function getOverallSummaryHtml() {
         </tr>
       </thead>
       <tbody>
-        ${overallList.map(r => `
+        ${overallList.map(r => {
+          const contestantObj = state.contestants.find(c => c.id === r.contestantId) || r;
+          const avatar = renderContestantAvatar(contestantObj);
+          return `
           <tr ${r.rank === 1 && r.overallAverage !== null ? 'style="background: rgba(243, 156, 18, 0.05);"' : ''}>
             <td><strong>${r.rank === 1 && r.overallAverage !== null ? '👑 ' : ''}${r.rank}</strong></td>
             <td>${r.number ? `#${r.number}` : ''}</td>
-            <td><strong>${r.name}</strong></td>
+            <td>
+              <div style="display: flex; align-items: center;">
+                ${avatar}
+                <strong>${r.name}</strong>
+              </div>
+            </td>
             <td style="text-align: right;" class="muted">${r.segmentsCompleted} / ${state.segments.length}</td>
             <td style="text-align: right; font-weight: 700; color: var(--gold);">${r.overallAverage !== null ? r.overallAverage.toFixed(2) : '—'}</td>
           </tr>
-        `).join('')}
+        `;
+        }).join('')}
       </tbody>
     </table>
   `;
@@ -425,15 +487,24 @@ function getSegmentReportHtml(currentSegment) {
         </tr>
       </thead>
       <tbody>
-        ${currentSegment.results.map(r => `
+        ${currentSegment.results.map(r => {
+          const contestantObj = state.contestants.find(c => c.id === r.contestantId) || r;
+          const avatar = renderContestantAvatar(contestantObj);
+          return `
           <tr>
             <td><strong>${r.rank || '—'}</strong></td>
             <td>${r.number ? `#${r.number}` : ''}</td>
-            <td>${r.name}</td>
+            <td>
+              <div style="display: flex; align-items: center;">
+                ${avatar}
+                <strong>${r.name}</strong>
+              </div>
+            </td>
             <td style="text-align: right;" class="muted">${r.submittedCount} / ${r.totalJudges}</td>
             <td style="text-align: right; font-weight: 700; color: var(--gold);">${r.average !== null ? r.average.toFixed(2) : '—'}</td>
           </tr>
-        `).join('')}
+        `;
+        }).join('')}
       </tbody>
     </table>
 
@@ -450,6 +521,8 @@ function getSegmentReportHtml(currentSegment) {
       </thead>
       <tbody>
         ${currentSegment.results.map(r => {
+          const contestantObj = state.contestants.find(c => c.id === r.contestantId) || r;
+          const avatar = renderContestantAvatar(contestantObj);
           let rowsForContestant = '';
           judges.forEach((j, jIndex) => {
             const jScores = segScores[j.id] && segScores[j.id][r.contestantId];
@@ -471,7 +544,7 @@ function getSegmentReportHtml(currentSegment) {
             rowsForContestant += `
               <tr style="${borderStyle}">
                 <td style="${!isFirst ? 'color: transparent;' : ''}">${r.number ? `#${r.number}` : ''}</td>
-                <td style="${!isFirst ? 'color: transparent;' : 'font-weight: 600;'}">${r.name}</td>
+                <td style="${!isFirst ? 'color: transparent;' : ''}">${isFirst ? `<div style="display: flex; align-items: center;">${avatar}<strong>${r.name}</strong></div>` : ''}</td>
                 <td style="color: #64748b;">${j.name}</td>
                 ${critCols}
                 <td style="text-align: right; font-weight: 700;">${hasSubmitted ? judgeTotal.toFixed(2) : '—'}</td>

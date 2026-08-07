@@ -1,7 +1,7 @@
 {
   "event": {
     "name": "Pageant Night",
-    "activeSegmentId": "seg_mseyv830tma9t",
+    "activeSegmentId": "seg_mseuv7gxh4xd7",
     "displayMode": "combined"
   },
   "judges": [
@@ -18,29 +18,18 @@
   ],
   "contestants": [
     {
-      "id": "c_mseqluk6tq8fa",
+      "id": "c_msj140tyw43h7",
       "number": "1",
-      "name": "Maksin Salamat"
+      "name": "Lyn Ciara",
+      "barangay": "Naic",
+      "photo": "/uploads/contestant-1786112240166-221807945.png"
     },
     {
-      "id": "c_mseqlz7v2mjg7",
+      "id": "c_msj1cwr6fjgvv",
       "number": "2",
-      "name": "Alexandra Salamat"
-    },
-    {
-      "id": "c_mseqmaonfjb8w",
-      "number": "3",
-      "name": "Maria Clara"
-    },
-    {
-      "id": "c_mseqmjd5mggdp",
-      "number": "4",
-      "name": "Ashley Nigoza"
-    },
-    {
-      "id": "c_msetzisjlu4rr",
-      "number": "5",
-      "name": "Sophia Beñegas"
+      "name": "Sophia Beñegas",
+      "barangay": "Tanza",
+      "photo": "/uploads/contestant-1786112654739-986628309.JPG"
     }
   ],
   "segments": [
@@ -70,87 +59,6 @@
         }
       ],
       "revealed": true
-    },
-    {
-      "id": "seg_msexoj0rvha5k",
-      "name": "Sportswear / Active Wear",
-      "criteria": [
-        {
-          "id": "cr_msexoj0rh7l2r",
-          "name": "Physical Fitness",
-          "maxScore": 30
-        },
-        {
-          "id": "cr_msexoj0ryce3x",
-          "name": "Confidence",
-          "maxScore": 30
-        },
-        {
-          "id": "cr_msexoj0rpuv9b",
-          "name": "Presentation",
-          "maxScore": 20
-        },
-        {
-          "id": "cr_msexoj0ry4dfa",
-          "name": "Overall Impact",
-          "maxScore": 20
-        }
-      ],
-      "revealed": false
-    },
-    {
-      "id": "seg_mseyhn6p0z4kl",
-      "name": "Talent Competition",
-      "criteria": [
-        {
-          "id": "cr_mseyhn6pmzw3t",
-          "name": "Talent",
-          "maxScore": 40
-        },
-        {
-          "id": "cr_mseyhn6pb2z1k",
-          "name": "Creativity",
-          "maxScore": 30
-        },
-        {
-          "id": "cr_mseyhn6pw7wra",
-          "name": "Stage Presence",
-          "maxScore": 20
-        },
-        {
-          "id": "cr_mseyhn6pdcrix",
-          "name": "Audience Impact",
-          "maxScore": 10
-        }
-      ],
-      "revealed": false
-    },
-    {
-      "id": "seg_mseyv830tma9t",
-      "name": "National Costume / Festival Costume",
-      "criteria": [
-        {
-          "id": "cr_mseyv83000o3f",
-          "name": "Costume Design",
-          "maxScore": 40
-        },
-        {
-          "id": "cr_mseyv830awves",
-          "name": "Creativity",
-          "maxScore": 20
-        },
-        {
-          "id": "cr_mseyv8308fut8",
-          "name": "Stage Projection",
-          "maxScore": 20
-        },
-        {
-          "id": "cr_mseyv830d9wfz",
-          "name": "Relevance to Theme",
-          "maxScore": 20
-        }
-      ],
-      "revealed": false
     }
   ],
   "scores": {
@@ -249,204 +157,6 @@
           "cr_mseuv7gxzjxfy": "30",
           "cr_mseuv7gx85b78": "18",
           "cr_mseuv7gx34x7t": "19"
-        }
-      }
-    },
-    "seg_msexoj0rvha5k": {
-      "j_msevir2rimw5a": {
-        "c_mseqluk6tq8fa": {
-          "cr_msexoj0rh7l2r": "25",
-          "cr_msexoj0ryce3x": "25",
-          "cr_msexoj0rpuv9b": "19",
-          "cr_msexoj0ry4dfa": "19"
-        },
-        "c_mseqlz7v2mjg7": {
-          "cr_msexoj0rh7l2r": "28",
-          "cr_msexoj0ryce3x": "28",
-          "cr_msexoj0rpuv9b": "18",
-          "cr_msexoj0ry4dfa": "19"
-        },
-        "c_mseqmaonfjb8w": {
-          "cr_msexoj0rh7l2r": "26",
-          "cr_msexoj0ryce3x": "22",
-          "cr_msexoj0rpuv9b": "18",
-          "cr_msexoj0ry4dfa": "17"
-        },
-        "c_mseqmjd5mggdp": {
-          "cr_msexoj0rh7l2r": "28",
-          "cr_msexoj0ryce3x": "26",
-          "cr_msexoj0rpuv9b": "18",
-          "cr_msexoj0ry4dfa": "18"
-        },
-        "c_msetzisjlu4rr": {
-          "cr_msexoj0rh7l2r": "30",
-          "cr_msexoj0ryce3x": "28",
-          "cr_msexoj0rpuv9b": "18",
-          "cr_msexoj0ry4dfa": "20"
-        }
-      },
-      "j_msevedhdnd1c3": {
-        "c_mseqluk6tq8fa": {
-          "cr_msexoj0rh7l2r": "26",
-          "cr_msexoj0ryce3x": "28",
-          "cr_msexoj0rpuv9b": "17",
-          "cr_msexoj0ry4dfa": "16"
-        },
-        "c_mseqlz7v2mjg7": {
-          "cr_msexoj0rh7l2r": "29",
-          "cr_msexoj0ryce3x": "29",
-          "cr_msexoj0rpuv9b": "17",
-          "cr_msexoj0ry4dfa": "18"
-        },
-        "c_mseqmaonfjb8w": {
-          "cr_msexoj0rh7l2r": "25",
-          "cr_msexoj0ryce3x": "25",
-          "cr_msexoj0rpuv9b": "18",
-          "cr_msexoj0ry4dfa": "17"
-        },
-        "c_mseqmjd5mggdp": {
-          "cr_msexoj0rh7l2r": "27",
-          "cr_msexoj0ryce3x": "26",
-          "cr_msexoj0rpuv9b": "19",
-          "cr_msexoj0ry4dfa": "18"
-        },
-        "c_msetzisjlu4rr": {
-          "cr_msexoj0rh7l2r": "30",
-          "cr_msexoj0ryce3x": "29",
-          "cr_msexoj0rpuv9b": "17",
-          "cr_msexoj0ry4dfa": "20"
-        }
-      }
-    },
-    "seg_mseyhn6p0z4kl": {
-      "j_msevedhdnd1c3": {
-        "c_mseqluk6tq8fa": {
-          "cr_mseyhn6pmzw3t": "35",
-          "cr_mseyhn6pb2z1k": "25",
-          "cr_mseyhn6pw7wra": "20",
-          "cr_mseyhn6pdcrix": "9"
-        },
-        "c_mseqlz7v2mjg7": {
-          "cr_mseyhn6pmzw3t": "39",
-          "cr_mseyhn6pb2z1k": "26",
-          "cr_mseyhn6pw7wra": "18",
-          "cr_mseyhn6pdcrix": "9"
-        },
-        "c_mseqmaonfjb8w": {
-          "cr_mseyhn6pmzw3t": "36",
-          "cr_mseyhn6pb2z1k": "27",
-          "cr_mseyhn6pw7wra": "17",
-          "cr_mseyhn6pdcrix": "8"
-        },
-        "c_mseqmjd5mggdp": {
-          "cr_mseyhn6pmzw3t": "35",
-          "cr_mseyhn6pb2z1k": "27",
-          "cr_mseyhn6pw7wra": "19",
-          "cr_mseyhn6pdcrix": "8"
-        },
-        "c_msetzisjlu4rr": {
-          "cr_mseyhn6pmzw3t": "39",
-          "cr_mseyhn6pb2z1k": "28",
-          "cr_mseyhn6pw7wra": "20",
-          "cr_mseyhn6pdcrix": "10"
-        }
-      },
-      "j_msevir2rimw5a": {
-        "c_mseqluk6tq8fa": {
-          "cr_mseyhn6pmzw3t": "36",
-          "cr_mseyhn6pb2z1k": "22",
-          "cr_mseyhn6pw7wra": "18",
-          "cr_mseyhn6pdcrix": "10"
-        },
-        "c_mseqlz7v2mjg7": {
-          "cr_mseyhn6pmzw3t": "37",
-          "cr_mseyhn6pb2z1k": "28",
-          "cr_mseyhn6pw7wra": "16",
-          "cr_mseyhn6pdcrix": "8"
-        },
-        "c_mseqmaonfjb8w": {
-          "cr_mseyhn6pmzw3t": "38",
-          "cr_mseyhn6pb2z1k": "26",
-          "cr_mseyhn6pw7wra": "18",
-          "cr_mseyhn6pdcrix": "7"
-        },
-        "c_mseqmjd5mggdp": {
-          "cr_mseyhn6pmzw3t": "39",
-          "cr_mseyhn6pb2z1k": "28",
-          "cr_mseyhn6pw7wra": "18",
-          "cr_mseyhn6pdcrix": "7"
-        },
-        "c_msetzisjlu4rr": {
-          "cr_mseyhn6pmzw3t": "38",
-          "cr_mseyhn6pb2z1k": "29",
-          "cr_mseyhn6pw7wra": "19",
-          "cr_mseyhn6pdcrix": "10"
-        }
-      }
-    },
-    "seg_mseyv830tma9t": {
-      "j_msevir2rimw5a": {
-        "c_mseqluk6tq8fa": {
-          "cr_mseyv83000o3f": "38",
-          "cr_mseyv830awves": "19",
-          "cr_mseyv8308fut8": "17",
-          "cr_mseyv830d9wfz": "16"
-        },
-        "c_mseqlz7v2mjg7": {
-          "cr_mseyv83000o3f": "39",
-          "cr_mseyv830awves": "18",
-          "cr_mseyv8308fut8": "18",
-          "cr_mseyv830d9wfz": "19"
-        },
-        "c_mseqmaonfjb8w": {
-          "cr_mseyv83000o3f": "36",
-          "cr_mseyv830awves": "17",
-          "cr_mseyv8308fut8": "19",
-          "cr_mseyv830d9wfz": "16"
-        },
-        "c_mseqmjd5mggdp": {
-          "cr_mseyv83000o3f": "37",
-          "cr_mseyv830awves": "18",
-          "cr_mseyv8308fut8": "18",
-          "cr_mseyv830d9wfz": "17"
-        },
-        "c_msetzisjlu4rr": {
-          "cr_mseyv83000o3f": "38",
-          "cr_mseyv830awves": "19",
-          "cr_mseyv8308fut8": "20",
-          "cr_mseyv830d9wfz": "19"
-        }
-      },
-      "j_msevedhdnd1c3": {
-        "c_mseqluk6tq8fa": {
-          "cr_mseyv83000o3f": "38",
-          "cr_mseyv830awves": "17",
-          "cr_mseyv8308fut8": "17",
-          "cr_mseyv830d9wfz": "17"
-        },
-        "c_mseqlz7v2mjg7": {
-          "cr_mseyv83000o3f": "39",
-          "cr_mseyv830awves": "19",
-          "cr_mseyv8308fut8": "18",
-          "cr_mseyv830d9wfz": "19"
-        },
-        "c_mseqmaonfjb8w": {
-          "cr_mseyv83000o3f": "38",
-          "cr_mseyv830awves": "18",
-          "cr_mseyv8308fut8": "19",
-          "cr_mseyv830d9wfz": "16"
-        },
-        "c_mseqmjd5mggdp": {
-          "cr_mseyv83000o3f": "35",
-          "cr_mseyv830awves": "19",
-          "cr_mseyv8308fut8": "19",
-          "cr_mseyv830d9wfz": "17"
-        },
-        "c_msetzisjlu4rr": {
-          "cr_mseyv83000o3f": "39",
-          "cr_mseyv830awves": "20",
-          "cr_mseyv8308fut8": "20",
-          "cr_mseyv830d9wfz": "19"
         }
       }
     }

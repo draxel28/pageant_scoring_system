@@ -2,6 +2,7 @@ const express = require('express');
 const http = require('http');
 const path = require('path');
 const fs = require('fs');
+const multer = require('multer');
 const { Server } = require('socket.io');
 
 const DATA_FILE = path.join(__dirname, 'data.json');
@@ -11,6 +12,22 @@ const io = new Server(server);
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
+
+// ---------- Multer Configuration for Photo Uploads ----------
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const uploadDir = path.join(__dirname, 'public', 'uploads');
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, 'contestant-' + uniqueSuffix + path.extname(file.originalname));
+  }
+});
+const upload = multer({ storage: storage });
 
 // ---------- Persistence ----------
 function loadData() {
@@ -73,6 +90,8 @@ function computeSegmentResults(data, segmentId) {
       contestantId: c.id,
       number: c.number,
       name: c.name,
+      barangay: c.barangay || '',
+      photo: c.photo || null,
       average,
       submittedCount,
       totalJudges: judgeIds.length
@@ -86,7 +105,7 @@ function computeSegmentResults(data, segmentId) {
 
 function computeOverallResults(data) {
   const totals = {};
-  data.contestants.forEach(c => { totals[c.id] = { contestantId: c.id, number: c.number, name: c.name, total: 0, segments: 0 }; });
+  data.contestants.forEach(c => { totals[c.id] = { contestantId: c.id, number: c.number, name: c.name, barangay: c.barangay || '', photo: c.photo || null, total: 0, segments: 0 }; });
   data.segments.forEach(seg => {
     const rows = computeSegmentResults(data, seg.id);
     rows.forEach(r => {
@@ -105,24 +124,32 @@ function computeOverallResults(data) {
 // ---------- Admin: contestants ----------
 app.get('/api/state', (req, res) => res.json(loadData()));
 
-app.post('/api/admin/contestants', (req, res) => {
+app.post('/api/admin/contestants', upload.single('photo'), (req, res) => {
   const data = loadData();
-  const { number, name } = req.body;
-  const c = { id: newId('c'), number: number || '', name: name || '' };
+  const { number, name, barangay } = req.body;
+  const photoUrl = req.file ? `/uploads/${req.file.filename}` : null;
+  const c = { id: newId('c'), number: number || '', name: name || '', barangay: barangay || '', photo: photoUrl };
   data.contestants.push(c);
   saveData(data); 
   broadcast();
   res.json(c);
 });
 
-app.put('/api/admin/contestants/:id', (req, res) => {
+app.put('/api/admin/contestants/:id', upload.single('photo'), (req, res) => {
   const data = loadData();
-  const { number, name } = req.body;
+  const { number, name, barangay } = req.body;
   const c = data.contestants.find(item => item.id === req.params.id);
   if (!c) return res.status(404).json({ error: 'Contestant not found' });
   
   if (number !== undefined) c.number = number;
   if (name !== undefined) c.name = name;
+  if (barangay !== undefined) c.barangay = barangay;
+  if (req.file) {
+    if (c.photo && fs.existsSync(path.join(__dirname, 'public', c.photo))) {
+      try { fs.unlinkSync(path.join(__dirname, 'public', c.photo)); } catch(e) {}
+    }
+    c.photo = `/uploads/${req.file.filename}`;
+  }
   
   saveData(data); 
   broadcast();
@@ -131,7 +158,11 @@ app.put('/api/admin/contestants/:id', (req, res) => {
 
 app.delete('/api/admin/contestants/:id', (req, res) => {
   const data = loadData();
-  data.contestants = data.contestants.filter(c => c.id !== req.params.id);
+  const c = data.contestants.find(item => item.id === req.params.id);
+  if (c && c.photo && fs.existsSync(path.join(__dirname, 'public', c.photo))) {
+    try { fs.unlinkSync(path.join(__dirname, 'public', c.photo)); } catch(e) {}
+  }
+  data.contestants = data.contestants.filter(item => item.id !== req.params.id);
   saveData(data); 
   broadcast();
   res.json({ ok: true });
@@ -255,7 +286,7 @@ app.get('/api/results-overall', (req, res) => {
 // ---------- CSV export ----------
 app.get('/api/export/csv', (req, res) => {
   const data = loadData();
-  let csv = 'Segment,Contestant Number,Contestant Name,Judge,Criteria,Score\n';
+  let csv = 'Segment,Contestant Number,Contestant Name,Barangay,Judge,Criteria,Score\n';
   data.segments.forEach(seg => {
     const segScores = data.scores[seg.id] || {};
     Object.entries(segScores).forEach(([judgeId, byContestant]) => {
@@ -265,7 +296,7 @@ app.get('/api/export/csv', (req, res) => {
         seg.criteria.forEach(cr => {
           const val = byCriteria[cr.id];
           if (val !== undefined) {
-            csv += `"${seg.name}","${contestant ? contestant.number : ''}","${contestant ? contestant.name : ''}","${judge ? judge.name : ''}","${cr.name}",${val}\n`;
+            csv += `"${seg.name}","${contestant ? contestant.number : ''}","${contestant ? contestant.name : ''}","${contestant ? contestant.barangay : ''}","${judge ? judge.name : ''}","${cr.name}",${val}\n`;
           }
         });
       });
@@ -287,7 +318,7 @@ server.listen(PORT, '0.0.0.0', () => {
   console.log(`On this computer:   http://localhost:${PORT}/admin.html`);
   Object.values(nets).flat().forEach(n => {
     if (n.family === 'IPv4' && !n.internal) {
-      console.log(`On the network:     http://${n.address}:${PORT}/admin.html`);
+      console.log(`On the network:    http://${n.address}:${PORT}/admin.html`);
       console.log(`   Judges go to:    http://${n.address}:${PORT}/judge.html`);
       console.log(`   Display goes to: http://${n.address}:${PORT}/display.html`);
     }

@@ -52,9 +52,17 @@ function render() {
     const key = seg.id + '_' + c.id;
     if (!draft[key]) draft[key] = { ...existing };
     const submitted = !!segScores[c.id];
+
+    const photoHtml = c.photo 
+      ? `<img src="${c.photo}" class="contestant-avatar">` 
+      : `<div class="contestant-avatar">No Img</div>`;
+
     return `<div class="card">
       <div class="row" style="justify-content:space-between">
-        <h3 style="margin:0">#${c.number || ''} ${c.name}</h3>
+        <div class="contestant-header">
+          ${photoHtml}
+          <h3 style="margin:0">#${c.number || ''} ${c.name}</h3>
+        </div>
         <span class="badge ${submitted ? 'on':'off'}">${submitted ? 'Submitted' : 'Not submitted'}</span>
       </div>
       ${seg.criteria.map(cr => `

@@ -282,14 +282,27 @@
     </div>
   </div>
 
-  <div class="card">
+<div class="card">
     <h2>Contestants</h2>
-    <div class="row">
+    <div class="row" style="flex-wrap: wrap; gap: 10px;">
       <input id="cNumber" placeholder="No." style="flex: 0 0 80px;">
-      <input id="cName" placeholder="Contestant name">
+      <input id="cName" placeholder="Contestant name" style="flex: 2; min-width: 150px;">
+      <input id="cBarangay" placeholder="Barangay" style="flex: 1.5; min-width: 130px;">
+      <input type="file" id="cPhoto" accept="image/*" style="flex: 1.5; padding: 6px; min-width: 180px;">
       <button onclick="addContestant()">Add Contestant</button>
     </div>
-    <table id="contestantTable"><thead><tr><th>#</th><th>Name</th><th></th></tr></thead><tbody></tbody></table>
+    <table id="contestantTable">
+      <thead>
+        <tr>
+          <th style="width: 70px;">Photo</th>
+          <th style="width: 60px;">#</th>
+          <th>Name</th>
+          <th>Barangay</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
   </div>
 
   <div class="card">

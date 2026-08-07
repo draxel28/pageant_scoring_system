@@ -10,6 +10,13 @@ async function refresh() {
   render(state);
 }
 
+function renderContestantAvatar(c) {
+  if (c && c.photo) {
+    return `<img src="${c.photo}" class="contestant-avatar">`;
+  }
+  return `<div class="contestant-avatar">No Img</div>`;
+}
+
 function render(state) {
   const activeSegmentId = state.event && state.event.activeSegmentId;
   const segTitleEl = document.getElementById('segTitle');
@@ -47,7 +54,7 @@ function render(state) {
   if (displayMode === 'judges') {
     renderJudgesMatrix(state, segment);
   } else {
-    renderCombinedResults(segment.results);
+    renderCombinedResults(state, segment.results);
   }
 }
 
@@ -60,6 +67,7 @@ function renderOverallSummary(state) {
       contestantId: c.id,
       number: c.number,
       name: c.name,
+      photo: c.photo,
       totalScoreSum: 0,
       segmentsCompleted: 0
     };
@@ -138,12 +146,19 @@ function renderOverallSummary(state) {
 
     const avgDisplay = r.overallAverage !== null ? r.overallAverage.toFixed(2) : '—';
     const numDisplay = r.number ? `#${r.number}` : '';
+    const contestantObj = state.contestants.find(c => c.id === r.contestantId) || r;
+    const avatar = renderContestantAvatar(contestantObj);
 
     html += `
       <tr class="${rankClass}">
         <td>${awardIcon} ${r.rank}</td>
         <td>${numDisplay}</td>
-        <td>${r.name}</td>
+        <td>
+          <div class="contestant-cell">
+            ${avatar}
+            <span>${r.name}</span>
+          </div>
+        </td>
         <td style="text-align: right; color: var(--text-muted);">${r.segmentsCompleted} / ${state.segments.length}</td>
         <td style="text-align: right; font-weight: 800; color: var(--gold);">${avgDisplay}</td>
       </tr>
@@ -154,7 +169,7 @@ function renderOverallSummary(state) {
   bodyEl.innerHTML = html;
 }
 
-function renderCombinedResults(results) {
+function renderCombinedResults(state, results) {
   const bodyEl = document.getElementById('body');
   if (!results || results.length === 0) {
     bodyEl.innerHTML = `<div class="waiting">No scores submitted yet.</div>`;
@@ -192,12 +207,19 @@ function renderCombinedResults(results) {
 
     const avgDisplay = r.average !== null ? r.average.toFixed(2) : '—';
     const numDisplay = r.number ? `#${r.number}` : '';
+    const contestantObj = state.contestants.find(c => c.id === r.contestantId) || r;
+    const avatar = renderContestantAvatar(contestantObj);
 
     html += `
       <tr class="${rankClass}">
         <td>${awardIcon} ${r.rank || '—'}</td>
         <td>${numDisplay}</td>
-        <td>${r.name}</td>
+        <td>
+          <div class="contestant-cell">
+            ${avatar}
+            <span>${r.name}</span>
+          </div>
+        </td>
         <td style="text-align: right;">${avgDisplay}</td>
       </tr>
     `;
@@ -256,12 +278,19 @@ function renderJudgesMatrix(state, segment) {
 
     const numDisplay = r.number ? `#${r.number}` : '';
     const avgDisplay = r.average !== null ? r.average.toFixed(2) : '—';
+    const contestantObj = state.contestants.find(c => c.id === r.contestantId) || r;
+    const avatar = renderContestantAvatar(contestantObj);
 
     html += `
       <tr class="${rankClass}">
         <td>${awardIcon} ${r.rank || '—'}</td>
         <td>${numDisplay}</td>
-        <td>${r.name}</td>
+        <td>
+          <div class="contestant-cell">
+            ${avatar}
+            <span>${r.name}</span>
+          </div>
+        </td>
     `;
 
     judges.forEach(j => {
