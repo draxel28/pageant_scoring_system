@@ -16,6 +16,7 @@
     --text-main: #f8f9fa;
     --text-muted: #95a5a6;
     --accent-glow: rgba(243, 156, 18, 0.2);
+    --step-green: #2ecc71;
   }
 
   body {
@@ -168,25 +169,6 @@
     border-bottom: none;
   }
 
-  .badge {
-    padding: 5px 10px;
-    border-radius: 20px;
-    font-size: 0.85rem;
-    font-weight: 600;
-  }
-
-  .badge.on {
-    background: rgba(46, 204, 113, 0.15);
-    color: #2ecc71;
-    border: 1px solid rgba(46, 204, 113, 0.3);
-  }
-
-  .badge.off {
-    background: rgba(149, 165, 166, 0.15);
-    color: var(--text-muted);
-    border: 1px solid rgba(149, 165, 166, 0.3);
-  }
-
   label {
     cursor: pointer;
     display: inline-flex;
@@ -224,6 +206,118 @@
     background: var(--gold);
     color: #0d0e15;
     border-color: var(--gold);
+  }
+
+  /* Step-Progress Wizard Indicator Style */
+  .stepper-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    margin: 25px 10px 15px 10px;
+    padding: 0 10px;
+    overflow-x: auto;
+  }
+
+  /* Background connecting line */
+  .stepper-container::before {
+    content: '';
+    position: absolute;
+    top: 22px;
+    left: 40px;
+    right: 40px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    z-index: 1;
+  }
+
+  .step-item {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 2;
+    cursor: pointer;
+    min-width: 70px;
+    transition: all 0.3s ease;
+  }
+
+  /* Circle badge */
+  .step-circle {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.5);
+    border: 2px solid var(--border-color);
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .step-label {
+    margin-top: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-align: center;
+    max-width: 90px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    transition: all 0.3s ease;
+  }
+
+  /* Completed step styling (green with checkmark) */
+  .step-item.completed .step-circle {
+    background: var(--step-green);
+    border-color: var(--step-green);
+    color: #fff;
+    font-size: 0; /* Hide number to display check icon */
+  }
+
+  .step-item.completed .step-circle::after {
+    content: '✓';
+    font-size: 1.2rem;
+    font-weight: 900;
+  }
+
+  .step-item.completed .step-label {
+    color: var(--text-main);
+  }
+
+  /* Current active step styling (green circle with number and highlight indicator chevron or pulse) */
+  .step-item.active .step-circle {
+    background: var(--step-green);
+    border-color: #fff;
+    color: #fff;
+    font-size: 1.1rem;
+    box-shadow: 0 0 20px rgba(46, 204, 113, 0.5);
+    transform: scale(1.15);
+  }
+
+  .step-item.active .step-label {
+    color: var(--step-green);
+    font-weight: 800;
+  }
+
+  /* Active mini-chevron indicator above current step */
+  .step-item.active::before {
+    content: '⌄';
+    position: absolute;
+    top: -16px;
+    color: var(--step-green);
+    font-size: 1.2rem;
+    font-weight: bold;
+    animation: bounceIndicator 1.5s infinite;
+  }
+
+  @keyframes bounceIndicator {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-4px); }
   }
 
   .modal-overlay {
@@ -272,17 +366,48 @@
   <h1>🏆 Pageant Control Panel</h1>
 
   <div class="card">
-    <h2>Audience Display Mode Control</h2>
-    <div class="row">
-      <label style="flex:1;" class="muted">Select what the projector / screen display shows when revealed:</label>
-      <select id="displayModeSelect" onchange="updateDisplayMode(this.value)" style="max-width: 320px;">
-        <option value="combined">Combined Averages & Ranks</option>
-        <option value="judges">Per-Judge Score Breakdown Matrix</option>
-      </select>
+    <h2>Contestant Navigation Controls</h2>
+    <div class="row" style="justify-content: space-between; align-items: center; margin-bottom: 10px;">
+      <label class="muted">Navigate through contestants for the projector / display screen:</label>
+<div class="navigation-controls">
+  <button type="button" class="secondary" onclick="prevContestant()">&#8592; Prev</button>
+  <button type="button" class="secondary" onclick="nextContestant()">Next &#8592;</button>
+</div>
+    </div>
+    <!-- Stepper Progress Bar Indicator (Checkmarks for previous, Active number with chevron for current) -->
+    <div id="contestantSteppers" class="stepper-container">
+      <span class="muted" style="padding: 10px; width: 100%; text-align: center;">No contestants loaded</span>
     </div>
   </div>
 
-<div class="card">
+  <div class="card">
+    <h2>Background Customization &amp; Gallery</h2>
+    <div class="row" style="flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 20px;">
+      <input type="file" id="bgImageInput" accept="image/*" style="flex: 2; padding: 6px; min-width: 180px;">
+      <button onclick="uploadBackground()">Upload Background</button>
+    </div>
+    <p class="muted" style="margin-top: 0; margin-bottom: 15px;">Click on any uploaded background image below to view it in full size.</p>
+    <div id="bgGallery" style="display: flex; gap: 12px; flex-wrap: wrap;"></div>
+  </div>
+
+  <div class="card">
+  <h3>Segment-Specific Contestant Photos</h3>
+  <form id="segmentPhotoForm" enctype="multipart/form-data">
+    <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px;">
+      <select id="segPhotoSegmentSelect" required style="flex: 1; padding: 8px;">
+        <option value="">Select Segment...</option>
+      </select>
+      <select id="segPhotoContestantSelect" required style="flex: 1; padding: 8px;">
+        <option value="">Select Contestant...</option>
+      </select>
+    </div>
+    <input type="file" name="segmentPhoto" id="segPhotoFileInput" accept="image/*" required style="margin-bottom: 10px; display: block;">
+    <button type="submit" class="btn">Upload Segment Photo</button>
+  </form>
+  <div id="segmentPhotosList" style="margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap;"></div>
+</div>
+
+  <div class="card">
     <h2>Contestants</h2>
     <div class="row" style="flex-wrap: wrap; gap: 10px;">
       <input id="cNumber" placeholder="No." style="flex: 0 0 80px;">

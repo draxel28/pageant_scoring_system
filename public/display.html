@@ -3,132 +3,264 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pageant Results</title>
+<title>Pageant Results - Individual Display</title>
 <link rel="stylesheet" href="style.css">
 <style>
   :root {
     --bg-gradient: radial-gradient(circle at center, #141622 0%, #08090e 100%);
-    --card-bg: rgba(20, 22, 35, 0.7);
-    --border-color: rgba(255, 255, 255, 0.08);
+    --card-bg: rgba(15, 17, 26, 0.85);
+    --border-color: rgba(255, 255, 255, 0.12);
     --gold: #f1c40f;
     --gold-glow: rgba(241, 196, 15, 0.35);
-    --silver: #ecf0f1;
-    --silver-glow: rgba(236, 240, 241, 0.2);
-    --bronze: #e67e22;
-    --bronze-glow: rgba(230, 126, 34, 0.25);
     --text-main: #f8f9fa;
     --text-muted: #8c9ea6;
   }
 
   body {
     background: var(--bg-gradient);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
     color: var(--text-main);
     font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
     display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: space-between;
     min-height: 100vh;
     margin: 0;
-    overflow-x: hidden;
+    overflow: hidden;
+    position: relative;
+  }
+
+  body::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(8, 9, 14, 0.6);
+    z-index: 0;
+    pointer-events: none;
   }
 
   .stage {
     width: 100%;
-    max-width: 1350px;
-    padding: 50px 30px;
+    max-width: 1400px;
+    padding: 30px 20px;
     text-align: center;
     box-sizing: border-box;
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    justify-content: space-between;
   }
 
   .segTitle {
-    font-size: 3.2rem;
+    font-size: 2.8rem;
     font-weight: 900;
     letter-spacing: 3px;
     color: var(--gold);
-    margin-bottom: 10px;
     text-transform: uppercase;
     text-shadow: 0 4px 25px var(--gold-glow);
+    margin-top: 10px;
   }
 
   .waiting {
     font-size: 2rem;
     color: var(--text-muted);
-    margin-top: 100px;
+    margin: auto;
     letter-spacing: 1.5px;
     font-weight: 300;
   }
 
-  .table-container {
-    background: var(--card-bg);
-    backdrop-filter: blur(16px);
-    border: 1px solid var(--border-color);
-    border-radius: 24px;
-    padding: 30px;
-    margin-top: 35px;
-    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6);
-    overflow: auto;
+  /* Central Photo Display Container */
+  .central-photo-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end; /* Align image towards the bottom */
+    flex: 1;
+    margin: 0;
+    position: relative;
+    width: 100%;
+    overflow: visible; /* Allows the image to extend downwards if needed */
   }
 
-  table.results {
+  .segment-contestant-display-photo {
+    max-height: 62vh; /* Made larger */
+    max-width: 100%;
+    object-fit: contain;
+    border-radius: 12px;
+    border: none; /* Removed the yellow border */
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
+    margin-bottom: -40px; /* Pulls the bottom of the image down behind the banner */
+    position: relative;
+    z-index: 2; /* Keeps it layered appropriately */
+  }
+
+  .segment-contestant-photo-placeholder {
+    width: 280px;
+    height: 320px;
+    border: 3px dashed var(--border-color);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    background: rgba(0, 0, 0, 0.2);
+  }
+
+  /* Bottom Banner Container Layout */
+  .display-banner {
+    position: relative;
     width: 100%;
-    border-collapse: collapse;
-    font-size: 1.4rem;
+    background: var(--card-bg);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--border-color);
+    border-radius: 40px;
+    padding: 20px 30px;
+    box-sizing: border-box;
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 30px;
+    z-index: 3; /* Ensures banner sits cleanly over the base of the image */
+  }
+  /* Left Section: Contestant Profile */
+  .contestant-section {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    position: relative;
+  }
+
+  .contestant-large-avatar {
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--gold);
+    background: #222;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.6);
+    position: absolute;
+    top: -65px;
+    left: 10px;
+  }
+
+  .contestant-avatar-placeholder {
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    border: 3px solid var(--gold);
+    background: #1a1c29;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    position: absolute;
+    top: -65px;
+    left: 10px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.6);
+  }
+
+  .contestant-info {
+    margin-left: 135px;
     text-align: left;
   }
 
-  table.results th {
-    font-size: 0.95rem;
+  .contestant-name {
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: #fff;
+    letter-spacing: 1px;
     text-transform: uppercase;
-    letter-spacing: 2px;
-    color: var(--text-muted);
-    padding: 18px 24px;
-    border-bottom: 2px solid var(--border-color);
+    margin: 0;
   }
 
-  table.results td {
-    padding: 22px 24px;
-    border-bottom: 1px solid var(--border-color);
+  .contestant-location {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-top: 4px;
     font-weight: 600;
   }
 
-  table.results tr:last-child td {
-    border-bottom: none;
+  /* Center Section: Judges Breakdown */
+  .judges-section {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    overflow-x: auto;
+    padding: 10px 5px;
   }
 
-  table.results tr {
-    transition: all 0.25s ease;
-  }
-
-  table.results tr:hover {
+  .judge-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 14px;
+    padding: 8px 10px;
+    min-width: 65px;
   }
 
-  /* Podium Styling & Crown/Trophy Highlights */
-  .rank1 { 
-    color: var(--gold); 
-    font-weight: 900; 
-    background: linear-gradient(90deg, rgba(241, 196, 15, 0.12) 0%, transparent 100%);
-    border-left: 5px solid var(--gold);
-  }
-  .rank2 { 
-    color: var(--silver); 
-    font-weight: 800; 
-    background: linear-gradient(90deg, rgba(236, 240, 241, 0.07) 0%, transparent 100%);
-    border-left: 5px solid var(--silver);
-  }
-  .rank3 { 
-    color: var(--bronze); 
-    font-weight: 800; 
-    background: linear-gradient(90deg, rgba(230, 126, 34, 0.08) 0%, transparent 100%);
-    border-left: 5px solid var(--bronze);
+  .judge-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--gold);
+    margin-bottom: 6px;
   }
 
-  .award-icon {
-    display: inline-block;
-    margin-right: 10px;
-    font-size: 1.5rem;
-    vertical-align: middle;
-    filter: drop-shadow(0 2px 8px rgba(0,0,0,0.4));
+  .judge-name {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+    white-space: nowrap;
+  }
+
+  .judge-score {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #fff;
+  }
+
+  /* Right Section: Average Score / Rank */
+  .average-section {
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    padding: 12px 24px;
+    text-align: center;
+    min-width: 110px;
+  }
+
+  .average-label {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--text-muted);
+    margin-bottom: 2px;
+    font-weight: 700;
+  }
+
+  .average-value {
+    font-size: 2rem;
+    font-weight: 900;
+    color: var(--gold);
+    line-height: 1;
   }
 
   .pulse {
@@ -139,35 +271,183 @@
     0%, 100% { opacity: 1; transform: scale(1); }
     50% { opacity: 0.4; transform: scale(0.98); }
   }
-
-.contestant-cell {
-      display: flex;
-      align-items: center;
-      gap: 15px;
-    }
-    .contestant-avatar {
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 2px solid var(--gold);
-      background: rgba(255, 255, 255, 0.05);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      flex-shrink: 0;
-    }
-
 </style>
 </head>
 <body>
 <div class="stage">
   <div class="segTitle" id="segTitle">Welcome</div>
-  <div id="body"></div>
+  <div id="body" style="display: flex; flex-direction: column; justify-content: center; flex: 1;">
+    <div class="waiting pulse">Waiting for the segment to begin...</div>
+  </div>
 </div>
 <script src="/socket.io/socket.io.js"></script>
-<script src="display.js"></script>
+<script>
+const socket = io();
+let currentState = null;
+let currentContestantIndex = 0;
+
+socket.on('state-updated', (state) => {
+  currentState = state;
+  if (currentState.event && typeof currentState.event.activeContestantIndex === 'number') {
+    currentContestantIndex = currentState.event.activeContestantIndex;
+  }
+  render(currentState);
+});
+
+socket.on('contestant-index-updated', (index) => {
+  currentContestantIndex = index;
+  if (currentState) {
+    render(currentState);
+  } else {
+    refresh();
+  }
+});
+
+async function refresh() {
+  const res = await fetch('/api/state');
+  currentState = await res.json();
+  if (currentState.event && typeof currentState.event.activeContestantIndex === 'number') {
+    currentContestantIndex = currentState.event.activeContestantIndex;
+  }
+  render(currentState);
+}
+
+function updateBackground(state) {
+  if (state.event && state.event.backgroundUrl) {
+    document.body.style.backgroundImage = `url('${state.event.backgroundUrl}')`;
+  } else if (state.backgrounds && state.backgrounds.length > 0) {
+    document.body.style.backgroundImage = `url('${state.backgrounds[state.backgrounds.length - 1].url}')`;
+  }
+}
+
+function render(state) {
+  updateBackground(state);
+
+  const activeSegmentId = state.event && state.event.activeSegmentId;
+  const segTitleEl = document.getElementById('segTitle');
+  const bodyEl = document.getElementById('body');
+
+  if (!activeSegmentId) {
+    segTitleEl.textContent = state.event?.name || 'Pageant Scoring';
+    bodyEl.innerHTML = `<div class="waiting pulse">Waiting for the next segment to begin...</div>`;
+    return;
+  }
+
+  if (activeSegmentId === 'overall') {
+    segTitleEl.textContent = '⭐ Overall Competition Leaderboard';
+    bodyEl.innerHTML = `<div class="waiting">Please select an individual active segment to display single contestant breakdown.</div>`;
+    return;
+  }
+
+  const segment = state.segments.find(s => s.id === activeSegmentId);
+  if (!segment) {
+    segTitleEl.textContent = 'Pageant Scoring';
+    bodyEl.innerHTML = `<div class="waiting">Active segment not found.</div>`;
+    return;
+  }
+
+  segTitleEl.textContent = segment.name;
+
+  if (!segment.revealed) {
+    bodyEl.innerHTML = `<div class="waiting pulse">Scores for <strong>${segment.name}</strong> are currently hidden. Please stand by.</div>`;
+    return;
+  }
+
+  const contestants = state.contestants || [];
+  if (contestants.length === 0) {
+    bodyEl.innerHTML = `<div class="waiting">No contestants registered.</div>`;
+    return;
+  }
+
+  if (currentContestantIndex >= contestants.length) {
+    currentContestantIndex = 0;
+  }
+
+  const contestant = contestants[currentContestantIndex];
+  const judges = state.judges || [];
+  const segScores = state.scores[segment.id] || {};
+  
+  const contestantResult = segment.results ? segment.results.find(r => r.contestantId === contestant.id) : null;
+  const averageScore = contestantResult && contestantResult.average !== null ? contestantResult.average.toFixed(2) : '—';
+
+  let avatarHtml = `<div class="contestant-avatar-placeholder">No Photo</div>`;
+  if (contestant.photo) {
+    avatarHtml = `<img src="${contestant.photo}" class="contestant-large-avatar" alt="${contestant.name}">`;
+  }
+
+  // --- Strict Segment-Specific Photo Lookups (No fallback to profile photo) ---
+  const segmentPhotos = state.segmentPhotos || [];
+  const activeSegmentPhoto = segmentPhotos.find(
+    p => p.segmentId === segment.id && p.contestantId === contestant.id
+  );
+
+  let centralPhotoHtml = `<div class="segment-contestant-photo-placeholder">No Segment Photo Uploaded</div>`;
+  if (activeSegmentPhoto && activeSegmentPhoto.url) {
+    centralPhotoHtml = `<img src="${activeSegmentPhoto.url}" class="segment-contestant-display-photo" alt="${contestant.name}">`;
+  }
+
+  let judgesHtml = '';
+  if (judges.length === 0) {
+    judgesHtml = `<span style="color: var(--text-muted); font-size: 0.9rem;">No judges added yet.</span>`;
+  } else {
+    judges.forEach((j) => {
+      const judgeScores = segScores[j.id] && segScores[j.id][contestant.id];
+      let scoreDisplay = '—';
+      if (judgeScores) {
+        let total = 0;
+        segment.criteria.forEach(cr => {
+          total += Number(judgeScores[cr.id]) || 0;
+        });
+        scoreDisplay = total.toFixed(2);
+      }
+
+      const sampleJudgePhoto = `https://picsum.photos/seed/judge${j.id}/100/100`;
+
+      judgesHtml += `
+        <div class="judge-card">
+          <img src="${sampleJudgePhoto}" class="judge-avatar" alt="${j.name}">
+          <span class="judge-name">${j.name}</span>
+          <span class="judge-score">${scoreDisplay}</span>
+        </div>
+      `;
+    });
+  }
+
+  bodyEl.innerHTML = `
+    <div style="display: flex; flex-direction: column; justify-content: space-between; align-items: center; flex: 1; width: 100%;">
+      
+      <!-- Middle Screen: Segment Contestant Photo Display -->
+      <div class="central-photo-container">
+        ${centralPhotoHtml}
+      </div>
+
+      <!-- Bottom Banner -->
+      <div class="display-banner">
+        <!-- Left: Contestant Profile -->
+        <div class="contestant-section">
+          ${avatarHtml}
+          <div class="contestant-info">
+            <h2 class="contestant-name">${contestant.number ? `#${contestant.number} ` : ''}${contestant.name}</h2>
+            <div class="contestant-location">${contestant.barangay || 'Contestant'}</div>
+          </div>
+        </div>
+
+        <!-- Center: Judges List & Scores -->
+        <div class="judges-section">
+          ${judgesHtml}
+        </div>
+
+        <!-- Right: Average Score -->
+        <div class="average-section">
+          <div class="average-label">Average Score</div>
+          <div class="average-value">${averageScore}</div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+refresh();
+</script>
 </body>
 </html>

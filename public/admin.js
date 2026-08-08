@@ -5,12 +5,29 @@ let critDraft = [];
 let revealedPins = new Set();
 let editingContestantId = null;
 let activeScoreTabId = null;
+let activeContestantIndex = 0;
 
-socket.on('state-updated', (s) => { state = s; render(); });
+socket.on('state-updated', (s) => { 
+  state = s; 
+  // If state tracks the active contestant index from backend, sync it here if available
+  if (state.event && typeof state.event.activeContestantIndex === 'number') {
+    activeContestantIndex = state.event.activeContestantIndex;
+  }
+  render(); 
+});
+
+// Listen for index updates from server sync
+socket.on('contestant-index-updated', (index) => {
+  activeContestantIndex = index;
+  updateSteppersUI();
+});
 
 async function refresh() {
   const res = await fetch('/api/state');
   state = await res.json();
+  if (state.event && typeof state.event.activeContestantIndex === 'number') {
+    activeContestantIndex = state.event.activeContestantIndex;
+  }
   render();
 }
 
@@ -166,6 +183,75 @@ async function updateDisplayMode(mode) {
   });
 }
 
+// Populate dropdowns and render segment photo list
+function renderSegmentPhotosUI(state) {
+  const segSelect = document.getElementById('segPhotoSegmentSelect');
+  const conSelect = document.getElementById('segPhotoContestantSelect');
+  const listEl = document.getElementById('segmentPhotosList');
+
+  if (!segSelect || !conSelect || !listEl) return;
+
+  // Populate Segments dropdown
+  segSelect.innerHTML = '<option value="">Select Segment...</option>';
+  (state.segments || []).forEach(seg => {
+    segSelect.innerHTML += `<option value="${seg.id}">${seg.name}</option>`;
+  });
+
+  // Populate Contestants dropdown
+  conSelect.innerHTML = '<option value="">Select Contestant...</option>';
+  (state.contestants || []).forEach(c => {
+    conSelect.innerHTML += `<option value="${c.id}">#${c.number} - ${c.name}</option>`;
+  });
+
+  // Render gallery list of uploaded segment photos
+  listEl.innerHTML = '';
+  (state.segmentPhotos || []).forEach(p => {
+    const seg = state.segments.find(s => s.id === p.segmentId);
+    const con = state.contestants.find(c => c.id === p.contestantId);
+    listEl.innerHTML += `
+      <div style="border: 1px solid rgba(255,255,255,0.2); padding: 8px; border-radius: 8px; text-align: center; width: 120px;">
+        <img src="${p.url}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 6px;">
+        <div style="font-size: 0.75rem; margin-top: 4px;">${seg?.name || ''}</div>
+        <div style="font-size: 0.75rem; font-weight: bold;">#${con?.number || ''}</div>
+        <button onclick="deleteSegmentPhoto('${p.id}')" style="background: #e74c3c; color: white; border: none; padding: 2px 6px; border-radius: 4px; margin-top: 4px; cursor: pointer; font-size: 0.7rem;">Delete</button>
+      </div>
+    `;
+  });
+}
+
+// Handle form submission
+document.getElementById('segmentPhotoForm')?.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const segmentId = document.getElementById('segPhotoSegmentSelect').value;
+  const contestantId = document.getElementById('segPhotoContestantSelect').value;
+  const fileInput = document.getElementById('segPhotoFileInput').files[0];
+
+  const formData = new FormData();
+  formData.append('segmentId', segmentId);
+  formData.append('contestantId', contestantId);
+  formData.append('segmentPhoto', fileInput);
+
+  const res = await fetch('/api/admin/segment-photos', {
+    method: 'POST',
+    body: formData
+  });
+
+  if (res.ok) {
+    document.getElementById('segPhotoFileInput').value = '';
+    // state will auto-refresh via socket broadcast
+  } else {
+    alert('Failed to upload segment photo');
+  }
+});
+
+async function deleteSegmentPhoto(id) {
+  if (confirm('Delete this segment photo?')) {
+    await fetch(`/api/admin/segment-photos/${id}`, { method: 'DELETE' });
+  }
+}
+
+// Make sure to call renderSegmentPhotosUI(state) inside your main state update handler in admin.js
+
 async function addSegment() {
   const name = document.getElementById('sName').value.trim();
   if (!name) return showNotice('Enter a segment name');
@@ -201,8 +287,88 @@ function renderContestantAvatar(c) {
   return `<div style="width: 32px; height: 32px; background: rgba(255,255,255,0.05); border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 0.6rem; color: var(--text-muted); vertical-align: middle; margin-right: 8px;">No Img</div>`;
 }
 
+// Fixed Navigation Control Functions for Next / Prev and Stepper Clicks
+function nextContestant() {
+  if (!state || !state.contestants || state.contestants.length === 0) return;
+  if (activeContestantIndex < state.contestants.length - 1) {
+    activeContestantIndex++;
+    syncActiveContestant();
+  }
+}
+
+function prevContestant() {
+  if (!state || !state.contestants || state.contestants.length === 0) return;
+  if (activeContestantIndex > 0) {
+    activeContestantIndex--;
+    syncActiveContestant();
+  }
+}
+
+function jumpToContestant(index) {
+  if (!state || !state.contestants || index < 0 || index >= state.contestants.length) return;
+  activeContestantIndex = index;
+  syncActiveContestant();
+}
+
+function syncActiveContestant() {
+  updateSteppersUI();
+  
+  // 1. Send socket event so display.html and judge portals update live immediately
+  socket.emit('update-contestant-index', activeContestantIndex);
+  
+  // 2. Persist the active contestant index on the server backend so display.html can fetch it on load/refresh
+  fetch('/api/admin/active-contestant', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ index: activeContestantIndex })
+  }).catch(() => {});
+}
+
+function renderContestantsStepper(contestants) {
+  const container = document.getElementById('contestantSteppers');
+  if (!container) return;
+
+  if (!contestants || contestants.length === 0) {
+    container.innerHTML = `<span class="muted" style="padding: 10px; width: 100%; text-align: center;">No contestants loaded</span>`;
+    return;
+  }
+
+  let html = '';
+  contestants.forEach((c, idx) => {
+    let statusClass = '';
+    if (idx < activeContestantIndex) {
+      statusClass = 'completed';
+    } else if (idx === activeContestantIndex) {
+      statusClass = 'active';
+    }
+
+    html += `
+      <div class="step-item ${statusClass}" onclick="jumpToContestant(${idx})" style="cursor: pointer;">
+        <div class="step-circle">${c.number || (idx + 1)}</div>
+        <div class="step-label" title="${c.name}">${c.name}</div>
+      </div>
+    `;
+  });
+  container.innerHTML = html;
+}
+
+function updateSteppersUI() {
+  const items = document.querySelectorAll('.step-item');
+  items.forEach((item, idx) => {
+    item.classList.remove('completed', 'active');
+    if (idx < activeContestantIndex) {
+      item.classList.add('completed');
+    } else if (idx === activeContestantIndex) {
+      item.classList.add('active');
+    }
+  });
+}
+
 function render() {
   if (!state) return;
+
+  // Render segment photos UI component safely
+  renderSegmentPhotosUI(state);
 
   const cTable = document.querySelector('#contestantTable tbody');
   if (cTable) {
@@ -284,6 +450,8 @@ function render() {
   updatePdfDropdownOptions();
   renderTracker();
   renderSegmentScoreTabs();
+  renderBackgroundGallery(state.backgrounds || []);
+  renderContestantsStepper(state.contestants);
 }
 
 function updatePdfDropdownOptions() {
@@ -565,6 +733,67 @@ function switchSegmentTab(segmentId) {
 
 function downloadSelectedPDF() {
   showNotice('Export PDF is under maintenance.');
+}
+
+// ---------- Background Customization & Gallery ----------
+
+async function uploadBackground() {
+  const fileInput = document.getElementById('bgImageInput');
+  if (!fileInput.files || fileInput.files.length === 0) {
+    showNotice('Please select an image file first.');
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append('background', fileInput.files[0]);
+
+  try {
+    const res = await fetch('/api/admin/backgrounds', {
+      method: 'POST',
+      body: formData
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.error || 'Failed to upload background image.');
+    }
+    fileInput.value = ''; // Reset file input
+  } catch (err) {
+    showNotice(err.message);
+  }
+}
+
+async function deleteBackground(id) {
+  const ok = await showConfirm('Are you sure you want to delete this background image?');
+  if (!ok) return;
+  try {
+    const res = await fetch(`/api/admin/backgrounds/${id}`, {
+      method: 'DELETE'
+    });
+    if (!res.ok) {
+      throw new Error('Failed to delete background.');
+    }
+  } catch (err) {
+    showNotice(err.message);
+  }
+}
+
+function renderBackgroundGallery(backgrounds) {
+  const gallery = document.getElementById('bgGallery');
+  if (!gallery) return;
+
+  if (!backgrounds || backgrounds.length === 0) {
+    gallery.innerHTML = '<span class="muted" style="font-size: 0.9rem;">No background images uploaded yet.</span>';
+    return;
+  }
+
+  gallery.innerHTML = backgrounds.map(bg => `
+    <div style="position: relative; display: inline-block; border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; background: rgba(0,0,0,0.2);">
+      <a href="${bg.url}" target="_blank" title="View full size">
+        <img src="${bg.url}" style="width: 120px; height: 80px; object-fit: cover; display: block;" alt="Background">
+      </a>
+      <button type="button" onclick="deleteBackground('${bg.id}')" class="danger" style="position: absolute; top: 4px; right: 4px; padding: 2px 6px; font-size: 0.75rem; border-radius: 4px;" title="Delete">×</button>
+    </div>
+  `).join('');
 }
 
 refresh();

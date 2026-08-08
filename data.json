@@ -1,8 +1,9 @@
 {
   "event": {
     "name": "Pageant Night",
-    "activeSegmentId": "seg_mseuv7gxh4xd7",
-    "displayMode": "combined"
+    "activeSegmentId": "seg_msjx0g6ckx4kv",
+    "displayMode": "judges",
+    "activeContestantIndex": 4
   },
   "judges": [
     {
@@ -14,6 +15,21 @@
       "id": "j_msevir2rimw5a",
       "name": "Drex",
       "pin": "1127"
+    },
+    {
+      "id": "j_msjx73a50mnkc",
+      "name": "Aaron",
+      "pin": "7775"
+    },
+    {
+      "id": "j_msjx78aixnje7",
+      "name": "JC",
+      "pin": "6839"
+    },
+    {
+      "id": "j_msjx7dkgmd93l",
+      "name": "Romark",
+      "pin": "8539"
     }
   ],
   "contestants": [
@@ -30,6 +46,27 @@
       "name": "Sophia Beñegas",
       "barangay": "Tanza",
       "photo": "/uploads/contestant-1786112654739-986628309.JPG"
+    },
+    {
+      "id": "c_msjr23gbbowko",
+      "number": "3",
+      "name": "Phia",
+      "barangay": "Trece",
+      "photo": "/uploads/contestant-1786155820155-477992996.JPG"
+    },
+    {
+      "id": "c_msjx3vgrxi2ik",
+      "number": "4",
+      "name": "Maria Magdalena",
+      "barangay": "Capipisa",
+      "photo": "/uploads/contestant-1786165980909-255864326.jpeg"
+    },
+    {
+      "id": "c_mskyt6aoencik",
+      "number": "5",
+      "name": "Pia Wurtzbach",
+      "barangay": "Bohol",
+      "photo": "/uploads/contestant-1786229307118-594418382.jpg"
     }
   ],
   "segments": [
@@ -58,7 +95,61 @@
           "maxScore": 20
         }
       ],
+      "revealed": false
+    },
+    {
+      "id": "seg_msjx0g6ckx4kv",
+      "name": "Formal / Evening Gown",
+      "criteria": [
+        {
+          "id": "cr_msjx0g6cb3mzw",
+          "name": "Elegance & Grace",
+          "maxScore": 30
+        },
+        {
+          "id": "cr_msjx0g6cpq2p5",
+          "name": "Poise & Bearing",
+          "maxScore": 25
+        },
+        {
+          "id": "cr_msjx0g6cem2vw",
+          "name": "Stage Presence",
+          "maxScore": 25
+        },
+        {
+          "id": "cr_msjx0g6cmrkeg",
+          "name": "Overall Appearance",
+          "maxScore": 20
+        }
+      ],
       "revealed": true
+    },
+    {
+      "id": "seg_mskz0yw750nou",
+      "name": "Swimwear / Sportswear",
+      "criteria": [
+        {
+          "id": "cr_mskz0yw7vax2i",
+          "name": "Confidence & Stage Presence",
+          "maxScore": 30
+        },
+        {
+          "id": "cr_mskz0yw7o7xke",
+          "name": "Fitness & Posture",
+          "maxScore": 25
+        },
+        {
+          "id": "cr_mskz0yw7oynnq",
+          "name": "Poise & Projection",
+          "maxScore": 25
+        },
+        {
+          "id": "cr_mskz0yw7tdwoq",
+          "name": "Overall Presentation",
+          "maxScore": 20
+        }
+      ],
+      "revealed": false
     }
   ],
   "scores": {
@@ -125,6 +216,30 @@
           "cr_mseuv7gxzjxfy": "30",
           "cr_mseuv7gx85b78": "18",
           "cr_mseuv7gx34x7t": "17"
+        },
+        "c_msj140tyw43h7": {
+          "cr_mseuv7gxpix33": "27",
+          "cr_mseuv7gxzjxfy": "30",
+          "cr_mseuv7gx85b78": "18",
+          "cr_mseuv7gx34x7t": "19"
+        },
+        "c_msj1cwr6fjgvv": {
+          "cr_mseuv7gxpix33": "30",
+          "cr_mseuv7gxzjxfy": "27",
+          "cr_mseuv7gx85b78": "18",
+          "cr_mseuv7gx34x7t": "18"
+        },
+        "c_msjr23gbbowko": {
+          "cr_mseuv7gxpix33": "30",
+          "cr_mseuv7gxzjxfy": "28",
+          "cr_mseuv7gx85b78": "17",
+          "cr_mseuv7gx34x7t": "18"
+        },
+        "c_msjx3vgrxi2ik": {
+          "cr_mseuv7gxpix33": "28",
+          "cr_mseuv7gxzjxfy": "28",
+          "cr_mseuv7gx85b78": "19",
+          "cr_mseuv7gx34x7t": "20"
         }
       },
       "j_msevir2rimw5a": {
@@ -157,8 +272,61 @@
           "cr_mseuv7gxzjxfy": "30",
           "cr_mseuv7gx85b78": "18",
           "cr_mseuv7gx34x7t": "19"
+        },
+        "c_msj140tyw43h7": {
+          "cr_mseuv7gxpix33": "28",
+          "cr_mseuv7gxzjxfy": "29",
+          "cr_mseuv7gx85b78": "15",
+          "cr_mseuv7gx34x7t": "17"
+        },
+        "c_msj1cwr6fjgvv": {
+          "cr_mseuv7gxpix33": "28",
+          "cr_mseuv7gxzjxfy": "29",
+          "cr_mseuv7gx85b78": "20",
+          "cr_mseuv7gx34x7t": "18"
+        },
+        "c_msjr23gbbowko": {
+          "cr_mseuv7gxpix33": "29",
+          "cr_mseuv7gxzjxfy": "28",
+          "cr_mseuv7gx85b78": "15",
+          "cr_mseuv7gx34x7t": "18"
+        },
+        "c_msjx3vgrxi2ik": {
+          "cr_mseuv7gxpix33": "27",
+          "cr_mseuv7gxzjxfy": "29",
+          "cr_mseuv7gx85b78": "16",
+          "cr_mseuv7gx34x7t": "19"
         }
       }
+    },
+    "seg_msjx0g6ckx4kv": {},
+    "seg_mskz0yw750nou": {}
+  },
+  "backgrounds": [
+    {
+      "id": "bg_msjr9v9ommtt6",
+      "url": "/uploads/background-1786156182885-342331230.png",
+      "originalName": "âPngtreeâgolden path to the stage_16675446.png"
     }
-  }
+  ],
+  "segmentPhotos": [
+    {
+      "id": "sp_mskyhmabdh1e2",
+      "segmentId": "seg_mseuv7gxh4xd7",
+      "contestantId": "c_msj1cwr6fjgvv",
+      "url": "/uploads/segment-photo-1786228767999-51045410.png"
+    },
+    {
+      "id": "sp_mskytov6b1kc7",
+      "segmentId": "seg_msjx0g6ckx4kv",
+      "contestantId": "c_mskyt6aoencik",
+      "url": "/uploads/segment-photo-1786229331222-261217081.png"
+    },
+    {
+      "id": "sp_mskz3x6s3nhod",
+      "segmentId": "seg_mskz0yw750nou",
+      "contestantId": "c_mskyt6aoencik",
+      "url": "/uploads/segment-photo-1786229808560-133609445.png"
+    }
+  ]
 }

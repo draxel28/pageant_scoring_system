@@ -13,7 +13,10 @@ const io = new Server(server);
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// ---------- Multer Configuration for Photo Uploads ----------
+// Global navigation index tracker for the display
+let globalContestantIndex = 0;
+
+// ---------- Multer Configuration for Uploads ----------
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     const uploadDir = path.join(__dirname, 'public', 'uploads');
@@ -24,7 +27,10 @@ const storage = multer.diskStorage({
   },
   filename: (req, file, cb) => {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, 'contestant-' + uniqueSuffix + path.extname(file.originalname));
+    let prefix = 'contestant';
+    if (file.fieldname === 'background') prefix = 'background';
+    if (file.fieldname === 'segmentPhoto') prefix = 'segment-photo';
+    cb(null, prefix + '-' + uniqueSuffix + path.extname(file.originalname));
   }
 });
 const upload = multer({ storage: storage });
@@ -32,10 +38,19 @@ const upload = multer({ storage: storage });
 // ---------- Persistence ----------
 function loadData() {
   if (!fs.existsSync(DATA_FILE)) {
-    const initial = { event: { displayMode: 'combined' }, judges: [], contestants: [], segments: [], scores: {} };
+    const initial = { event: { displayMode: 'combined', activeContestantIndex: 0 }, judges: [], contestants: [], segments: [], backgrounds: [], segmentPhotos: [], scores: {} };
     fs.writeFileSync(DATA_FILE, JSON.stringify(initial, null, 2));
   }
-  return JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
+  const data = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
+  if (!data.backgrounds) data.backgrounds = [];
+  if (!data.segmentPhotos) data.segmentPhotos = [];
+  if (!data.event) data.event = {};
+  if (typeof data.event.activeContestantIndex !== 'number') {
+    data.event.activeContestantIndex = globalContestantIndex;
+  } else {
+    globalContestantIndex = data.event.activeContestantIndex;
+  }
+  return data;
 }
 function saveData(data) {
   fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
@@ -44,7 +59,10 @@ function newId(prefix) {
   return prefix + '_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 }
 function broadcast() {
-  io.emit('state-updated', publicState());
+  const state = publicState();
+  state.contestantIndex = globalContestantIndex;
+  if (state.event) state.event.activeContestantIndex = globalContestantIndex;
+  io.emit('state-updated', state);
 }
 
 // Strip judge PINs before sending to display/admin broadcasts
@@ -55,10 +73,12 @@ function publicState() {
     results: computeSegmentResults(data, seg.id)
   }));
   return {
-    event: data.event,
+    event: { ...data.event, activeContestantIndex: globalContestantIndex },
     judges: data.judges.map(j => ({ id: j.id, name: j.name })),
     contestants: data.contestants,
     segments: segmentsWithResults,
+    backgrounds: data.backgrounds || [],
+    segmentPhotos: data.segmentPhotos || [],
     scores: data.scores
   };
 }
@@ -122,7 +142,11 @@ function computeOverallResults(data) {
 }
 
 // ---------- Admin: contestants ----------
-app.get('/api/state', (req, res) => res.json(loadData()));
+app.get('/api/state', (req, res) => {
+  const state = publicState();
+  state.contestantIndex = globalContestantIndex;
+  res.json(state);
+});
 
 app.post('/api/admin/contestants', upload.single('photo'), (req, res) => {
   const data = loadData();
@@ -163,9 +187,113 @@ app.delete('/api/admin/contestants/:id', (req, res) => {
     try { fs.unlinkSync(path.join(__dirname, 'public', c.photo)); } catch(e) {}
   }
   data.contestants = data.contestants.filter(item => item.id !== req.params.id);
+  // Also clean up any segment photos associated with this contestant
+  if (data.segmentPhotos) {
+    data.segmentPhotos.forEach(p => {
+      if (p.contestantId === req.params.id && p.url && fs.existsSync(path.join(__dirname, 'public', p.url))) {
+        try { fs.unlinkSync(path.join(__dirname, 'public', p.url)); } catch(e) {}
+      }
+    });
+    data.segmentPhotos = data.segmentPhotos.filter(p => p.contestantId !== req.params.id);
+  }
   saveData(data); 
   broadcast();
   res.json({ ok: true });
+});
+
+// ---------- Admin: Segment-Specific Photos ----------
+app.post('/api/admin/segment-photos', upload.single('segmentPhoto'), (req, res) => {
+  const data = loadData();
+  const { segmentId, contestantId } = req.body;
+  if (!req.file || !segmentId || !contestantId) {
+    return res.status(400).json({ error: 'Missing file, segmentId, or contestantId' });
+  }
+
+  if (!data.segmentPhotos) data.segmentPhotos = [];
+
+  // Check if a photo already exists for this segment + contestant combo
+  const existingIndex = data.segmentPhotos.findIndex(
+    p => p.segmentId === segmentId && p.contestantId === contestantId
+  );
+
+  if (existingIndex !== -1) {
+    // Delete old file from disk if it exists
+    const oldPhoto = data.segmentPhotos[existingIndex];
+    if (oldPhoto.url && fs.existsSync(path.join(__dirname, 'public', oldPhoto.url))) {
+      try { fs.unlinkSync(path.join(__dirname, 'public', oldPhoto.url)); } catch (e) {}
+    }
+    data.segmentPhotos.splice(existingIndex, 1);
+  }
+
+  const newSegmentPhoto = {
+    id: newId('sp'),
+    segmentId,
+    contestantId,
+    url: `/uploads/${req.file.filename}`
+  };
+
+  data.segmentPhotos.push(newSegmentPhoto);
+  saveData(data);
+  broadcast();
+  res.json(newSegmentPhoto);
+});
+
+app.delete('/api/admin/segment-photos/:id', (req, res) => {
+  const data = loadData();
+  if (!data.segmentPhotos) data.segmentPhotos = [];
+
+  const photoIndex = data.segmentPhotos.findIndex(p => p.id === req.params.id);
+  if (photoIndex !== -1) {
+    const photo = data.segmentPhotos[photoIndex];
+    const filePath = path.join(__dirname, 'public', photo.url);
+    if (fs.existsSync(filePath)) {
+      try { fs.unlinkSync(filePath); } catch (e) {}
+    }
+    data.segmentPhotos.splice(photoIndex, 1);
+    saveData(data);
+    broadcast();
+    return res.json({ ok: true });
+  }
+  res.status(404).json({ error: 'Segment photo not found' });
+});
+
+// ---------- Admin: Background Uploads ----------
+app.post('/api/admin/backgrounds', upload.single('background'), (req, res) => {
+  const data = loadData();
+  if (!req.file) {
+    return res.status(400).json({ error: 'No file uploaded' });
+  }
+
+  const newBg = {
+    id: newId('bg'),
+    url: `/uploads/${req.file.filename}`,
+    originalName: req.file.originalname
+  };
+
+  if (!data.backgrounds) data.backgrounds = [];
+  data.backgrounds.push(newBg);
+  saveData(data);
+  broadcast();
+  res.json(newBg);
+});
+
+app.delete('/api/admin/backgrounds/:id', (req, res) => {
+  const data = loadData();
+  if (!data.backgrounds) data.backgrounds = [];
+  
+  const bgIndex = data.backgrounds.findIndex(b => b.id === req.params.id);
+  if (bgIndex !== -1) {
+    const bg = data.backgrounds[bgIndex];
+    const filePath = path.join(__dirname, 'public', bg.url);
+    if (fs.existsSync(filePath)) {
+      try { fs.unlinkSync(filePath); } catch (e) {}
+    }
+    data.backgrounds.splice(bgIndex, 1);
+    saveData(data);
+    broadcast();
+    return res.json({ ok: true });
+  }
+  res.status(404).json({ error: 'Background not found' });
 });
 
 // ---------- Admin: judges ----------
@@ -197,6 +325,21 @@ app.post('/api/admin/display-mode', (req, res) => {
   res.json({ ok: true });
 });
 
+// ---------- Admin: active contestant index route ----------
+app.post('/api/admin/active-contestant', (req, res) => {
+  const { index } = req.body;
+  if (typeof index === 'number') {
+    globalContestantIndex = index;
+    const data = loadData();
+    if (!data.event) data.event = {};
+    data.event.activeContestantIndex = index;
+    saveData(data);
+    io.emit('contestant-index-updated', index);
+    return res.json({ ok: true });
+  }
+  res.status(400).json({ error: 'Invalid index' });
+});
+
 // ---------- Admin: segments & criteria ----------
 app.post('/api/admin/segments', (req, res) => {
   const data = loadData();
@@ -218,6 +361,15 @@ app.delete('/api/admin/segments/:id', (req, res) => {
   data.segments = data.segments.filter(s => s.id !== req.params.id);
   delete data.scores[req.params.id];
   if (data.event.activeSegmentId === req.params.id) data.event.activeSegmentId = null;
+  // Clean up segment photos for this deleted segment
+  if (data.segmentPhotos) {
+    data.segmentPhotos.forEach(p => {
+      if (p.segmentId === req.params.id && p.url && fs.existsSync(path.join(__dirname, 'public', p.url))) {
+        try { fs.unlinkSync(path.join(__dirname, 'public', p.url)); } catch(e) {}
+      }
+    });
+    data.segmentPhotos = data.segmentPhotos.filter(p => p.segmentId !== req.params.id);
+  }
   saveData(data); 
   broadcast();
   res.json({ ok: true });
@@ -308,7 +460,44 @@ app.get('/api/export/csv', (req, res) => {
 });
 
 io.on('connection', (socket) => {
-  socket.emit('state-updated', publicState());
+  const initialState = publicState();
+  initialState.contestantIndex = globalContestantIndex;
+  socket.emit('state-updated', initialState);
+
+  socket.on('update-contestant-index', (index) => {
+    if (typeof index === 'number') {
+      globalContestantIndex = index;
+      const data = loadData();
+      if (!data.event) data.event = {};
+      data.event.activeContestantIndex = index;
+      saveData(data);
+      io.emit('contestant-index-updated', index);
+    }
+  });
+
+  socket.on('next-contestant', () => {
+    const data = loadData();
+    if (data.contestants && data.contestants.length > 0) {
+      globalContestantIndex = (globalContestantIndex + 1) % data.contestants.length;
+      if (!data.event) data.event = {};
+      data.event.activeContestantIndex = globalContestantIndex;
+      saveData(data);
+      io.emit('contestant-index-updated', globalContestantIndex);
+    }
+    broadcast();
+  });
+
+  socket.on('prev-contestant', () => {
+    const data = loadData();
+    if (data.contestants && data.contestants.length > 0) {
+      globalContestantIndex = (globalContestantIndex - 1 + data.contestants.length) % data.contestants.length;
+      if (!data.event) data.event = {};
+      data.event.activeContestantIndex = globalContestantIndex;
+      saveData(data);
+      io.emit('contestant-index-updated', globalContestantIndex);
+    }
+    broadcast();
+  });
 });
 
 const PORT = process.env.PORT || 3000;
