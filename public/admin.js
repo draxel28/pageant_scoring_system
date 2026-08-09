@@ -9,14 +9,12 @@ let activeContestantIndex = 0;
 
 socket.on('state-updated', (s) => { 
   state = s; 
-  // If state tracks the active contestant index from backend, sync it here if available
   if (state.event && typeof state.event.activeContestantIndex === 'number') {
     activeContestantIndex = state.event.activeContestantIndex;
   }
   render(); 
 });
 
-// Listen for index updates from server sync
 socket.on('contestant-index-updated', (index) => {
   activeContestantIndex = index;
   updateSteppersUI();
@@ -66,6 +64,13 @@ function closeCustomModal(val) {
     window._modalResolve(val);
     window._modalResolve = null;
   }
+}
+
+// Helper to check if an uploaded asset URL points to a video file
+function isVideoFile(url) {
+  if (!url) return false;
+  const ext = url.split('.').pop().toLowerCase();
+  return ['mp4', 'webm', 'ogg', 'mov', 'quicktime'].includes(ext);
 }
 
 function addCritRow() {
@@ -183,7 +188,7 @@ async function updateDisplayMode(mode) {
   });
 }
 
-// Populate dropdowns and render segment photo list
+// Populate dropdowns and render segment photo / video list
 function renderSegmentPhotosUI(state) {
   const segSelect = document.getElementById('segPhotoSegmentSelect');
   const conSelect = document.getElementById('segPhotoContestantSelect');
@@ -191,26 +196,29 @@ function renderSegmentPhotosUI(state) {
 
   if (!segSelect || !conSelect || !listEl) return;
 
-  // Populate Segments dropdown
   segSelect.innerHTML = '<option value="">Select Segment...</option>';
   (state.segments || []).forEach(seg => {
     segSelect.innerHTML += `<option value="${seg.id}">${seg.name}</option>`;
   });
 
-  // Populate Contestants dropdown
   conSelect.innerHTML = '<option value="">Select Contestant...</option>';
   (state.contestants || []).forEach(c => {
     conSelect.innerHTML += `<option value="${c.id}">#${c.number} - ${c.name}</option>`;
   });
 
-  // Render gallery list of uploaded segment photos
   listEl.innerHTML = '';
   (state.segmentPhotos || []).forEach(p => {
     const seg = state.segments.find(s => s.id === p.segmentId);
     const con = state.contestants.find(c => c.id === p.contestantId);
+    
+    // Dynamically render either a video player or an image thumbnail
+    const mediaPreviewHtml = isVideoFile(p.url)
+      ? `<video src="${p.url}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 6px;" muted preload="metadata"></video>`
+      : `<img src="${p.url}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 6px;">`;
+
     listEl.innerHTML += `
       <div style="border: 1px solid rgba(255,255,255,0.2); padding: 8px; border-radius: 8px; text-align: center; width: 120px;">
-        <img src="${p.url}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 6px;">
+        <a href="${p.url}" target="_blank" title="View full size">${mediaPreviewHtml}</a>
         <div style="font-size: 0.75rem; margin-top: 4px;">${seg?.name || ''}</div>
         <div style="font-size: 0.75rem; font-weight: bold;">#${con?.number || ''}</div>
         <button onclick="deleteSegmentPhoto('${p.id}')" style="background: #e74c3c; color: white; border: none; padding: 2px 6px; border-radius: 4px; margin-top: 4px; cursor: pointer; font-size: 0.7rem;">Delete</button>
@@ -219,7 +227,6 @@ function renderSegmentPhotosUI(state) {
   });
 }
 
-// Handle form submission
 document.getElementById('segmentPhotoForm')?.addEventListener('submit', async (e) => {
   e.preventDefault();
   const segmentId = document.getElementById('segPhotoSegmentSelect').value;
@@ -238,19 +245,16 @@ document.getElementById('segmentPhotoForm')?.addEventListener('submit', async (e
 
   if (res.ok) {
     document.getElementById('segPhotoFileInput').value = '';
-    // state will auto-refresh via socket broadcast
   } else {
-    alert('Failed to upload segment photo');
+    alert('Failed to upload segment media');
   }
 });
 
 async function deleteSegmentPhoto(id) {
-  if (confirm('Delete this segment photo?')) {
+  if (confirm('Delete this segment media file?')) {
     await fetch(`/api/admin/segment-photos/${id}`, { method: 'DELETE' });
   }
 }
-
-// Make sure to call renderSegmentPhotosUI(state) inside your main state update handler in admin.js
 
 async function addSegment() {
   const name = document.getElementById('sName').value.trim();
@@ -287,7 +291,6 @@ function renderContestantAvatar(c) {
   return `<div style="width: 32px; height: 32px; background: rgba(255,255,255,0.05); border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 0.6rem; color: var(--text-muted); vertical-align: middle; margin-right: 8px;">No Img</div>`;
 }
 
-// Fixed Navigation Control Functions for Next / Prev and Stepper Clicks
 function nextContestant() {
   if (!state || !state.contestants || state.contestants.length === 0) return;
   if (activeContestantIndex < state.contestants.length - 1) {
@@ -312,11 +315,7 @@ function jumpToContestant(index) {
 
 function syncActiveContestant() {
   updateSteppersUI();
-  
-  // 1. Send socket event so display.html and judge portals update live immediately
   socket.emit('update-contestant-index', activeContestantIndex);
-  
-  // 2. Persist the active contestant index on the server backend so display.html can fetch it on load/refresh
   fetch('/api/admin/active-contestant', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -367,7 +366,6 @@ function updateSteppersUI() {
 function render() {
   if (!state) return;
 
-  // Render segment photos UI component safely
   renderSegmentPhotosUI(state);
 
   const cTable = document.querySelector('#contestantTable tbody');
@@ -731,8 +729,26 @@ function switchSegmentTab(segmentId) {
   renderSegmentScoreTabs();
 }
 
-function downloadSelectedPDF() {
-  showNotice('Export PDF is under maintenance.');
+async function downloadSelectedPDF() {
+  const select = document.getElementById('pdfExportSelect');
+  if (!select) return;
+  
+  const val = select.value;
+  if (!val) {
+    showNotice('Please select a report type to export.');
+    return;
+  }
+
+  try {
+    if (val === 'overall') {
+      window.open('/api/admin/export/overall-pdf', '_blank');
+    } else if (val.startsWith('seg_')) {
+      const segmentId = val.replace('seg_', '');
+      window.open(`/api/admin/export/segment-pdf/${segmentId}`, '_blank');
+    }
+  } catch (err) {
+    showNotice('Failed to generate PDF report.');
+  }
 }
 
 // ---------- Background Customization & Gallery ----------
@@ -740,7 +756,7 @@ function downloadSelectedPDF() {
 async function uploadBackground() {
   const fileInput = document.getElementById('bgImageInput');
   if (!fileInput.files || fileInput.files.length === 0) {
-    showNotice('Please select an image file first.');
+    showNotice('Please select an image or video file first.');
     return;
   }
 
@@ -754,16 +770,16 @@ async function uploadBackground() {
     });
     const data = await res.json();
     if (!res.ok) {
-      throw new Error(data.error || 'Failed to upload background image.');
+      throw new Error(data.error || 'Failed to upload background asset.');
     }
-    fileInput.value = ''; // Reset file input
+    fileInput.value = '';
   } catch (err) {
     showNotice(err.message);
   }
 }
 
 async function deleteBackground(id) {
-  const ok = await showConfirm('Are you sure you want to delete this background image?');
+  const ok = await showConfirm('Are you sure you want to delete this background item?');
   if (!ok) return;
   try {
     const res = await fetch(`/api/admin/backgrounds/${id}`, {
@@ -782,18 +798,25 @@ function renderBackgroundGallery(backgrounds) {
   if (!gallery) return;
 
   if (!backgrounds || backgrounds.length === 0) {
-    gallery.innerHTML = '<span class="muted" style="font-size: 0.9rem;">No background images uploaded yet.</span>';
+    gallery.innerHTML = '<span class="muted" style="font-size: 0.9rem;">No background assets uploaded yet.</span>';
     return;
   }
 
-  gallery.innerHTML = backgrounds.map(bg => `
-    <div style="position: relative; display: inline-block; border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; background: rgba(0,0,0,0.2);">
-      <a href="${bg.url}" target="_blank" title="View full size">
-        <img src="${bg.url}" style="width: 120px; height: 80px; object-fit: cover; display: block;" alt="Background">
-      </a>
-      <button type="button" onclick="deleteBackground('${bg.id}')" class="danger" style="position: absolute; top: 4px; right: 4px; padding: 2px 6px; font-size: 0.75rem; border-radius: 4px;" title="Delete">×</button>
-    </div>
-  `).join('');
+  gallery.innerHTML = backgrounds.map(bg => {
+    // Dynamically render either a video player or an image thumbnail for backgrounds
+    const bgPreviewHtml = isVideoFile(bg.url)
+      ? `<video src="${bg.url}" style="width: 120px; height: 80px; object-fit: cover; display: block;" muted preload="metadata"></video>`
+      : `<img src="${bg.url}" style="width: 120px; height: 80px; object-fit: cover; display: block;" alt="Background">`;
+
+    return `
+      <div style="position: relative; display: inline-block; border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; background: rgba(0,0,0,0.2);">
+        <a href="${bg.url}" target="_blank" title="View full size">
+          ${bgPreviewHtml}
+        </a>
+        <button type="button" onclick="deleteBackground('${bg.id}')" class="danger" style="position: absolute; top: 4px; right: 4px; padding: 2px 6px; font-size: 0.75rem; border-radius: 4px;" title="Delete">×</button>
+      </div>
+    `;
+  }).join('');
 }
 
 refresh();

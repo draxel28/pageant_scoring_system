@@ -2,6 +2,15 @@ const socket = io();
 let currentState = null;
 let currentContestantIndex = 0;
 
+// Helper to check if a file URL points to a video format
+function isVideoFile(url) {
+  if (!url) return false;
+  const cleanUrl = url.split('?')[0];
+  const ext = cleanUrl.split('.').pop().toLowerCase();
+  const videoExtensions = ['mp4', 'webm', 'ogg', 'mov', 'm4v', 'mkv', 'quicktime'];
+  return videoExtensions.includes(ext);
+}
+
 socket.on('state-updated', (state) => {
   currentState = state;
   if (currentState.event && typeof currentState.event.activeContestantIndex === 'number') {
@@ -105,15 +114,23 @@ function render(state) {
     avatarHtml = `<img src="${contestant.photo}" class="contestant-large-avatar" alt="${contestant.name}">`;
   }
 
-  // --- Strict Segment-Specific Photo Lookups (No Fallback to Profile Photo) ---
+  // --- Strict Segment-Specific Media Lookups (Photo or Video Support with Fallback Check) ---
   const segmentPhotos = state.segmentPhotos || [];
   const activeSegmentPhoto = segmentPhotos.find(
     p => p.segmentId === segment.id && p.contestantId === contestant.id
   );
 
-  let centralPhotoHtml = `<div style="width: 300px; height: 350px; border: 3px dashed var(--border-color); border-radius: 20px; display: flex; align-items: center; justify-content: center; color: var(--text-muted); background: rgba(0,0,0,0.2);">No Segment Photo Uploaded</div>`;
+  let centralPhotoHtml = `<div style="width: 300px; height: 350px; border: 3px dashed var(--border-color); border-radius: 20px; display: flex; align-items: center; justify-content: center; color: var(--text-muted); background: rgba(0,0,0,0.2);">No Segment Media Uploaded</div>`;
+  
   if (activeSegmentPhoto && activeSegmentPhoto.url) {
-    centralPhotoHtml = `<img src="${activeSegmentPhoto.url}" alt="${contestant.name}" style="max-height: 45vh; max-width: 100%; object-fit: contain; border-radius: 20px; border: 4px solid var(--gold); box-shadow: 0 20px 50px rgba(0,0,0,0.8), 0 0 30px var(--gold-glow);">`;
+    console.log("Resolved segment media URL:", activeSegmentPhoto.url);
+    
+    // Check using helper function or flexible extension/pattern matching
+    if (isVideoFile(activeSegmentPhoto.url) || /\.(mp4|webm|ogg|mov|m4v|mkv)(\?.*)?$/i.test(activeSegmentPhoto.url)) {
+      centralPhotoHtml = `<video src="${activeSegmentPhoto.url}" autoplay loop muted playsinline style="max-height: 45vh; max-width: 100%; object-fit: contain; border-radius: 20px; border: 4px solid var(--gold); box-shadow: 0 20px 50px rgba(0,0,0,0.8), 0 0 30px var(--gold-glow);"></video>`;
+    } else {
+      centralPhotoHtml = `<img src="${activeSegmentPhoto.url}" alt="${contestant.name}" style="max-height: 45vh; max-width: 100%; object-fit: contain; border-radius: 20px; border: 4px solid var(--gold); box-shadow: 0 20px 50px rgba(0,0,0,0.8), 0 0 30px var(--gold-glow);">`;
+    }
   }
 
   let judgesHtml = '';
@@ -146,7 +163,7 @@ function render(state) {
   bodyEl.innerHTML = `
     <div style="display: flex; flex-direction: column; justify-content: space-between; align-items: center; flex: 1; width: 100%;">
       
-      <!-- Middle Screen: Segment Contestant Photo Real-Time Display -->
+      <!-- Middle Screen: Segment Contestant Media Real-Time Display -->
       <div style="display: flex; justify-content: center; align-items: center; flex: 1; margin: 20px 0;">
         ${centralPhotoHtml}
       </div>

@@ -1,7 +1,7 @@
 {
   "event": {
     "name": "Pageant Night",
-    "activeSegmentId": "seg_mskz0yw750nou",
+    "activeSegmentId": "seg_msjx0g6ckx4kv",
     "displayMode": "judges",
     "activeContestantIndex": 0
   },
@@ -39,6 +39,13 @@
       "name": "Pia Wurtzbach",
       "barangay": "Bohol",
       "photo": "/uploads/contestant-1786242711056-575347067.jpg"
+    },
+    {
+      "id": "c_mslcio72kifgf",
+      "number": "2",
+      "name": "Catriona Gray",
+      "barangay": "Tacloban",
+      "photo": "/uploads/contestant-1786252331741-299438872.jpg"
     }
   ],
   "segments": [
@@ -288,9 +295,9 @@
   },
   "backgrounds": [
     {
-      "id": "bg_msjr9v9ommtt6",
-      "url": "/uploads/background-1786156182885-342331230.png",
-      "originalName": "âPngtreeâgolden path to the stage_16675446.png"
+      "id": "bg_msle6nl8hjghv",
+      "url": "/uploads/background-1786255130258-960854498.mp4",
+      "originalName": "1911e8b44e6753e95e67323d2569bcca.mp4"
     }
   ],
   "segmentPhotos": [
@@ -311,6 +318,24 @@
       "segmentId": "seg_msjx0g6ckx4kv",
       "contestantId": "c_mskyt6aoencik",
       "url": "/uploads/segment-photo-1786243361915-16069785.png"
+    },
+    {
+      "id": "sp_mslco2yj8na15",
+      "segmentId": "seg_mseuv7gxh4xd7",
+      "contestantId": "c_mslcio72kifgf",
+      "url": "/uploads/segment-photo-1786252584178-75281478.png"
+    },
+    {
+      "id": "sp_mslcocf048lk6",
+      "segmentId": "seg_msjx0g6ckx4kv",
+      "contestantId": "c_mslcio72kifgf",
+      "url": "/uploads/segment-photo-1786252596435-543639260.png"
+    },
+    {
+      "id": "sp_mslcokmjnbtok",
+      "segmentId": "seg_mskz0yw750nou",
+      "contestantId": "c_mslcio72kifgf",
+      "url": "/uploads/segment-photo-1786252607076-363573525.png"
     }
   ]
 }

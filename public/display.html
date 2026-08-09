@@ -34,6 +34,18 @@
     position: relative;
   }
 
+  /* Video Background Layer Styling */
+  .bg-video-layer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    object-fit: cover;
+    z-index: 0;
+    pointer-events: none;
+  }
+
   body::before {
     content: '';
     position: absolute;
@@ -42,7 +54,7 @@
     width: 100%;
     height: 100%;
     background: rgba(8, 9, 14, 0.6);
-    z-index: 0;
+    z-index: 1;
     pointer-events: none;
   }
 
@@ -53,7 +65,7 @@
     text-align: center;
     box-sizing: border-box;
     position: relative;
-    z-index: 1;
+    z-index: 2;
     display: flex;
     flex-direction: column;
     min-height: 100vh;
@@ -80,7 +92,7 @@
     padding: 20px;
   }
 
-  /* Central Photo Display Container */
+  /* Central Photo / Video Display Container */
   .central-photo-container {
     display: flex;
     justify-content: center;
@@ -92,14 +104,39 @@
     overflow: visible;
   }
 
-  .segment-contestant-display-photo {
-    max-height: 65vh;
+  /* Realistic upward-beaming floor spotlights from the feet pointing up */
+  .central-photo-container::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 50%;
+    height: 180px;
+    background: linear-gradient(to top, rgba(255, 240, 160, 0.6) 0%, rgba(241, 196, 15, 0.25) 30%, transparent 100%);
+    clip-path: polygon(40% 100%, 60% 100%, 85% 0%, 15% 0%);
+    filter: blur(8px);
+    z-index: 1;
+    pointer-events: none;
+    animation: flashlightBeam 2s ease-in-out infinite alternate;
+  }
+
+  @keyframes flashlightBeam {
+    0% { opacity: 0.6; transform: translateX(-50%) scale(0.96); }
+    100% { opacity: 0.95; transform: translateX(-50%) scale(1.04); }
+  }
+
+  .segment-contestant-display-photo,
+  .segment-contestant-display-video {
+    max-height: 68vh;
     max-width: 100%;
     object-fit: contain;
-    border-radius: 12px;
+    border-radius: 0;
     border: none;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
-    margin-bottom: -30px;
+    background: transparent;
+    box-shadow: none;
+    filter: drop-shadow(0 25px 35px rgba(0, 0, 0, 0.9)) drop-shadow(0 -20px 25px rgba(255, 235, 130, 0.5)) drop-shadow(0 -5px 10px rgba(255, 255, 255, 0.4));
+    margin-bottom: -10px;
     position: relative;
     z-index: 2;
   }
@@ -276,9 +313,6 @@
     50% { opacity: 0.4; transform: scale(0.98); }
   }
 
-  /* =========================================
-     MOBILE RESPONSIVE BREAKPOINTS (< 900px)
-     ========================================= */
   @media (max-width: 900px) {
     .stage {
       padding: 10px;
@@ -297,8 +331,9 @@
       margin: 20px 0;
     }
 
-    .segment-contestant-display-photo {
-      max-height: 45vh;
+    .segment-contestant-display-photo,
+    .segment-contestant-display-video {
+      max-height: 48vh;
       margin-bottom: 0;
     }
 
@@ -350,6 +385,10 @@
 </style>
 </head>
 <body>
+
+<!-- Dynamic Background Layer Container -->
+<div id="background-layer-container"></div>
+
 <div class="stage">
   <div class="segTitle" id="segTitle">Welcome</div>
   <div id="body" style="display: flex; flex-direction: column; justify-content: center; flex: 1;">
@@ -362,12 +401,31 @@ const socket = io();
 let currentState = null;
 let currentContestantIndex = 0;
 
+// Enhanced helper function checking extension or explicit flags
+function isVideoFile(mediaObj) {
+  if (!mediaObj) return false;
+  const url = mediaObj.url || mediaObj;
+  if (typeof url !== 'string') return false;
+  
+  // If backend explicitly flags it as a video or mime type contains video
+  if (mediaObj.type === 'video' || (mediaObj.mimetype && mediaObj.mimetype.startsWith('video'))) {
+    return true;
+  }
+  
+  const cleanUrl = url.split('?')[0];
+  const ext = cleanUrl.split('.').pop().toLowerCase();
+  const videoExtensions = ['mp4', 'webm', 'ogg', 'mov', 'm4v', 'mkv', 'quicktime'];
+  
+  // Also check filename patterns or known video format extensions
+  return videoExtensions.includes(ext) || /\.(mp4|webm|ogg|mov|m4v|mkv)(\?.*)?$/i.test(url);
+}
+
 socket.on('state-updated', (state) => {
   currentState = state;
   if (currentState.event && typeof currentState.event.activeContestantIndex === 'number') {
     currentContestantIndex = currentState.event.activeContestantIndex;
   }
-  render(currentState);
+  render(state);
 });
 
 socket.on('contestant-index-updated', (index) => {
@@ -389,10 +447,32 @@ async function refresh() {
 }
 
 function updateBackground(state) {
+  const bgContainer = document.getElementById('background-layer-container');
+  let bgUrl = '';
+
   if (state.event && state.event.backgroundUrl) {
-    document.body.style.backgroundImage = `url('${state.event.backgroundUrl}')`;
+    bgUrl = state.event.backgroundUrl;
   } else if (state.backgrounds && state.backgrounds.length > 0) {
-    document.body.style.backgroundImage = `url('${state.backgrounds[state.backgrounds.length - 1].url}')`;
+    bgUrl = state.backgrounds[state.backgrounds.length - 1].url;
+  }
+
+  if (!bgUrl) {
+    bgContainer.innerHTML = '';
+    document.body.style.backgroundImage = 'var(--bg-gradient)';
+    return;
+  }
+
+  // Check if background URL points to a video file
+  if (isVideoFile(bgUrl)) {
+    document.body.style.backgroundImage = 'none';
+    // Prevent recreating the video element if it's already playing the exact same source
+    const existingVideo = bgContainer.querySelector('video');
+    if (!existingVideo || existingVideo.getAttribute('src') !== bgUrl) {
+      bgContainer.innerHTML = `<video src="${bgUrl}" class="bg-video-layer" autoplay loop muted playsinline></video>`;
+    }
+  } else {
+    bgContainer.innerHTML = '';
+    document.body.style.backgroundImage = `url('${bgUrl}')`;
   }
 }
 
@@ -452,13 +532,18 @@ function render(state) {
   }
 
   const segmentPhotos = state.segmentPhotos || [];
-  const activeSegmentPhoto = segmentPhotos.find(
+  const activeSegmentPhoto = segmentPhotos.expressFind ? null : segmentPhotos.find(
     p => p.segmentId === segment.id && p.contestantId === contestant.id
   );
 
-  let centralPhotoHtml = `<div class="segment-contestant-photo-placeholder">No Segment Photo Uploaded</div>`;
+  let centralPhotoHtml = `<div class="segment-contestant-photo-placeholder">No Segment Media Uploaded</div>`;
   if (activeSegmentPhoto && activeSegmentPhoto.url) {
-    centralPhotoHtml = `<img src="${activeSegmentPhoto.url}" class="segment-contestant-display-photo" alt="${contestant.name}">`;
+    // Pass the whole object so type checking works even if extension is saved as .png
+    if (isVideoFile(activeSegmentPhoto)) {
+      centralPhotoHtml = `<video src="${activeSegmentPhoto.url}" class="segment-contestant-display-video" autoplay loop muted playsinline></video>`;
+    } else {
+      centralPhotoHtml = `<img src="${activeSegmentPhoto.url}" class="segment-contestant-display-photo" alt="${contestant.name}" onerror="this.onerror=null; this.outerHTML='<video src=\'${activeSegmentPhoto.url}\' class=\'segment-contestant-display-video\' autoplay loop muted playsinline></video>';">`;
+    }
   }
 
   let judgesHtml = '';
@@ -491,7 +576,7 @@ function render(state) {
   bodyEl.innerHTML = `
     <div style="display: flex; flex-direction: column; justify-content: space-between; align-items: center; flex: 1; width: 100%;">
       
-      <!-- Middle Screen: Segment Contestant Photo Display -->
+      <!-- Middle Screen: Segment Contestant Media Display with Upward Flashlight Floor Beams -->
       <div class="central-photo-container">
         ${centralPhotoHtml}
       </div>

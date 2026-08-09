@@ -16,7 +16,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Global navigation index tracker for the display
 let globalContestantIndex = 0;
 
-// ---------- Multer Configuration for Uploads ----------
+// ---------- Multer Configuration for Uploads (Supports Images & Videos) ----------
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     const uploadDir = path.join(__dirname, 'public', 'uploads');
@@ -29,11 +29,36 @@ const storage = multer.diskStorage({
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
     let prefix = 'contestant';
     if (file.fieldname === 'background') prefix = 'background';
-    if (file.fieldname === 'segmentPhoto') prefix = 'segment-photo';
+    if (file.fieldname === 'segmentPhoto') prefix = 'segment-media';
     cb(null, prefix + '-' + uniqueSuffix + path.extname(file.originalname));
   }
 });
-const upload = multer({ storage: storage });
+
+// File filter to allow both images and common video formats
+const fileFilter = (req, file, cb) => {
+  const allowedMimeTypes = [
+    'image/jpeg',
+    'image/png',
+    'image/gif',
+    'image/webp',
+    'video/mp4',
+    'video/webm',
+    'video/ogg',
+    'video/quicktime'
+  ];
+  
+  if (allowedMimeTypes.includes(file.mimetype)) {
+    cb(null, true);
+  } else {
+    cb(new Error('Invalid file type. Only images and standard video files are allowed.'), false);
+  }
+};
+
+const upload = multer({ 
+  storage: storage,
+  fileFilter: fileFilter,
+  limits: { fileSize: 100 * 1024 * 1024 } // Set limit to 100MB to accommodate video uploads safely
+});
 
 // ---------- Persistence ----------
 function loadData() {
@@ -187,7 +212,7 @@ app.delete('/api/admin/contestants/:id', (req, res) => {
     try { fs.unlinkSync(path.join(__dirname, 'public', c.photo)); } catch(e) {}
   }
   data.contestants = data.contestants.filter(item => item.id !== req.params.id);
-  // Also clean up any segment photos associated with this contestant
+  
   if (data.segmentPhotos) {
     data.segmentPhotos.forEach(p => {
       if (p.contestantId === req.params.id && p.url && fs.existsSync(path.join(__dirname, 'public', p.url))) {
@@ -201,7 +226,7 @@ app.delete('/api/admin/contestants/:id', (req, res) => {
   res.json({ ok: true });
 });
 
-// ---------- Admin: Segment-Specific Photos ----------
+// ---------- Admin: Segment-Specific Media (Photos & Videos) ----------
 app.post('/api/admin/segment-photos', upload.single('segmentPhoto'), (req, res) => {
   const data = loadData();
   const { segmentId, contestantId } = req.body;
@@ -211,13 +236,11 @@ app.post('/api/admin/segment-photos', upload.single('segmentPhoto'), (req, res) 
 
   if (!data.segmentPhotos) data.segmentPhotos = [];
 
-  // Check if a photo already exists for this segment + contestant combo
   const existingIndex = data.segmentPhotos.findIndex(
     p => p.segmentId === segmentId && p.contestantId === contestantId
   );
 
   if (existingIndex !== -1) {
-    // Delete old file from disk if it exists
     const oldPhoto = data.segmentPhotos[existingIndex];
     if (oldPhoto.url && fs.existsSync(path.join(__dirname, 'public', oldPhoto.url))) {
       try { fs.unlinkSync(path.join(__dirname, 'public', oldPhoto.url)); } catch (e) {}
@@ -254,10 +277,10 @@ app.delete('/api/admin/segment-photos/:id', (req, res) => {
     broadcast();
     return res.json({ ok: true });
   }
-  res.status(404).json({ error: 'Segment photo not found' });
+  res.status(404).json({ error: 'Segment media not found' });
 });
 
-// ---------- Admin: Background Uploads ----------
+// ---------- Admin: Background Uploads (Images & Videos) ----------
 app.post('/api/admin/backgrounds', upload.single('background'), (req, res) => {
   const data = loadData();
   if (!req.file) {
@@ -361,7 +384,7 @@ app.delete('/api/admin/segments/:id', (req, res) => {
   data.segments = data.segments.filter(s => s.id !== req.params.id);
   delete data.scores[req.params.id];
   if (data.event.activeSegmentId === req.params.id) data.event.activeSegmentId = null;
-  // Clean up segment photos for this deleted segment
+  
   if (data.segmentPhotos) {
     data.segmentPhotos.forEach(p => {
       if (p.segmentId === req.params.id && p.url && fs.existsSync(path.join(__dirname, 'public', p.url))) {

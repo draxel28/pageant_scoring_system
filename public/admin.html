@@ -465,15 +465,15 @@
   <div class="card">
     <h2>Background Customization &amp; Gallery</h2>
     <div class="row" style="flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 20px;">
-      <input type="file" id="bgImageInput" accept="image/*" style="flex: 2; padding: 6px; min-width: 180px;">
+      <input type="file" id="bgImageInput" accept="image/*,video/*" style="flex: 2; padding: 6px; min-width: 180px;">
       <button onclick="uploadBackground()">Upload Background</button>
     </div>
-    <p class="muted" style="margin-top: 0; margin-bottom: 15px;">Click on any uploaded background image below to view it in full size.</p>
+    <p class="muted" style="margin-top: 0; margin-bottom: 15px;">Click on any uploaded background image or video below to view it in full size.</p>
     <div id="bgGallery" style="display: flex; gap: 12px; flex-wrap: wrap;"></div>
   </div>
 
   <div class="card">
-    <h3>Segment-Specific Contestant Photos</h3>
+    <h3>Segment-Specific Contestant Media</h3>
     <form id="segmentPhotoForm" enctype="multipart/form-data">
       <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px;">
         <select id="segPhotoSegmentSelect" required style="flex: 1; padding: 8px;">
@@ -483,8 +483,8 @@
           <option value="">Select Contestant...</option>
         </select>
       </div>
-      <input type="file" name="segmentPhoto" id="segPhotoFileInput" accept="image/*" required style="margin-bottom: 10px; display: block;">
-      <button type="submit" class="btn">Upload Segment Photo</button>
+      <input type="file" name="segmentPhoto" id="segPhotoFileInput" accept="image/*,video/*" required style="margin-bottom: 10px; display: block;">
+      <button type="submit" class="btn">Upload Segment Media</button>
     </form>
     <div id="segmentPhotosList" style="margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap;"></div>
   </div>
@@ -495,14 +495,14 @@
       <input id="cNumber" placeholder="No." style="flex: 0 0 80px;">
       <input id="cName" placeholder="Contestant name" style="flex: 2; min-width: 150px;">
       <input id="cBarangay" placeholder="Barangay" style="flex: 1.5; min-width: 130px;">
-      <input type="file" id="cPhoto" accept="image/*" style="flex: 1.5; padding: 6px; min-width: 180px;">
+      <input type="file" id="cPhoto" accept="image/*,video/*" style="flex: 1.5; padding: 6px; min-width: 180px;">
       <button onclick="addContestant()">Add Contestant</button>
     </div>
     <div class="table-responsive">
       <table id="contestantTable">
         <thead>
           <tr>
-            <th style="width: 70px;">Photo</th>
+            <th style="width: 70px;">Media</th>
             <th style="width: 60px;">#</th>
             <th>Name</th>
             <th>Barangay</th>
