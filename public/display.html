@@ -30,7 +30,7 @@
     justify-content: space-between;
     min-height: 100vh;
     margin: 0;
-    overflow: hidden;
+    overflow-x: hidden;
     position: relative;
   }
 
@@ -49,25 +49,26 @@
   .stage {
     width: 100%;
     max-width: 1400px;
-    padding: 30px 20px;
+    padding: 15px 20px 10px 20px;
     text-align: center;
     box-sizing: border-box;
     position: relative;
     z-index: 1;
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    min-height: 100vh;
     justify-content: space-between;
   }
 
   .segTitle {
-    font-size: 2.8rem;
+    font-size: 2.4rem;
     font-weight: 900;
     letter-spacing: 3px;
     color: var(--gold);
     text-transform: uppercase;
     text-shadow: 0 4px 25px var(--gold-glow);
-    margin-top: 10px;
+    margin-top: 5px;
+    margin-bottom: 0px;
   }
 
   .waiting {
@@ -76,30 +77,31 @@
     margin: auto;
     letter-spacing: 1.5px;
     font-weight: 300;
+    padding: 20px;
   }
 
   /* Central Photo Display Container */
   .central-photo-container {
     display: flex;
     justify-content: center;
-    align-items: flex-end; /* Align image towards the bottom */
+    align-items: flex-end;
     flex: 1;
-    margin: 0;
+    margin: 10px 0;
     position: relative;
     width: 100%;
-    overflow: visible; /* Allows the image to extend downwards if needed */
+    overflow: visible;
   }
 
   .segment-contestant-display-photo {
-    max-height: 62vh; /* Made larger */
+    max-height: 65vh;
     max-width: 100%;
     object-fit: contain;
     border-radius: 12px;
-    border: none; /* Removed the yellow border */
+    border: none;
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
-    margin-bottom: -40px; /* Pulls the bottom of the image down behind the banner */
+    margin-bottom: -30px;
     position: relative;
-    z-index: 2; /* Keeps it layered appropriately */
+    z-index: 2;
   }
 
   .segment-contestant-photo-placeholder {
@@ -122,40 +124,41 @@
     background: var(--card-bg);
     backdrop-filter: blur(20px);
     border: 1px solid var(--border-color);
-    border-radius: 40px;
-    padding: 20px 30px;
+    border-radius: 30px;
+    padding: 12px 25px;
     box-sizing: border-box;
     box-shadow: 0 30px 60px rgba(0, 0, 0, 0.8);
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 30px;
-    z-index: 3; /* Ensures banner sits cleanly over the base of the image */
+    margin-bottom: 15px;
+    z-index: 3;
   }
+
   /* Left Section: Contestant Profile */
   .contestant-section {
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 15px;
     position: relative;
   }
 
   .contestant-large-avatar {
-    width: 110px;
-    height: 110px;
+    width: 90px;
+    height: 90px;
     border-radius: 50%;
     object-fit: cover;
     border: 3px solid var(--gold);
     background: #222;
     box-shadow: 0 8px 25px rgba(0,0,0,0.6);
     position: absolute;
-    top: -65px;
+    top: -50px;
     left: 10px;
   }
 
   .contestant-avatar-placeholder {
-    width: 110px;
-    height: 110px;
+    width: 90px;
+    height: 90px;
     border-radius: 50%;
     border: 3px solid var(--gold);
     background: #1a1c29;
@@ -165,18 +168,18 @@
     justify-content: center;
     font-size: 0.75rem;
     position: absolute;
-    top: -65px;
+    top: -50px;
     left: 10px;
     box-shadow: 0 8px 25px rgba(0,0,0,0.6);
   }
 
   .contestant-info {
-    margin-left: 135px;
+    margin-left: 110px;
     text-align: left;
   }
 
   .contestant-name {
-    font-size: 1.5rem;
+    font-size: 1.3rem;
     font-weight: 900;
     color: #fff;
     letter-spacing: 1px;
@@ -185,11 +188,11 @@
   }
 
   .contestant-location {
-    font-size: 0.95rem;
+    font-size: 0.85rem;
     color: var(--text-muted);
     text-transform: uppercase;
     letter-spacing: 2px;
-    margin-top: 4px;
+    margin-top: 2px;
     font-weight: 600;
   }
 
@@ -197,9 +200,10 @@
   .judges-section {
     display: flex;
     align-items: center;
-    gap: 18px;
+    gap: 12px;
     overflow-x: auto;
-    padding: 10px 5px;
+    padding: 5px;
+    max-width: 100%;
   }
 
   .judge-card {
@@ -208,31 +212,31 @@
     align-items: center;
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid rgba(255, 255, 255, 0.06);
-    border-radius: 14px;
-    padding: 8px 10px;
-    min-width: 65px;
+    border-radius: 12px;
+    padding: 6px 8px;
+    min-width: 55px;
   }
 
   .judge-avatar {
-    width: 44px;
-    height: 44px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
     object-fit: cover;
     border: 2px solid var(--gold);
-    margin-bottom: 6px;
+    margin-bottom: 4px;
   }
 
   .judge-name {
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     color: var(--text-muted);
     text-transform: uppercase;
     letter-spacing: 1px;
-    margin-bottom: 4px;
+    margin-bottom: 2px;
     white-space: nowrap;
   }
 
   .judge-score {
-    font-size: 1.1rem;
+    font-size: 1rem;
     font-weight: 800;
     color: #fff;
   }
@@ -241,14 +245,14 @@
   .average-section {
     background: rgba(0, 0, 0, 0.4);
     border: 1px solid var(--border-color);
-    border-radius: 20px;
-    padding: 12px 24px;
+    border-radius: 16px;
+    padding: 8px 18px;
     text-align: center;
-    min-width: 110px;
+    min-width: 95px;
   }
 
   .average-label {
-    font-size: 0.65rem;
+    font-size: 0.6rem;
     text-transform: uppercase;
     letter-spacing: 2px;
     color: var(--text-muted);
@@ -257,7 +261,7 @@
   }
 
   .average-value {
-    font-size: 2rem;
+    font-size: 1.7rem;
     font-weight: 900;
     color: var(--gold);
     line-height: 1;
@@ -270,6 +274,78 @@
   @keyframes pulse {
     0%, 100% { opacity: 1; transform: scale(1); }
     50% { opacity: 0.4; transform: scale(0.98); }
+  }
+
+  /* =========================================
+     MOBILE RESPONSIVE BREAKPOINTS (< 900px)
+     ========================================= */
+  @media (max-width: 900px) {
+    .stage {
+      padding: 10px;
+      height: auto;
+      min-height: 100vh;
+      overflow-y: auto;
+    }
+
+    .segTitle {
+      font-size: 1.8rem;
+      letter-spacing: 1px;
+      margin-top: 10px;
+    }
+
+    .central-photo-container {
+      margin: 20px 0;
+    }
+
+    .segment-contestant-display-photo {
+      max-height: 45vh;
+      margin-bottom: 0;
+    }
+
+    .display-banner {
+      flex-direction: column;
+      gap: 20px;
+      padding: 25px 15px 15px 15px;
+      border-radius: 25px;
+      margin-bottom: 10px;
+    }
+
+    .contestant-section {
+      width: 100%;
+      justify-content: center;
+      text-align: center;
+      margin-top: 25px;
+    }
+
+    .contestant-large-avatar, 
+    .contestant-avatar-placeholder {
+      left: 50%;
+      transform: translateX(-50%);
+      top: -75px;
+      width: 80px;
+      height: 80px;
+    }
+
+    .contestant-info {
+      margin-left: 0;
+      text-align: center;
+    }
+
+    .contestant-name {
+      font-size: 1.2rem;
+    }
+
+    .judges-section {
+      width: 100%;
+      justify-content: flex-start;
+      padding-bottom: 5px;
+    }
+
+    .average-section {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 10px;
+    }
   }
 </style>
 </head>
@@ -375,7 +451,6 @@ function render(state) {
     avatarHtml = `<img src="${contestant.photo}" class="contestant-large-avatar" alt="${contestant.name}">`;
   }
 
-  // --- Strict Segment-Specific Photo Lookups (No fallback to profile photo) ---
   const segmentPhotos = state.segmentPhotos || [];
   const activeSegmentPhoto = segmentPhotos.find(
     p => p.segmentId === segment.id && p.contestantId === contestant.id
