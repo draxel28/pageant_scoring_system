@@ -1,9 +1,9 @@
 {
   "event": {
     "name": "Pageant Night",
-    "activeSegmentId": "seg_msjx0g6ckx4kv",
+    "activeSegmentId": "seg_mskz0yw750nou",
     "displayMode": "judges",
-    "activeContestantIndex": 4
+    "activeContestantIndex": 0
   },
   "judges": [
     {
@@ -34,39 +34,11 @@
   ],
   "contestants": [
     {
-      "id": "c_msj140tyw43h7",
-      "number": "1",
-      "name": "Lyn Ciara",
-      "barangay": "Naic",
-      "photo": "/uploads/contestant-1786112240166-221807945.png"
-    },
-    {
-      "id": "c_msj1cwr6fjgvv",
-      "number": "2",
-      "name": "Sophia Beñegas",
-      "barangay": "Tanza",
-      "photo": "/uploads/contestant-1786112654739-986628309.JPG"
-    },
-    {
-      "id": "c_msjr23gbbowko",
-      "number": "3",
-      "name": "Phia",
-      "barangay": "Trece",
-      "photo": "/uploads/contestant-1786155820155-477992996.JPG"
-    },
-    {
-      "id": "c_msjx3vgrxi2ik",
-      "number": "4",
-      "name": "Maria Magdalena",
-      "barangay": "Capipisa",
-      "photo": "/uploads/contestant-1786165980909-255864326.jpeg"
-    },
-    {
       "id": "c_mskyt6aoencik",
-      "number": "5",
+      "number": "1",
       "name": "Pia Wurtzbach",
       "barangay": "Bohol",
-      "photo": "/uploads/contestant-1786229307118-594418382.jpg"
+      "photo": "/uploads/contestant-1786242711056-575347067.jpg"
     }
   ],
   "segments": [
@@ -95,7 +67,7 @@
           "maxScore": 20
         }
       ],
-      "revealed": false
+      "revealed": true
     },
     {
       "id": "seg_msjx0g6ckx4kv",
@@ -149,7 +121,7 @@
           "maxScore": 20
         }
       ],
-      "revealed": false
+      "revealed": true
     }
   ],
   "scores": {
@@ -240,6 +212,12 @@
           "cr_mseuv7gxzjxfy": "28",
           "cr_mseuv7gx85b78": "19",
           "cr_mseuv7gx34x7t": "20"
+        },
+        "c_mskyt6aoencik": {
+          "cr_mseuv7gxpix33": "27",
+          "cr_mseuv7gxzjxfy": "29",
+          "cr_mseuv7gx85b78": "19",
+          "cr_mseuv7gx34x7t": "20"
         }
       },
       "j_msevir2rimw5a": {
@@ -296,6 +274,12 @@
           "cr_mseuv7gxzjxfy": "29",
           "cr_mseuv7gx85b78": "16",
           "cr_mseuv7gx34x7t": "19"
+        },
+        "c_mskyt6aoencik": {
+          "cr_mseuv7gxpix33": "27",
+          "cr_mseuv7gxzjxfy": "28",
+          "cr_mseuv7gx85b78": "20",
+          "cr_mseuv7gx34x7t": "20"
         }
       }
     },
@@ -311,22 +295,22 @@
   ],
   "segmentPhotos": [
     {
-      "id": "sp_mskyhmabdh1e2",
-      "segmentId": "seg_mseuv7gxh4xd7",
-      "contestantId": "c_msj1cwr6fjgvv",
-      "url": "/uploads/segment-photo-1786228767999-51045410.png"
-    },
-    {
-      "id": "sp_mskytov6b1kc7",
-      "segmentId": "seg_msjx0g6ckx4kv",
-      "contestantId": "c_mskyt6aoencik",
-      "url": "/uploads/segment-photo-1786229331222-261217081.png"
-    },
-    {
-      "id": "sp_mskz3x6s3nhod",
+      "id": "sp_msl6zvytxcydh",
       "segmentId": "seg_mskz0yw750nou",
       "contestantId": "c_mskyt6aoencik",
-      "url": "/uploads/segment-photo-1786229808560-133609445.png"
+      "url": "/uploads/segment-photo-1786243057284-592175893.png"
+    },
+    {
+      "id": "sp_msl71j85e8ii0",
+      "segmentId": "seg_mseuv7gxh4xd7",
+      "contestantId": "c_mskyt6aoencik",
+      "url": "/uploads/segment-photo-1786243134096-815869172.png"
+    },
+    {
+      "id": "sp_msl76f0nom6dp",
+      "segmentId": "seg_msjx0g6ckx4kv",
+      "contestantId": "c_mskyt6aoencik",
+      "url": "/uploads/segment-photo-1786243361915-16069785.png"
     }
   ]
 }

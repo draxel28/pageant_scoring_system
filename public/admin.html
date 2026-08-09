@@ -141,12 +141,20 @@
     font-size: 0.95rem;
   }
 
+  /* Responsive Table Wrap */
+  .table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
   table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
     font-size: 1rem;
     text-align: left;
+    min-width: 500px;
   }
 
   th {
@@ -289,7 +297,7 @@
     color: var(--text-main);
   }
 
-  /* Current active step styling (green circle with number and highlight indicator chevron or pulse) */
+  /* Current active step styling */
   .step-item.active .step-circle {
     background: var(--step-green);
     border-color: #fff;
@@ -329,6 +337,8 @@
     align-items: center;
     justify-content: center;
     z-index: 9999;
+    padding: 15px;
+    box-sizing: border-box;
   }
 
   .modal-box {
@@ -340,6 +350,7 @@
     max-width: 420px;
     box-shadow: 0 25px 50px rgba(0,0,0,0.6);
     text-align: center;
+    box-sizing: border-box;
   }
 
   .modal-box h3 {
@@ -359,6 +370,77 @@
     gap: 12px;
     justify-content: center;
   }
+
+  /* =========================================
+     MOBILE RESPONSIVE BREAKPOINTS (< 768px)
+     ========================================= */
+  @media (max-width: 768px) {
+    body {
+      padding: 15px 8px;
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      margin-bottom: 20px;
+      letter-spacing: 1px;
+    }
+
+    .card {
+      padding: 18px 14px;
+      border-radius: 12px;
+      margin-bottom: 15px;
+    }
+
+    .card h2, .card h3 {
+      font-size: 1.2rem;
+      margin-bottom: 15px;
+    }
+
+    .row {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 10px;
+    }
+
+    input[type="text"], input[type="number"], input[type="password"], select, input[type="file"] {
+      width: 100%;
+      flex: none;
+      box-sizing: border-box;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+    }
+
+    /* Make navigation header stack nicely */
+    .card .row[style*="space-between"] {
+      flex-direction: column;
+      align-items: stretch !important;
+      gap: 12px;
+    }
+
+    .navigation-controls {
+      display: flex;
+      gap: 8px;
+      width: 100%;
+    }
+
+    .navigation-controls button {
+      flex: 1;
+    }
+
+    /* Reports & Export stack */
+    .card .row[style*="align-items: flex-end"] {
+      flex-direction: column;
+      align-items: stretch !important;
+    }
+
+    .card .row[style*="align-items: flex-end"] > div {
+      max-width: 100% !important;
+      flex-direction: column;
+    }
+  }
 </style>
 </head>
 <body>
@@ -369,12 +451,12 @@
     <h2>Contestant Navigation Controls</h2>
     <div class="row" style="justify-content: space-between; align-items: center; margin-bottom: 10px;">
       <label class="muted">Navigate through contestants for the projector / display screen:</label>
-<div class="navigation-controls">
-  <button type="button" class="secondary" onclick="prevContestant()">&#8592; Prev</button>
-  <button type="button" class="secondary" onclick="nextContestant()">Next &#8592;</button>
-</div>
+      <div class="navigation-controls">
+        <button type="button" class="secondary" onclick="prevContestant()">&#8592; Prev</button>
+        <button type="button" class="secondary" onclick="nextContestant()">Next &#8592;</button>
+      </div>
     </div>
-    <!-- Stepper Progress Bar Indicator (Checkmarks for previous, Active number with chevron for current) -->
+    <!-- Stepper Progress Bar Indicator -->
     <div id="contestantSteppers" class="stepper-container">
       <span class="muted" style="padding: 10px; width: 100%; text-align: center;">No contestants loaded</span>
     </div>
@@ -391,21 +473,21 @@
   </div>
 
   <div class="card">
-  <h3>Segment-Specific Contestant Photos</h3>
-  <form id="segmentPhotoForm" enctype="multipart/form-data">
-    <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px;">
-      <select id="segPhotoSegmentSelect" required style="flex: 1; padding: 8px;">
-        <option value="">Select Segment...</option>
-      </select>
-      <select id="segPhotoContestantSelect" required style="flex: 1; padding: 8px;">
-        <option value="">Select Contestant...</option>
-      </select>
-    </div>
-    <input type="file" name="segmentPhoto" id="segPhotoFileInput" accept="image/*" required style="margin-bottom: 10px; display: block;">
-    <button type="submit" class="btn">Upload Segment Photo</button>
-  </form>
-  <div id="segmentPhotosList" style="margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap;"></div>
-</div>
+    <h3>Segment-Specific Contestant Photos</h3>
+    <form id="segmentPhotoForm" enctype="multipart/form-data">
+      <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px;">
+        <select id="segPhotoSegmentSelect" required style="flex: 1; padding: 8px;">
+          <option value="">Select Segment...</option>
+        </select>
+        <select id="segPhotoContestantSelect" required style="flex: 1; padding: 8px;">
+          <option value="">Select Contestant...</option>
+        </select>
+      </div>
+      <input type="file" name="segmentPhoto" id="segPhotoFileInput" accept="image/*" required style="margin-bottom: 10px; display: block;">
+      <button type="submit" class="btn">Upload Segment Photo</button>
+    </form>
+    <div id="segmentPhotosList" style="margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap;"></div>
+  </div>
 
   <div class="card">
     <h2>Contestants</h2>
@@ -416,18 +498,20 @@
       <input type="file" id="cPhoto" accept="image/*" style="flex: 1.5; padding: 6px; min-width: 180px;">
       <button onclick="addContestant()">Add Contestant</button>
     </div>
-    <table id="contestantTable">
-      <thead>
-        <tr>
-          <th style="width: 70px;">Photo</th>
-          <th style="width: 60px;">#</th>
-          <th>Name</th>
-          <th>Barangay</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
+    <div class="table-responsive">
+      <table id="contestantTable">
+        <thead>
+          <tr>
+            <th style="width: 70px;">Photo</th>
+            <th style="width: 60px;">#</th>
+            <th>Name</th>
+            <th>Barangay</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
   </div>
 
   <div class="card">
@@ -437,7 +521,18 @@
       <button onclick="addJudge()">Add Judge</button>
     </div>
     <p class="muted" style="margin-top: 15px;">Give each judge their PIN below — that's how they log in on their laptop.</p>
-    <table id="judgeTable"><thead><tr><th>Name</th><th>PIN</th><th></th></tr></thead><tbody></tbody></table>
+    <div class="table-responsive">
+      <table id="judgeTable">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>PIN</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
   </div>
 
   <div class="card">
@@ -450,7 +545,20 @@
       <button class="secondary" onclick="addCritRow()">+ Add Criterion</button>
       <button onclick="addSegment()">Create Segment</button>
     </div>
-    <table id="segmentTable"><thead><tr><th>Segment</th><th>Criteria</th><th>Status</th><th>Reveal</th><th></th></tr></thead><tbody></tbody></table>
+    <div class="table-responsive">
+      <table id="segmentTable">
+        <thead>
+          <tr>
+            <th>Segment</th>
+            <th>Criteria</th>
+            <th>Status</th>
+            <th>Reveal</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
   </div>
 
   <div class="card">
@@ -467,9 +575,9 @@
   <div class="card">
     <h2>Reports &amp; Export</h2>
     <div class="row" style="gap: 15px; align-items: flex-end;">
-      <a href="/api/export/csv" style="text-decoration: none;"><button class="secondary">📥 Download All Scores (CSV)</button></a>
+      <a href="/api/export/csv" style="text-decoration: none; width: 100%;"><button class="secondary" style="width: 100%;">📥 Download All Scores (CSV)</button></a>
       
-      <div style="display: flex; gap: 8px; align-items: center; flex: 1; max-width: 450px;">
+      <div style="display: flex; gap: 8px; align-items: center; flex: 1; max-width: 450px; width: 100%;">
         <select id="pdfExportSelect" style="flex: 1;">
           <option value="overall">⭐ Overall Summary Report (PDF)</option>
         </select>
