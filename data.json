@@ -1,35 +1,25 @@
 {
   "event": {
     "name": "Pageant Night",
-    "activeSegmentId": "seg_msjx0g6ckx4kv",
+    "activeSegmentId": "seg_mseuv7gxh4xd7",
     "displayMode": "judges",
-    "activeContestantIndex": 0
+    "activeContestantIndex": 1
   },
   "judges": [
     {
-      "id": "j_msevedhdnd1c3",
-      "name": "Val",
-      "pin": "2669"
-    },
-    {
-      "id": "j_msevir2rimw5a",
+      "id": "j_mu51h3a2f4y92",
       "name": "Drex",
-      "pin": "1127"
+      "pin": "2888"
     },
     {
-      "id": "j_msjx73a50mnkc",
-      "name": "Aaron",
-      "pin": "7775"
+      "id": "j_mu5c82107ohgr",
+      "name": "Mxinne",
+      "pin": "5776"
     },
     {
-      "id": "j_msjx78aixnje7",
-      "name": "JC",
-      "pin": "6839"
-    },
-    {
-      "id": "j_msjx7dkgmd93l",
-      "name": "Romark",
-      "pin": "8539"
+      "id": "j_mu6ct9j84zp4d",
+      "name": "TIMZ",
+      "pin": "6468"
     }
   ],
   "contestants": [
@@ -287,6 +277,28 @@
           "cr_mseuv7gxzjxfy": "28",
           "cr_mseuv7gx85b78": "20",
           "cr_mseuv7gx34x7t": "20"
+        }
+      },
+      "j_mu51h3a2f4y92": {
+        "c_mskyt6aoencik": {
+          "cr_mseuv7gxpix33": "29",
+          "cr_mseuv7gxzjxfy": "30",
+          "cr_mseuv7gx85b78": "20",
+          "cr_mseuv7gx34x7t": "17"
+        },
+        "c_mslcio72kifgf": {
+          "cr_mseuv7gxpix33": "29",
+          "cr_mseuv7gxzjxfy": "28",
+          "cr_mseuv7gx85b78": "19",
+          "cr_mseuv7gx34x7t": "20"
+        }
+      },
+      "j_mu5c82107ohgr": {
+        "c_mskyt6aoencik": {
+          "cr_mseuv7gxpix33": "25",
+          "cr_mseuv7gxzjxfy": "28",
+          "cr_mseuv7gx85b78": "18",
+          "cr_mseuv7gx34x7t": "17"
         }
       }
     },

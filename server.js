@@ -46,7 +46,7 @@ const fileFilter = (req, file, cb) => {
     'video/ogg',
     'video/quicktime'
   ];
-  
+
   if (allowedMimeTypes.includes(file.mimetype)) {
     cb(null, true);
   } else {
@@ -54,7 +54,7 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-const upload = multer({ 
+const upload = multer({
   storage: storage,
   fileFilter: fileFilter,
   limits: { fileSize: 100 * 1024 * 1024 } // Set limit to 100MB to accommodate video uploads safely
@@ -83,15 +83,11 @@ function saveData(data) {
 function newId(prefix) {
   return prefix + '_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 }
-function broadcast() {
-  const state = publicState();
-  state.contestantIndex = globalContestantIndex;
-  if (state.event) state.event.activeContestantIndex = globalContestantIndex;
-  io.emit('state-updated', state);
-}
 
-// Strip judge PINs before sending to display/admin broadcasts
-function publicState() {
+// Build the state object sent to clients.
+// includePins=true is used ONLY for the admin room, so judge/display
+// clients never receive PIN values over the socket.
+function publicState(includePins = false) {
   const data = loadData();
   const segmentsWithResults = data.segments.map(seg => ({
     ...seg,
@@ -99,13 +95,27 @@ function publicState() {
   }));
   return {
     event: { ...data.event, activeContestantIndex: globalContestantIndex },
-    judges: data.judges.map(j => ({ id: j.id, name: j.name })),
+    judges: data.judges.map(j =>
+      includePins ? { id: j.id, name: j.name, pin: j.pin } : { id: j.id, name: j.name }
+    ),
     contestants: data.contestants,
     segments: segmentsWithResults,
     backgrounds: data.backgrounds || [],
     segmentPhotos: data.segmentPhotos || [],
     scores: data.scores
   };
+}
+
+function broadcast() {
+  const state = publicState();
+  state.contestantIndex = globalContestantIndex;
+  if (state.event) state.event.activeContestantIndex = globalContestantIndex;
+  io.to('public').emit('state-updated', state);
+
+  const adminState = publicState(true);
+  adminState.contestantIndex = globalContestantIndex;
+  if (adminState.event) adminState.event.activeContestantIndex = globalContestantIndex;
+  io.to('admin').emit('state-updated', adminState);
 }
 
 // ---------- Scoring math ----------
@@ -179,7 +189,7 @@ app.post('/api/admin/contestants', upload.single('photo'), (req, res) => {
   const photoUrl = req.file ? `/uploads/${req.file.filename}` : null;
   const c = { id: newId('c'), number: number || '', name: name || '', barangay: barangay || '', photo: photoUrl };
   data.contestants.push(c);
-  saveData(data); 
+  saveData(data);
   broadcast();
   res.json(c);
 });
@@ -189,7 +199,7 @@ app.put('/api/admin/contestants/:id', upload.single('photo'), (req, res) => {
   const { number, name, barangay } = req.body;
   const c = data.contestants.find(item => item.id === req.params.id);
   if (!c) return res.status(404).json({ error: 'Contestant not found' });
-  
+
   if (number !== undefined) c.number = number;
   if (name !== undefined) c.name = name;
   if (barangay !== undefined) c.barangay = barangay;
@@ -199,8 +209,8 @@ app.put('/api/admin/contestants/:id', upload.single('photo'), (req, res) => {
     }
     c.photo = `/uploads/${req.file.filename}`;
   }
-  
-  saveData(data); 
+
+  saveData(data);
   broadcast();
   res.json(c);
 });
@@ -212,7 +222,7 @@ app.delete('/api/admin/contestants/:id', (req, res) => {
     try { fs.unlinkSync(path.join(__dirname, 'public', c.photo)); } catch(e) {}
   }
   data.contestants = data.contestants.filter(item => item.id !== req.params.id);
-  
+
   if (data.segmentPhotos) {
     data.segmentPhotos.forEach(p => {
       if (p.contestantId === req.params.id && p.url && fs.existsSync(path.join(__dirname, 'public', p.url))) {
@@ -221,7 +231,7 @@ app.delete('/api/admin/contestants/:id', (req, res) => {
     });
     data.segmentPhotos = data.segmentPhotos.filter(p => p.contestantId !== req.params.id);
   }
-  saveData(data); 
+  saveData(data);
   broadcast();
   res.json({ ok: true });
 });
@@ -303,7 +313,7 @@ app.post('/api/admin/backgrounds', upload.single('background'), (req, res) => {
 app.delete('/api/admin/backgrounds/:id', (req, res) => {
   const data = loadData();
   if (!data.backgrounds) data.backgrounds = [];
-  
+
   const bgIndex = data.backgrounds.findIndex(b => b.id === req.params.id);
   if (bgIndex !== -1) {
     const bg = data.backgrounds[bgIndex];
@@ -326,14 +336,14 @@ app.post('/api/admin/judges', (req, res) => {
   const pin = Math.floor(1000 + Math.random() * 9000).toString();
   const j = { id: newId('j'), name, pin };
   data.judges.push(j);
-  saveData(data); 
+  saveData(data);
   broadcast();
   res.json(j);
 });
 app.delete('/api/admin/judges/:id', (req, res) => {
   const data = loadData();
   data.judges = data.judges.filter(j => j.id !== req.params.id);
-  saveData(data); 
+  saveData(data);
   broadcast();
   res.json({ ok: true });
 });
@@ -375,7 +385,7 @@ app.post('/api/admin/segments', (req, res) => {
   };
   data.segments.push(seg);
   data.scores[seg.id] = {};
-  saveData(data); 
+  saveData(data);
   broadcast();
   res.json(seg);
 });
@@ -384,7 +394,7 @@ app.delete('/api/admin/segments/:id', (req, res) => {
   data.segments = data.segments.filter(s => s.id !== req.params.id);
   delete data.scores[req.params.id];
   if (data.event.activeSegmentId === req.params.id) data.event.activeSegmentId = null;
-  
+
   if (data.segmentPhotos) {
     data.segmentPhotos.forEach(p => {
       if (p.segmentId === req.params.id && p.url && fs.existsSync(path.join(__dirname, 'public', p.url))) {
@@ -393,14 +403,14 @@ app.delete('/api/admin/segments/:id', (req, res) => {
     });
     data.segmentPhotos = data.segmentPhotos.filter(p => p.segmentId !== req.params.id);
   }
-  saveData(data); 
+  saveData(data);
   broadcast();
   res.json({ ok: true });
 });
 app.post('/api/admin/segments/:id/activate', (req, res) => {
   const data = loadData();
   data.event.activeSegmentId = req.params.id;
-  saveData(data); 
+  saveData(data);
   broadcast();
   res.json({ ok: true });
 });
@@ -408,7 +418,7 @@ app.post('/api/admin/segments/:id/reveal', (req, res) => {
   const data = loadData();
   const seg = data.segments.find(s => s.id === req.params.id);
   if (seg) seg.revealed = !!req.body.revealed;
-  saveData(data); 
+  saveData(data);
   broadcast();
   res.json({ ok: true });
 });
@@ -441,7 +451,7 @@ app.post('/api/judge/score', (req, res) => {
   if (!data.scores[segmentId][judgeId]) data.scores[segmentId][judgeId] = {};
   data.scores[segmentId][judgeId][contestantId] = scores;
 
-  saveData(data); 
+  saveData(data);
   broadcast();
   res.json({ ok: true });
 });
@@ -456,6 +466,39 @@ app.get('/api/results/:segmentId', (req, res) => {
 app.get('/api/results-overall', (req, res) => {
   const data = loadData();
   res.json(computeOverallResults(data));
+});
+
+// Per-judge score breakdown for whoever is currently on stage (for the OBS overlay).
+// Follows the same "current contestant" your next/prev navigation already tracks
+// via globalContestantIndex, so no separate spotlight control is needed.
+app.get('/api/spotlight', (req, res) => {
+  const data = loadData();
+  const contestant = data.contestants[globalContestantIndex];
+  const segment = data.segments.find(s => s.id === data.event.activeSegmentId);
+  if (!contestant || !segment) return res.json(null);
+
+  const segScores = data.scores[segment.id] || {};
+  const perJudge = data.judges.map(j => {
+    const judgeScores = segScores[j.id] && segScores[j.id][contestant.id];
+    let total = null;
+    if (judgeScores) {
+      total = 0;
+      segment.criteria.forEach(cr => { total += Number(judgeScores[cr.id]) || 0; });
+    }
+    return { judgeId: j.id, judgeName: j.name, score: total };
+  });
+
+  const submitted = perJudge.filter(j => j.score !== null);
+  const average = submitted.length > 0
+    ? submitted.reduce((a, j) => a + j.score, 0) / submitted.length
+    : null;
+
+  res.json({
+    contestant: { id: contestant.id, number: contestant.number, name: contestant.name, hometown: contestant.barangay, photo: contestant.photo },
+    segment: { id: segment.id, name: segment.name },
+    perJudge,
+    average
+  });
 });
 
 // ---------- CSV export ----------
@@ -483,7 +526,13 @@ app.get('/api/export/csv', (req, res) => {
 });
 
 io.on('connection', (socket) => {
-  const initialState = publicState();
+  // The admin page connects with io({ query: { role: 'admin' } }).
+  // Judge/display pages connect with plain io() and land in 'public',
+  // so they never receive judge PIN values.
+  const isAdmin = socket.handshake.query.role === 'admin';
+  socket.join(isAdmin ? 'admin' : 'public');
+
+  const initialState = publicState(isAdmin);
   initialState.contestantIndex = globalContestantIndex;
   socket.emit('state-updated', initialState);
 
@@ -533,6 +582,7 @@ server.listen(PORT, '0.0.0.0', () => {
       console.log(`On the network:    http://${n.address}:${PORT}/admin.html`);
       console.log(`   Judges go to:    http://${n.address}:${PORT}/judge.html`);
       console.log(`   Display goes to: http://${n.address}:${PORT}/display.html`);
+      console.log(`   OBS overlay:     http://${n.address}:${PORT}/overlay.html`);
     }
   });
   console.log('=======================================\n');

@@ -1,5 +1,5 @@
 // admin.js
-const socket = io();
+const socket = io({ query: { role: 'admin' } });
 let state = null;
 let critDraft = [];
 let revealedPins = new Set();

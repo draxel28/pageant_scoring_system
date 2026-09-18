@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Pageant Overlay</title>
+<style>
+  html, body {
+    margin: 0; padding: 0;
+    background: transparent;
+    width: 1920px; height: 1080px;
+    overflow: hidden;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  }
+  #bar {
+    position: absolute;
+    left: 40px; right: 40px; bottom: 40px;
+    height: 110px;
+    background: rgba(15, 13, 20, 0.82);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    gap: 20px;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+  }
+  #bar.show { opacity: 1; transform: translateY(0); }
+
+  #photoImg, #photoFallback {
+    width: 82px; height: 82px; border-radius: 50%;
+    border: 3px solid #d4af37;
+    background: #2a2733;
+    flex-shrink: 0;
+  }
+  #photoImg { object-fit: cover; }
+  #photoFallback.placeholder {
+    display: flex; align-items: center; justify-content: center;
+    color: #d4af37; font-weight: 700; font-size: 28px;
+  }
+
+  #info { min-width: 220px; flex-shrink: 0; }
+  #name { color: #fff; font-size: 26px; font-weight: 700; line-height: 1.1; }
+  #meta { color: #b8b3c2; font-size: 15px; margin-top: 4px; }
+
+  #divider { width: 1px; align-self: stretch; background: rgba(255,255,255,0.15); margin: 12px 0; }
+
+  #judges {
+    display: flex; gap: 22px; flex: 1;
+    align-items: center;
+    overflow: hidden;
+  }
+  .judge-cell { text-align: center; min-width: 56px; }
+  .judge-name { color: #8f8a9c; font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .judge-score { color: #fff; font-size: 24px; font-weight: 700; margin-top: 2px; }
+  .judge-score.pending { color: #55506a; }
+
+  #avgWrap { text-align: center; flex-shrink: 0; padding-left: 16px; }
+  #avgLabel { color: #8f8a9c; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; }
+  #avgScore { color: #d4af37; font-size: 34px; font-weight: 800; line-height: 1; margin-top: 2px; }
+</style>
+</head>
+<body>
+  <div id="bar">
+    <img id="photoImg" src="" alt="" style="display:none">
+    <div id="photoFallback" class="placeholder" style="display:none"></div>
+    <div id="info">
+      <div id="name">—</div>
+      <div id="meta">—</div>
+    </div>
+    <div id="divider"></div>
+    <div id="judges"></div>
+    <div id="avgWrap">
+      <div id="avgLabel">Average</div>
+      <div id="avgScore">—</div>
+    </div>
+  </div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="overlay.js"></script>
+</body>
+</html>

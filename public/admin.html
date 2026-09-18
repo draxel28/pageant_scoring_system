@@ -9,18 +9,28 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <style>
   :root {
-    --bg-gradient: radial-gradient(circle at center, #1a1c29 0%, #0d0e15 100%);
-    --card-bg: rgba(255, 255, 255, 0.03);
-    --border-color: rgba(255, 255, 255, 0.08);
-    --gold: #f39c12;
-    --text-main: #f8f9fa;
-    --text-muted: #95a5a6;
-    --accent-glow: rgba(243, 156, 18, 0.2);
-    --step-green: #2ecc71;
+    --bg: #0f1013;
+    --surface: #161718;
+    --surface-2: #1c1d1f;
+    --border: rgba(255, 255, 255, 0.08);
+    --border-strong: rgba(255, 255, 255, 0.14);
+    --text-main: #eceeef;
+    --text-muted: #8b8d92;
+    --accent: #c9a24a;
+    --accent-hover: #b6913f;
+    --accent-soft: rgba(201, 162, 74, 0.12);
+    --success: #3f9d72;
+    --success-soft: rgba(63, 157, 114, 0.14);
+    --danger: #c85a5f;
+    --danger-soft: rgba(200, 90, 95, 0.12);
+    --radius: 10px;
+    --radius-sm: 7px;
   }
 
+  * { box-sizing: border-box; }
+
   body {
-    background: var(--bg-gradient);
+    background: var(--bg);
     color: var(--text-main);
     font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
     min-height: 100vh;
@@ -28,117 +38,119 @@
     display: flex;
     justify-content: center;
     align-items: flex-start;
-    padding: 30px 15px;
-    box-sizing: border-box;
+    padding: 40px 20px;
   }
 
   .wrap {
     width: 100%;
-    max-width: 1450px;
+    max-width: 1280px;
   }
 
   h1 {
-    text-align: center;
-    font-size: 2.5rem;
-    font-weight: 800;
-    color: var(--gold);
-    margin-bottom: 35px;
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    text-shadow: 0 4px 20px var(--accent-glow);
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-main);
+    margin: 0 0 28px 0;
+    letter-spacing: -0.01em;
   }
 
   .card {
-    background: var(--card-bg);
-    backdrop-filter: blur(12px);
-    border: 1px solid var(--border-color);
-    border-radius: 16px;
-    padding: 30px;
-    margin-bottom: 25px;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-    overflow: auto;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 22px 24px;
+    margin-bottom: 16px;
   }
 
   .card h2 {
-    margin-top: 0;
-    font-size: 1.4rem;
+    margin: 0 0 18px 0;
+    font-size: 1rem;
     font-weight: 600;
-    margin-bottom: 20px;
     color: var(--text-main);
-    border-bottom: 1px solid var(--border-color);
-    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 12px;
+  }
+
+  .card h3 {
+    margin: 0 0 16px 0;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-main);
   }
 
   .row {
     display: flex;
-    gap: 12px;
+    gap: 10px;
     align-items: center;
     flex-wrap: wrap;
   }
 
   input[type="text"], input[type="number"], input[type="password"], select {
-    background: rgba(0, 0, 0, 0.3);
-    border: 1px solid var(--border-color);
-    border-radius: 10px;
-    padding: 12px 16px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 9px 12px;
     color: var(--text-main);
-    font-size: 1rem;
+    font-size: 0.9rem;
     outline: none;
-    transition: all 0.2s ease;
+    transition: border-color 0.15s ease;
     flex: 1;
   }
 
+  input[type="file"] {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+  }
+
   input:focus, select:focus {
-    border-color: var(--gold);
-    box-shadow: 0 0 10px var(--accent-glow);
+    border-color: var(--accent);
   }
 
   select option {
-    background: #1a1c29;
+    background: var(--surface-2);
     color: var(--text-main);
   }
 
   button {
-    background: var(--gold);
-    color: #0d0e15;
-    font-weight: 700;
+    background: var(--accent);
+    color: #16130a;
+    font-weight: 600;
     border: none;
-    border-radius: 10px;
-    padding: 12px 20px;
-    font-size: 0.95rem;
+    border-radius: var(--radius-sm);
+    padding: 9px 16px;
+    font-size: 0.87rem;
     cursor: pointer;
-    transition: transform 0.1s ease, background 0.2s ease;
+    transition: background 0.15s ease;
   }
 
   button:hover {
-    background: #e67e22;
-    transform: translateY(-1px);
+    background: var(--accent-hover);
   }
 
   button.secondary {
-    background: rgba(255, 255, 255, 0.1);
+    background: transparent;
     color: var(--text-main);
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--border-strong);
   }
 
   button.secondary:hover {
-    background: rgba(255, 255, 255, 0.15);
+    background: var(--surface-2);
   }
 
   button.danger {
-    background: rgba(231, 76, 60, 0.15);
-    color: #e74c3c;
-    border: 1px solid rgba(231, 76, 60, 0.3);
+    background: var(--danger-soft);
+    color: var(--danger);
+    border: 1px solid transparent;
   }
 
   button.danger:hover {
-    background: #e74c3c;
+    background: var(--danger);
     color: #fff;
   }
 
   .muted {
     color: var(--text-muted);
-    font-size: 0.95rem;
+    font-size: 0.87rem;
   }
 
   /* Responsive Table Wrap */
@@ -151,25 +163,25 @@
   table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 20px;
-    font-size: 1rem;
+    margin-top: 16px;
+    font-size: 0.88rem;
     text-align: left;
     min-width: 500px;
   }
 
   th {
-    font-size: 0.85rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
     color: var(--text-muted);
-    padding: 12px 16px;
-    border-bottom: 1px solid var(--border-color);
+    padding: 8px 14px;
+    border-bottom: 1px solid var(--border);
     white-space: nowrap;
   }
 
   td {
-    padding: 14px 16px;
-    border-bottom: 1px solid var(--border-color);
+    padding: 11px 14px;
+    border-bottom: 1px solid var(--border);
     white-space: nowrap;
   }
 
@@ -186,153 +198,130 @@
 
   .segment-tabs {
     display: flex;
-    gap: 8px;
+    gap: 6px;
     flex-wrap: wrap;
-    margin-bottom: 20px;
-    border-bottom: 1px solid var(--border-color);
-    padding-bottom: 12px;
+    margin-bottom: 18px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 14px;
   }
 
   .tab-btn {
-    background: rgba(255, 255, 255, 0.05);
+    background: transparent;
     color: var(--text-muted);
-    border: 1px solid var(--border-color);
-    padding: 8px 16px;
-    border-radius: 8px;
-    font-size: 0.9rem;
-    font-weight: 600;
+    border: 1px solid var(--border);
+    padding: 7px 14px;
+    border-radius: var(--radius-sm);
+    font-size: 0.85rem;
+    font-weight: 500;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: border-color 0.15s ease, color 0.15s ease;
   }
 
   .tab-btn:hover {
-    background: rgba(255, 255, 255, 0.1);
     color: var(--text-main);
+    border-color: var(--border-strong);
   }
 
   .tab-btn.active {
-    background: var(--gold);
-    color: #0d0e15;
-    border-color: var(--gold);
+    background: var(--accent-soft);
+    color: var(--accent);
+    border-color: var(--accent);
   }
 
-  /* Step-Progress Wizard Indicator Style */
+  /* Step-Progress Wizard Indicator */
   .stepper-container {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-start;
+    gap: 4px;
     position: relative;
-    margin: 25px 10px 15px 10px;
-    padding: 0 10px;
+    margin: 6px 0 4px 0;
+    padding: 4px 0;
     overflow-x: auto;
-  }
-
-  /* Background connecting line */
-  .stepper-container::before {
-    content: '';
-    position: absolute;
-    top: 22px;
-    left: 40px;
-    right: 40px;
-    height: 4px;
-    background: rgba(255, 255, 255, 0.1);
-    z-index: 1;
   }
 
   .step-item {
     position: relative;
     display: flex;
-    flex-direction: column;
     align-items: center;
+    gap: 8px;
     z-index: 2;
     cursor: pointer;
-    min-width: 70px;
-    transition: all 0.3s ease;
+    padding: 6px 10px;
+    border-radius: var(--radius-sm);
+    transition: background 0.15s ease;
   }
 
-  /* Circle badge */
+  .step-item:not(:last-child)::after {
+    content: '';
+    width: 16px;
+    height: 1px;
+    background: var(--border-strong);
+    margin: 0 2px;
+    flex-shrink: 0;
+  }
+
+  .step-item:hover {
+    background: var(--surface-2);
+  }
+
   .step-circle {
-    width: 44px;
-    height: 44px;
+    width: 26px;
+    height: 26px;
     border-radius: 50%;
-    background: rgba(0, 0, 0, 0.5);
-    border: 2px solid var(--border-color);
+    background: var(--surface-2);
+    border: 1px solid var(--border-strong);
     color: var(--text-muted);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: 700;
-    font-size: 1rem;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    font-weight: 600;
+    font-size: 0.78rem;
+    flex-shrink: 0;
   }
 
   .step-label {
-    margin-top: 8px;
-    font-size: 0.85rem;
-    font-weight: 600;
+    font-size: 0.82rem;
+    font-weight: 500;
     color: var(--text-muted);
-    text-align: center;
-    max-width: 90px;
+    max-width: 110px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    transition: all 0.3s ease;
   }
 
-  /* Completed step styling (green with checkmark) */
   .step-item.completed .step-circle {
-    background: var(--step-green);
-    border-color: var(--step-green);
-    color: #fff;
-    font-size: 0; /* Hide number to display check icon */
+    background: var(--success-soft);
+    border-color: var(--success);
+    color: var(--success);
+    font-size: 0;
   }
 
   .step-item.completed .step-circle::after {
     content: '✓';
-    font-size: 1.2rem;
-    font-weight: 900;
+    font-size: 0.85rem;
+    font-weight: 700;
   }
 
   .step-item.completed .step-label {
     color: var(--text-main);
   }
 
-  /* Current active step styling */
   .step-item.active .step-circle {
-    background: var(--step-green);
-    border-color: #fff;
-    color: #fff;
-    font-size: 1.1rem;
-    box-shadow: 0 0 20px rgba(46, 204, 113, 0.5);
-    transform: scale(1.15);
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #16130a;
   }
 
   .step-item.active .step-label {
-    color: var(--step-green);
-    font-weight: 800;
-  }
-
-  /* Active mini-chevron indicator above current step */
-  .step-item.active::before {
-    content: '⌄';
-    position: absolute;
-    top: -16px;
-    color: var(--step-green);
-    font-size: 1.2rem;
-    font-weight: bold;
-    animation: bounceIndicator 1.5s infinite;
-  }
-
-  @keyframes bounceIndicator {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-4px); }
+    color: var(--accent);
+    font-weight: 600;
   }
 
   .modal-overlay {
     position: fixed;
     top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.7);
-    backdrop-filter: blur(5px);
+    background: rgba(0, 0, 0, 0.6);
     display: none;
     align-items: center;
     justify-content: center;
@@ -342,33 +331,34 @@
   }
 
   .modal-box {
-    background: #171924;
-    border: 1px solid var(--border-color);
-    border-radius: 16px;
-    padding: 30px;
+    background: var(--surface);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius);
+    padding: 26px;
     width: 100%;
-    max-width: 420px;
-    box-shadow: 0 25px 50px rgba(0,0,0,0.6);
-    text-align: center;
+    max-width: 400px;
+    text-align: left;
     box-sizing: border-box;
   }
 
   .modal-box h3 {
     margin-top: 0;
-    color: var(--gold);
-    font-size: 1.4rem;
+    color: var(--text-main);
+    font-size: 1.05rem;
+    font-weight: 600;
   }
 
   .modal-box p {
-    color: var(--text-main);
-    font-size: 1.05rem;
-    margin: 20px 0;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin: 14px 0 22px 0;
+    line-height: 1.5;
   }
 
   .modal-actions {
     display: flex;
-    gap: 12px;
-    justify-content: center;
+    gap: 10px;
+    justify-content: flex-end;
   }
 
   /* =========================================
@@ -380,20 +370,19 @@
     }
 
     h1 {
-      font-size: 1.8rem;
-      margin-bottom: 20px;
-      letter-spacing: 1px;
+      font-size: 1.3rem;
+      margin-bottom: 18px;
     }
 
     .card {
-      padding: 18px 14px;
-      border-radius: 12px;
-      margin-bottom: 15px;
+      padding: 16px 14px;
+      border-radius: var(--radius-sm);
+      margin-bottom: 12px;
     }
 
     .card h2, .card h3 {
-      font-size: 1.2rem;
-      margin-bottom: 15px;
+      font-size: 0.95rem;
+      margin-bottom: 14px;
     }
 
     .row {
@@ -410,7 +399,7 @@
 
     button {
       width: 100%;
-      padding: 12px;
+      padding: 11px;
     }
 
     /* Make navigation header stack nicely */
@@ -445,7 +434,7 @@
 </head>
 <body>
 <div class="wrap">
-  <h1>🏆 Pageant Control Panel</h1>
+  <h1>Admin Control Panel</h1>
 
   <div class="card">
     <h2>Contestant Navigation Controls</h2>
