@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dead Air Display</title>
+<style>
+  body {
+    background: #000;
+    margin: 0;
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Full Screen Background Media Layer */
+  #bgContainer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    overflow: hidden;
+    background: #000;
+  }
+
+#bgContainer img, #bgContainer video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Fills the entire screen seamlessly edge-to-edge */
+  }
+</style>
+</head>
+<body>
+
+<div id="bgContainer"></div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+const socket = io();
+
+socket.on('state-updated', (state) => {
+  renderDeadAir(state);
+});
+
+async function fetchInitialState() {
+  try {
+    const res = await fetch('/api/state');
+    const state = await res.json();
+    renderDeadAir(state);
+  } catch (err) {
+    console.error('Error fetching initial state:', err);
+    // Fallback default if API isn't reached immediately
+    setFallbackBackground();
+  }
+}
+
+function renderDeadAir(state) {
+  const bgContainer = document.getElementById('bgContainer');
+  const event = state ? (state.event || {}) : {};
+  
+  // Check if a specific dead air background is provided in state, 
+  // otherwise default to your requested file in public/deadair/
+  const bgUrl = event.deadAirBackgroundUrl || event.deadAirBg || "/deadair/2ND BG.mp4";
+
+  const ext = bgUrl.split('.').pop().toLowerCase();
+  const isVideo = ['mp4', 'webm', 'ogg', 'mov', 'qt'].includes(ext);
+
+  bgContainer.innerHTML = '';
+  if (isVideo) {
+    bgContainer.innerHTML = `<video src="${bgUrl}" autoplay muted loop playsinline></video>`;
+  } else {
+    bgContainer.innerHTML = `<img src="${bgUrl}" alt="Dead Air Background">`;
+  }
+}
+
+function setFallbackBackground() {
+  const bgContainer = document.getElementById('bgContainer');
+  // Safe default fallback pointing to your file
+  bgContainer.innerHTML = `<video src="/deadair/2ND BG.mp4" autoplay muted loop playsinline></video>`;
+}
+
+fetchInitialState();
+</script>
+
+</body>
+</html>
