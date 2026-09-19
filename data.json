@@ -3,7 +3,9 @@
     "name": "Pageant Night",
     "activeSegmentId": "seg_mseuv7gxh4xd7",
     "displayMode": "judges",
-    "activeContestantIndex": 1
+    "activeContestantIndex": 1,
+    "selectedSegmentOverlayId": "seg_msjx0g6ckx4kv",
+    "segmentDisplayBgId": "sdbg_mu84oy9qbzsvg"
   },
   "judges": [
     {
@@ -299,17 +301,75 @@
           "cr_mseuv7gxzjxfy": "28",
           "cr_mseuv7gx85b78": "18",
           "cr_mseuv7gx34x7t": "17"
+        },
+        "c_mslcio72kifgf": {
+          "cr_mseuv7gxpix33": "29",
+          "cr_mseuv7gxzjxfy": "27",
+          "cr_mseuv7gx85b78": "20",
+          "cr_mseuv7gx34x7t": "20"
+        }
+      },
+      "j_mu6ct9j84zp4d": {
+        "c_mslcio72kifgf": {
+          "cr_mseuv7gxpix33": "30",
+          "cr_mseuv7gxzjxfy": "29",
+          "cr_mseuv7gx85b78": "19",
+          "cr_mseuv7gx34x7t": "20"
         }
       }
     },
     "seg_msjx0g6ckx4kv": {},
-    "seg_mskz0yw750nou": {}
+    "seg_mskz0yw750nou": {
+      "j_msevir2rimw5a": {
+        "c_mskyt6aoencik": {
+          "cr_mskz0yw7vax2i": "30",
+          "cr_mskz0yw7o7xke": "25",
+          "cr_mskz0yw7oynnq": "24",
+          "cr_mskz0yw7tdwoq": "20"
+        },
+        "c_mslcio72kifgf": {
+          "cr_mskz0yw7vax2i": "30",
+          "cr_mskz0yw7o7xke": "25",
+          "cr_mskz0yw7oynnq": "24",
+          "cr_mskz0yw7tdwoq": "20"
+        }
+      },
+      "j_msevedhdnd1c3": {
+        "c_mskyt6aoencik": {
+          "cr_mskz0yw7vax2i": "30",
+          "cr_mskz0yw7o7xke": "25",
+          "cr_mskz0yw7oynnq": "24",
+          "cr_mskz0yw7tdwoq": "19"
+        },
+        "c_mslcio72kifgf": {
+          "cr_mskz0yw7vax2i": "29",
+          "cr_mskz0yw7o7xke": "25",
+          "cr_mskz0yw7oynnq": "25",
+          "cr_mskz0yw7tdwoq": "20"
+        }
+      }
+    }
   },
   "backgrounds": [
     {
       "id": "bg_msle6nl8hjghv",
       "url": "/uploads/background-1786255130258-960854498.mp4",
       "originalName": "1911e8b44e6753e95e67323d2569bcca.mp4"
+    },
+    {
+      "id": "bg_msleolq937wrl",
+      "url": "/uploads/background-1786255967246-808473924.mp4",
+      "originalName": "14684003_3840_2160_30fps.mp4"
+    },
+    {
+      "id": "bg_msleu5uw2o8zd",
+      "url": "/uploads/background-1786256226280-257573027.mp4",
+      "originalName": "14683985_3840_2160_30fps.mp4"
+    },
+    {
+      "id": "bg_msleur7mg3wvo",
+      "url": "/uploads/background-1786256254425-406544951.mp4",
+      "originalName": "14683961_3840_2160_30fps.mp4"
     }
   ],
   "segmentPhotos": [
@@ -348,6 +408,93 @@
       "segmentId": "seg_mskz0yw750nou",
       "contestantId": "c_mslcio72kifgf",
       "url": "/uploads/segment-photo-1786252607076-363573525.png"
+    }
+  ],
+  "segmentDisplayBackgrounds": [
+    {
+      "id": "sdbg_mu839autv4i1h",
+      "url": "/uploads/contestant-1789804282372-638034147.mp4",
+      "originalName": "background-1786255130258-960854498.mp4"
+    },
+    {
+      "id": "sdbg_mu83a4z9g7z0t",
+      "url": "/uploads/contestant-1789804321422-644195659.mp4",
+      "originalName": "background-1786255130258-960854498.mp4"
+    },
+    {
+      "id": "sdbg_mu83c5n64uini",
+      "url": "/uploads/contestant-1789804415591-297608210.mp4",
+      "originalName": "background-1786255130258-960854498.mp4"
+    },
+    {
+      "id": "sdbg_mu83ckj31323z",
+      "url": "/uploads/contestant-1789804434870-222942906.mp4",
+      "originalName": "background-1786255130258-960854498.mp4"
+    },
+    {
+      "id": "sdbg_mu83d3s1hjtrl",
+      "url": "/uploads/contestant-1789804459824-277455744.mp4",
+      "originalName": "background-1786255130258-960854498.mp4"
+    },
+    {
+      "id": "sdbg_mu83e4tp1bssc",
+      "url": "/uploads/contestant-1789804507839-88087341.mp4",
+      "originalName": "background-1786255130258-960854498.mp4"
+    },
+    {
+      "id": "sdbg_mu83fp4em32g1",
+      "url": "/uploads/contestant-1789804580821-859957309.mp4",
+      "originalName": "background-1786255130258-960854498.mp4"
+    },
+    {
+      "id": "sdbg_mu83nmffmz0iy",
+      "url": "/uploads/contestant-1789804950564-288600687.mp4",
+      "originalName": "background-1786255130258-960854498.mp4"
+    },
+    {
+      "id": "sdbg_mu83omo01lwy2",
+      "url": "/uploads/contestant-1789804997539-631038939.mp4",
+      "originalName": "background-1786255130258-960854498.mp4"
+    },
+    {
+      "id": "sdbg_mu83tsaxofml4",
+      "url": "/uploads/contestant-1789805238120-382476067.mp4",
+      "originalName": "background-1786255130258-960854498.mp4"
+    },
+    {
+      "id": "sdbg_mu83xfufn4hd3",
+      "url": "/uploads/contestant-1789805408238-210226414.mp4",
+      "originalName": "background-1786256226280-257573027.mp4"
+    },
+    {
+      "id": "sdbg_mu847yefp6roo",
+      "url": "/uploads/contestant-1789805899199-109029687.mp4",
+      "originalName": "background-1786255130258-960854498.mp4"
+    },
+    {
+      "id": "sdbg_mu84aep2or4qj",
+      "url": "/uploads/contestant-1789806013213-743365298.mp4",
+      "originalName": "background-1786256226280-257573027.mp4"
+    },
+    {
+      "id": "sdbg_mu84d06btogka",
+      "url": "/uploads/contestant-1789806134397-46939374.mp4",
+      "originalName": "background-1786256226280-257573027.mp4"
+    },
+    {
+      "id": "sdbg_mu84e268rqte9",
+      "url": "/uploads/contestant-1789806184035-290960143.mp4",
+      "originalName": "background-1786255130258-960854498.mp4"
+    },
+    {
+      "id": "sdbg_mu84n2jaxk8nt",
+      "url": "/uploads/contestant-1789806604370-988778172.mp4",
+      "originalName": "MAIN.mp4"
+    },
+    {
+      "id": "sdbg_mu84oy9qbzsvg",
+      "url": "/uploads/contestant-1789806691794-864940144.mp4",
+      "originalName": "2ND BG.mp4"
     }
   ]
 }

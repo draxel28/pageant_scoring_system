@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Segment Selected Display</title>
+<link rel="stylesheet" href="style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-gradient: radial-gradient(circle at center, #141622 0%, #08090e 100%);
+    --gold: #f1c40f;
+    --gold-glow: rgba(241, 196, 15, 0.5);
+    --text-main: #f8f9fa;
+    --text-muted: #8c9ea6;
+  }
+
+  body {
+    background: var(--bg-gradient);
+    color: var(--text-main);
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    margin: 0;
+    overflow: hidden;
+    box-sizing: border-box;
+    position: relative;
+  }
+
+  /* Full Screen Background Media Layer */
+  #bgContainer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    overflow: hidden;
+  }
+
+  #bgContainer img, #bgContainer video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Dark Overlay to make text readable over bright videos/images */
+  #bgOverlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.55); 
+    z-index: 2;
+  }
+
+  .container {
+    position: relative;
+    z-index: 3;
+    width: 100%;
+    max-width: 1300px;
+    text-align: center;
+    padding: 20px;
+  }
+
+  h1 {
+    font-family: 'Cinzel', serif; /* High-end pageant title font */
+    font-size: 5rem;
+    font-weight: 800;
+    color: var(--gold);
+    text-transform: uppercase;
+    letter-spacing: 8px; /* Spreads letters out for a majestic look */
+    margin: 0;
+    line-height: 1.2;
+    text-shadow: 0 0 30px var(--gold-glow), 0 4px 15px rgba(0, 0, 0, 0.9);
+  }
+
+  .waiting {
+    font-family: 'Playfair Display', serif; /* Elegant serif look for waiting state */
+    font-style: italic;
+    font-size: 2.2rem;
+    color: var(--text-muted);
+    letter-spacing: 3px;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+  }
+</style>
+</head>
+<body>
+
+<div id="bgContainer"></div>
+<div id="bgOverlay"></div>
+
+<div class="container">
+  <h1 id="segmentTitle">Waiting for display selection...</h1>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+const socket = io();
+
+socket.on('state-updated', (state) => {
+  renderOverlay(state);
+});
+
+async function fetchInitialState() {
+  try {
+    const res = await fetch('/api/state');
+    const state = await res.json();
+    renderOverlay(state);
+  } catch (err) {
+    console.error('Error fetching initial state:', err);
+  }
+}
+
+function renderOverlay(state) {
+  if (!state) return;
+  
+  const event = state.event || {};
+  const selectedId = event.selectedSegmentOverlayId || event.segmentId;
+  
+  // Safely grab background ID checking multiple possible schema key variations
+  const bgId = event.segmentDisplayBgId || 
+               event.segmentDisplayBackgroundId || 
+               event.backgroundId || 
+               event.bgId;
+
+  const titleEl = document.getElementById('segmentTitle');
+  const bgContainer = document.getElementById('bgContainer');
+
+  // 1. Render Background Image or Video if specified
+  bgContainer.innerHTML = '';
+  if (bgId && state.segmentDisplayBackgrounds) {
+    const bgItem = state.segmentDisplayBackgrounds.find(b => b.id == bgId);
+    if (bgItem && bgItem.url) {
+      const ext = bgItem.url.split('.').pop().toLowerCase();
+      const isVideo = ['mp4', 'webm', 'ogg', 'mov', 'qt'].includes(ext);
+      
+      if (isVideo) {
+        bgContainer.innerHTML = `<video src="${bgItem.url}" autoplay muted loop playsinline></video>`;
+      } else {
+        bgContainer.innerHTML = `<img src="${bgItem.url}" alt="Background">`;
+      }
+    }
+  }
+
+  // 2. Render Segment Title
+  if (!selectedId) {
+    titleEl.textContent = "Waiting for display selection...";
+    titleEl.className = "waiting";
+    return;
+  }
+
+  const segment = (state.segments || []).find(s => s.id == selectedId);
+  if (!segment) {
+    titleEl.textContent = "Segment Not Found";
+    titleEl.className = "waiting";
+    return;
+  }
+
+  titleEl.textContent = segment.name;
+  titleEl.className = "";
+}
+
+fetchInitialState();
+</script>
+</body>
+</html>

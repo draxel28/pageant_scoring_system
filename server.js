@@ -102,10 +102,10 @@ function publicState(includePins = false) {
     segments: segmentsWithResults,
     backgrounds: data.backgrounds || [],
     segmentPhotos: data.segmentPhotos || [],
+    segmentDisplayBackgrounds: data.segmentDisplayBackgrounds || [], // <-- Added this line!
     scores: data.scores
   };
 }
-
 function broadcast() {
   const state = publicState();
   state.contestantIndex = globalContestantIndex;
@@ -576,14 +576,65 @@ const PORT = process.env.PORT || 3000;
 server.listen(PORT, '0.0.0.0', () => {
   const nets = require('os').networkInterfaces();
   console.log('\n=== Pageant Scoring System running ===');
-  console.log(`On this computer:   http://localhost:${PORT}/admin.html`);
+  console.log(`On this computer:    http://localhost:${PORT}/admin.html`);
   Object.values(nets).flat().forEach(n => {
     if (n.family === 'IPv4' && !n.internal) {
       console.log(`On the network:    http://${n.address}:${PORT}/admin.html`);
       console.log(`   Judges go to:    http://${n.address}:${PORT}/judge.html`);
       console.log(`   Display goes to: http://${n.address}:${PORT}/display.html`);
       console.log(`   OBS overlay:     http://${n.address}:${PORT}/overlay.html`);
+      console.log(`   Segment Display: http://${n.address}:${PORT}/segment-display.html`);
     }
   });
   console.log('=======================================\n');
+});
+
+
+// ---------- Admin: Segment Display Background Upload ----------
+app.post('/api/admin/segment-display-backgrounds', upload.single('segmentDisplayBg'), (req, res) => {
+  const data = loadData();
+  if (!req.file) {
+    return res.status(400).json({ error: 'No file uploaded' });
+  }
+
+  const newBg = {
+    id: newId('sdbg'),
+    url: `/uploads/${req.file.filename}`, // Saved in public/uploads folder
+    originalName: req.file.originalname
+  };
+
+  if (!data.segmentDisplayBackgrounds) data.segmentDisplayBackgrounds = [];
+  data.segmentDisplayBackgrounds.push(newBg);
+  saveData(data);
+  broadcast();
+  res.json(newBg);
+});
+
+// ---------- Admin: Overlay Segment & Background Selection ----------
+app.post('/api/admin/overlay-segment', (req, res) => {
+  try {
+    const data = loadData();
+    const { segmentId, backgroundId } = req.body;
+    
+    if (!data.event) {
+      data.event = { displayMode: 'combined', activeContestantIndex: 0 };
+    }
+    
+    data.event.selectedSegmentOverlayId = segmentId || null;
+    if (backgroundId !== undefined) {
+      data.event.segmentDisplayBgId = backgroundId || null;
+    }
+    
+    saveData(data);
+    broadcast();
+    
+    res.json({ 
+      success: true, 
+      selectedSegmentOverlayId: data.event.selectedSegmentOverlayId,
+      segmentDisplayBgId: data.event.segmentDisplayBgId 
+    });
+  } catch (err) {
+    console.error('Error in overlay-segment route:', err);
+    res.status(500).json({ error: 'Failed to update display: ' + err.message });
+  }
 });

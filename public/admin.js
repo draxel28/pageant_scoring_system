@@ -211,7 +211,6 @@ function renderSegmentPhotosUI(state) {
     const seg = state.segments.find(s => s.id === p.segmentId);
     const con = state.contestants.find(c => c.id === p.contestantId);
     
-    // Dynamically render either a video player or an image thumbnail
     const mediaPreviewHtml = isVideoFile(p.url)
       ? `<video src="${p.url}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 6px;" muted preload="metadata"></video>`
       : `<img src="${p.url}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 6px;">`;
@@ -225,6 +224,26 @@ function renderSegmentPhotosUI(state) {
       </div>
     `;
   });
+}
+
+// Populate the background selection dropdown dynamically
+function renderSegmentBackgroundDropdown(state) {
+  const bgSelect = document.getElementById('segmentBgSelect');
+  if (!bgSelect) return;
+
+  const currentVal = bgSelect.value;
+  const backgrounds = state.segmentDisplayBackgrounds || [];
+  
+  let optionsHtml = '<option value="">-- None (Default Gradient) --</option>';
+  backgrounds.forEach(bg => {
+    optionsHtml += `<option value="${bg.id}">${bg.originalName || bg.name || 'Background ' + bg.id}</option>`;
+  });
+  
+  bgSelect.innerHTML = optionsHtml;
+  
+  if (backgrounds.some(b => b.id == currentVal)) {
+    bgSelect.value = currentVal;
+  }
 }
 
 document.getElementById('segmentPhotoForm')?.addEventListener('submit', async (e) => {
@@ -367,6 +386,7 @@ function render() {
   if (!state) return;
 
   renderSegmentPhotosUI(state);
+  renderSegmentBackgroundDropdown(state); // Keeps the background dropdown populated
 
   const cTable = document.querySelector('#contestantTable tbody');
   if (cTable) {
@@ -450,6 +470,8 @@ function render() {
   renderSegmentScoreTabs();
   renderBackgroundGallery(state.backgrounds || []);
   renderContestantsStepper(state.contestants);
+  
+  updateOverlaySegmentDropdown(state);
 }
 
 function updatePdfDropdownOptions() {
@@ -625,7 +647,7 @@ function getOverallSummaryHtml() {
                 <strong>${r.name}</strong>
               </div>
             </td>
-            <td style="text-align: right;" class="muted">${r.segmentsCompleted} / ${state.segments.length}</td>
+            <td style="text-align: right;" class="muted">${r.segmentsCompleted} /${state.segments.length}</td>
             <td style="text-align: right; font-weight: 700; color: var(--gold);">${r.overallAverage !== null ? r.overallAverage.toFixed(2) : '—'}</td>
           </tr>
         `;
@@ -666,7 +688,7 @@ function getSegmentReportHtml(currentSegment) {
                 <strong>${r.name}</strong>
               </div>
             </td>
-            <td style="text-align: right;" class="muted">${r.submittedCount} / ${r.totalJudges}</td>
+            <td style="text-align: right;" class="muted">${r.submittedCount} /${r.totalJudges}</td>
             <td style="text-align: right; font-weight: 700; color: var(--gold);">${r.average !== null ? r.average.toFixed(2) : '—'}</td>
           </tr>
         `;
@@ -711,8 +733,7 @@ function getSegmentReportHtml(currentSegment) {
               <tr style="${borderStyle}">
                 <td style="${!isFirst ? 'color: transparent;' : ''}">${r.number ? `#${r.number}` : ''}</td>
                 <td style="${!isFirst ? 'color: transparent;' : ''}">${isFirst ? `<div style="display: flex; align-items: center;">${avatar}<strong>${r.name}</strong></div>` : ''}</td>
-                <td style="color: #64748b;">${j.name}</td>
-                ${critCols}
+                <td style="color: #64748b;">${j.name}</td>${critCols}
                 <td style="text-align: right; font-weight: 700;">${hasSubmitted ? judgeTotal.toFixed(2) : '—'}</td>
               </tr>
             `;
@@ -803,7 +824,6 @@ function renderBackgroundGallery(backgrounds) {
   }
 
   gallery.innerHTML = backgrounds.map(bg => {
-    // Dynamically render either a video player or an image thumbnail for backgrounds
     const bgPreviewHtml = isVideoFile(bg.url)
       ? `<video src="${bg.url}" style="width: 120px; height: 80px; object-fit: cover; display: block;" muted preload="metadata"></video>`
       : `<img src="${bg.url}" style="width: 120px; height: 80px; object-fit: cover; display: block;" alt="Background">`;
@@ -818,5 +838,127 @@ function renderBackgroundGallery(backgrounds) {
     `;
   }).join('');
 }
+
+function updateOverlaySegmentDropdown(state) {
+  const selectEl = document.getElementById('overlaySegmentSelect');
+  const btnEl = document.getElementById('overlayDisplayBtn');
+  if (!selectEl) return;
+
+  const currentSelected = state.event && state.event.selectedSegmentOverlayId;
+  
+  let optionsHtml = '<option value="">-- Choose Segment to Display --</option>';
+  if (state.segments) {
+    state.segments.forEach(seg => {
+      const isSelected = seg.id === currentSelected ? 'selected' : '';
+      optionsHtml += `<option value="${seg.id}" ${isSelected}>${seg.name}</option>`;
+    });
+  }
+  selectEl.innerHTML = optionsHtml;
+
+  if (currentSelected) {
+    btnEl.textContent = 'Clear Display';
+    btnEl.className = 'danger';
+  } else {
+    btnEl.textContent = 'Display';
+    btnEl.className = '';
+  }
+}
+
+async function toggleOverlaySegment() {
+  const segmentId = document.getElementById('overlaySegmentSelect').value;
+  const backgroundId = document.getElementById('segmentBgSelect').value;
+
+  console.log("Sending Segment:", segmentId, "Background:", backgroundId);
+
+  try {
+    const res = await fetch('/api/admin/overlay-segment', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ segmentId, backgroundId })
+    });
+    
+    const data = await res.json();
+    if (!data.success) {
+      alert('Failed to update display');
+    }
+  } catch (err) {
+    console.error('Error updating overlay display:', err);
+  }
+}
+
+async function clearOverlaySegment() {
+  try {
+    const response = await fetch('/api/admin/overlay-segment', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ segmentId: '', backgroundId: '' })
+    });
+    
+    if (response.ok) {
+      document.getElementById('overlaySegmentSelect').value = '';
+      const bgSelect = document.getElementById('segmentBgSelect');
+      if (bgSelect) bgSelect.value = '';
+    }
+  } catch (err) {
+    console.error(err);
+    alert('Error clearing display');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const uploadBtn = document.getElementById('triggerBgUploadBtn');
+  let fileInput = document.getElementById('uploadSegmentBgFile');
+
+  if (!fileInput) {
+    fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.id = 'uploadSegmentBgFile';
+    fileInput.accept = 'image/*,video/*';
+    fileInput.style.display = 'none';
+    document.body.appendChild(fileInput);
+  }
+
+  if (uploadBtn && fileInput) {
+    uploadBtn.addEventListener('click', () => {
+      fileInput.click();
+    });
+
+    fileInput.addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const formData = new FormData();
+      formData.append('segmentDisplayBg', file);
+
+      try {
+        console.log('Uploading background file...');
+        const res = await fetch('/api/admin/segment-display-backgrounds', {
+          method: 'POST',
+          body: formData
+        });
+
+        if (res.ok) {
+          const newBg = await res.json();
+          const bgSelect = document.getElementById('segmentBgSelect');
+          if (bgSelect) {
+            const option = document.createElement('option');
+            option.value = newBg.id;
+            option.textContent = newBg.originalName || file.name;
+            bgSelect.appendChild(option);
+            bgSelect.value = newBg.id; // Automatically select the newly uploaded background
+          }
+          fileInput.value = '';
+          alert('Background uploaded successfully!');
+        } else {
+          const errData = await res.json().catch(() => ({}));
+          alert('Upload failed: ' + (errData.error || 'Server error'));
+        }
+      } catch (err) {
+        console.error('Upload network error:', err);
+        alert('Error uploading background file.');
+      }
+    });
+  }
+});
 
 refresh();
