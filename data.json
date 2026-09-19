@@ -1,10 +1,10 @@
 {
   "event": {
     "name": "Pageant Night",
-    "activeSegmentId": "seg_mseuv7gxh4xd7",
+    "activeSegmentId": "seg_msjx0g6ckx4kv",
     "displayMode": "judges",
-    "activeContestantIndex": 1,
-    "selectedSegmentOverlayId": "seg_msjx0g6ckx4kv",
+    "activeContestantIndex": 0,
+    "selectedSegmentOverlayId": "seg_mskz0yw750nou",
     "segmentDisplayBgId": "sdbg_mu84oy9qbzsvg"
   },
   "judges": [
@@ -355,21 +355,6 @@
       "id": "bg_msle6nl8hjghv",
       "url": "/uploads/background-1786255130258-960854498.mp4",
       "originalName": "1911e8b44e6753e95e67323d2569bcca.mp4"
-    },
-    {
-      "id": "bg_msleolq937wrl",
-      "url": "/uploads/background-1786255967246-808473924.mp4",
-      "originalName": "14684003_3840_2160_30fps.mp4"
-    },
-    {
-      "id": "bg_msleu5uw2o8zd",
-      "url": "/uploads/background-1786256226280-257573027.mp4",
-      "originalName": "14683985_3840_2160_30fps.mp4"
-    },
-    {
-      "id": "bg_msleur7mg3wvo",
-      "url": "/uploads/background-1786256254425-406544951.mp4",
-      "originalName": "14683961_3840_2160_30fps.mp4"
     }
   ],
   "segmentPhotos": [

@@ -584,6 +584,7 @@ server.listen(PORT, '0.0.0.0', () => {
       console.log(`   Display goes to: http://${n.address}:${PORT}/display.html`);
       console.log(`   OBS overlay:     http://${n.address}:${PORT}/overlay.html`);
       console.log(`   Segment Display: http://${n.address}:${PORT}/segment-display.html`);
+      console.log(`   Sponsors Display:http://${n.address}:${PORT}/sponsors-display.html`);
     }
   });
   console.log('=======================================\n');
