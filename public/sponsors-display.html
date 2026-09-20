@@ -23,12 +23,12 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-height: 100vh;
+    height: 100vh;
     margin: 0;
-    overflow-x: hidden;
+    overflow: hidden;
     box-sizing: border-box;
     position: relative;
-    padding: 40px 20px;
+    padding: 20px;
   }
 
   /* Full Screen Background Media Layer */
@@ -55,7 +55,7 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.65); 
+    background: rgba(0, 0, 0, 0.7); 
     z-index: 2;
   }
 
@@ -63,14 +63,18 @@
     position: relative;
     z-index: 3;
     width: 100%;
-    max-width: 1200px;
+    max-width: 1000px;
     text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
   }
 
   /* Catchy Animated Pageant Title */
   h1 {
     font-family: 'Cinzel', serif;
-    font-size: 3.8rem;
+    font-size: 3.5rem;
     font-weight: 800;
     color: var(--gold);
     text-transform: uppercase;
@@ -92,60 +96,76 @@
     }
   }
 
-  /* 3 Columns x 2 Rows Grid Container */
-  .sponsors-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    grid-template-rows: repeat(2, 200px);
-    gap: 25px;
+  /* Slideshow Sponsor Card Container */
+  .sponsor-slideshow-wrapper {
+    position: relative;
     width: 100%;
-  }
-
-  /* Equal-sized Sponsor Cards */
-  .sponsor-card {
-    background: rgba(20, 22, 34, 0.65);
-    border: 2px solid rgba(241, 196, 15, 0.3);
-    border-radius: 12px;
+    height: 440px; /* Increased wrapper height for larger items */
     display: flex;
     align-items: center;
     justify-content: center;
-    backdrop-filter: blur(8px);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-    transition: all 0.3s ease;
-    overflow: position relative;
   }
 
-  .sponsor-card:hover {
-    border-color: var(--gold);
-    box-shadow: 0 8px 30px rgba(241, 196, 15, 0.3);
-    transform: translateY(-4px);
+  .sponsor-slide {
+    position: absolute;
+    width: 100%;
+    opacity: 0;
+    transform: scale(0.95);
+    transition: opacity 0.8s ease-in-out, transform 0.8s ease-in-out;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
   }
 
-  .sponsor-card p {
+  .sponsor-slide.active {
+    opacity: 1;
+    transform: scale(1);
+    pointer-events: auto;
+  }
+
+  /* Larger Sponsor Image Styling */
+  .sponsor-slide img {
+    max-width: 550px;  /* Increased max-width */
+    max-height: 330px; /* Increased max-height */
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    margin-bottom: 20px;
+    filter: drop-shadow(0 10px 20px rgba(0,0,0,0.8));
+  }
+
+  /* Sponsor Name / Label */
+  .sponsor-slide p {
     font-family: 'Cinzel', serif;
-    font-size: 1.1rem;
-    color: #cbd5e1;
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: var(--text-main);
     letter-spacing: 2px;
     text-transform: uppercase;
     margin: 0;
-    opacity: 0.8;
+    text-shadow: 0 4px 10px rgba(0, 0, 0, 0.9);
   }
 
-  /* Responsive adjustment for smaller screens */
+  /* Responsive adjustment */
   @media (max-width: 900px) {
-    .sponsors-grid {
-      grid-template-columns: repeat(2, 1fr);
-      grid-template-rows: repeat(3, 180px);
-    }
     h1 {
-      font-size: 2.8rem;
+      font-size: 2.3rem;
+    }
+    .sponsor-slide img {
+      max-width: 350px;
+      max-height: 220px;
+    }
+    .sponsor-slide p {
+      font-size: 1.5rem;
     }
   }
 </style>
 </head>
 <body>
 
-<!-- Background Layer loaded with 2ND BG.mp4 from public/sponsors/ -->
+<!-- Background Video Layer -->
 <div id="bgContainer">
   <video src="/sponsors/2ND BG.mp4" autoplay muted loop playsinline></video>
 </div>
@@ -154,28 +174,61 @@
 <div class="container">
   <h1>Thanks to our Sponsors</h1>
   
-  <!-- 3x2 Grid Container (6 Equal Sponsor Cards) -->
-  <div class="sponsors-grid">
-    <div class="sponsor-card">
-      <p>The image will display here</p>
+  <!-- Slideshow Container -->
+  <div class="sponsor-slideshow-wrapper">
+    
+    <!-- Slide 1 -->
+    <div class="sponsor-slide active">
+      <img src="/sponsors/Bambao.png" alt="Hon. Mayor Lamberto Bambao" onerror="this.style.display='none'">
+      <p>Hon. Mayor Lamberto Bambao</p>
     </div>
-    <div class="sponsor-card">
-      <p>The image will display here</p>
+
+    <!-- Slide 2 -->
+    <div class="sponsor-slide">
+      <img src="/sponsors/Soberano.png" alt="Hon. VM Calvin Kenneth Soberano" onerror="this.style.display='none'">
+      <p>Hon. VM Calvin Kenneth Soberano</p>
     </div>
-    <div class="sponsor-card">
-      <p>The image will display here</p>
+
+    <!-- Slide 3 -->
+    <div class="sponsor-slide">
+      <img src="/sponsors/Magbitang.png" alt="Hon. Mayor Rommel Magbitang" onerror="this.style.display='none'">
+      <p>Hon. Mayor Rommel Magbitang</p>
     </div>
-    <div class="sponsor-card">
-      <p>The image will display here</p>
+
+    <!-- Slide 4 -->
+    <div class="sponsor-slide">
+      <img src="/sponsors/UltraTech.png" alt="UltraTech Solutions" onerror="this.style.display='none'">
+      <p>UltraTech Solutions</p>
     </div>
-    <div class="sponsor-card">
-      <p>The image will display here</p>
+
+    <!-- Slide 5 -->
+    <div class="sponsor-slide">
+      <img src="/sponsors/AJT.jpg" alt="AJT Travel and Tours" onerror="this.style.display='none'">
+      <p>AJT Travel and Tours</p>
     </div>
-    <div class="sponsor-card">
-      <p>The image will display here</p>
+
+    <!-- Slide 6 -->
+    <div class="sponsor-slide">
+      <p style="color: var(--gold); font-size: 2.8rem;">Mr. Christian Avilla</p>
     </div>
+
   </div>
 </div>
+
+<script>
+  // Automatic Slideshow Logic
+  const slides = document.querySelectorAll('.sponsor-slide');
+  let currentSlide = 0;
+
+  function nextSlide() {
+    slides[currentSlide].classList.remove('active');
+    currentSlide = (currentSlide + 1) % slides.length;
+    slides[currentSlide].classList.add('active');
+  }
+
+  // Change slide every 4 seconds
+  setInterval(nextSlide, 4000);
+</script>
 
 </body>
 </html>
