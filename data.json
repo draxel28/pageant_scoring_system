@@ -56,6 +56,14 @@
       "barangay": "San Jose",
       "gender": "male",
       "photo": "/uploads/contestant-1790156326214-28615371.jpg"
+    },
+    {
+      "id": "c_mudx6juoteii8",
+      "number": "2",
+      "name": "John Paul Valdez",
+      "barangay": "San Jose",
+      "gender": "male",
+      "photo": "/uploads/contestant-1790156873414-841755614.jpg"
     }
   ],
   "segments": [
@@ -111,7 +119,7 @@
           "maxScore": 20
         }
       ],
-      "revealed": false
+      "revealed": true
     },
     {
       "id": "seg_mskz0yw750nou",
@@ -138,7 +146,7 @@
           "maxScore": 20
         }
       ],
-      "revealed": false
+      "revealed": true
     }
   ],
   "scores": {
@@ -325,6 +333,30 @@
           "cr_mseuv7gxzjxfy": "27",
           "cr_mseuv7gx85b78": "20",
           "cr_mseuv7gx34x7t": "20"
+        },
+        "c_muc9zmey4qa7b": {
+          "cr_mseuv7gxpix33": "30",
+          "cr_mseuv7gxzjxfy": "30",
+          "cr_mseuv7gx85b78": "20",
+          "cr_mseuv7gx34x7t": "20"
+        },
+        "c_muca09kkg81h2": {
+          "cr_mseuv7gxpix33": "30",
+          "cr_mseuv7gxzjxfy": "30",
+          "cr_mseuv7gx85b78": "20",
+          "cr_mseuv7gx34x7t": "20"
+        },
+        "c_mudwutlrayw45": {
+          "cr_mseuv7gxpix33": "30",
+          "cr_mseuv7gxzjxfy": "30",
+          "cr_mseuv7gx85b78": "20",
+          "cr_mseuv7gx34x7t": "20"
+        },
+        "c_mudx6juoteii8": {
+          "cr_mseuv7gxpix33": "30",
+          "cr_mseuv7gxzjxfy": "30",
+          "cr_mseuv7gx85b78": "20",
+          "cr_mseuv7gx34x7t": "20"
         }
       },
       "j_mu6ct9j84zp4d": {
@@ -336,7 +368,60 @@
         }
       }
     },
-    "seg_msjx0g6ckx4kv": {},
+    "seg_msjx0g6ckx4kv": {
+      "j_mu51h3a2f4y92": {
+        "c_muc9zmey4qa7b": {
+          "cr_msjx0g6cb3mzw": "29",
+          "cr_msjx0g6cpq2p5": "25",
+          "cr_msjx0g6cem2vw": "25",
+          "cr_msjx0g6cmrkeg": "20"
+        },
+        "c_muca09kkg81h2": {
+          "cr_msjx0g6cb3mzw": "25",
+          "cr_msjx0g6cpq2p5": "25",
+          "cr_msjx0g6cem2vw": "25",
+          "cr_msjx0g6cmrkeg": "20"
+        },
+        "c_mudwutlrayw45": {
+          "cr_msjx0g6cb3mzw": "30",
+          "cr_msjx0g6cpq2p5": "25",
+          "cr_msjx0g6cem2vw": "25",
+          "cr_msjx0g6cmrkeg": "20"
+        },
+        "c_mudx6juoteii8": {
+          "cr_msjx0g6cb3mzw": "30",
+          "cr_msjx0g6cpq2p5": "25",
+          "cr_msjx0g6cem2vw": "25",
+          "cr_msjx0g6cmrkeg": "20"
+        }
+      },
+      "j_mu5c82107ohgr": {
+        "c_muc9zmey4qa7b": {
+          "cr_msjx0g6cb3mzw": "29",
+          "cr_msjx0g6cpq2p5": "25",
+          "cr_msjx0g6cem2vw": "25",
+          "cr_msjx0g6cmrkeg": "20"
+        },
+        "c_muca09kkg81h2": {
+          "cr_msjx0g6cb3mzw": "25",
+          "cr_msjx0g6cpq2p5": "25",
+          "cr_msjx0g6cem2vw": "25",
+          "cr_msjx0g6cmrkeg": "20"
+        },
+        "c_mudwutlrayw45": {
+          "cr_msjx0g6cb3mzw": "30",
+          "cr_msjx0g6cpq2p5": "25",
+          "cr_msjx0g6cem2vw": "25",
+          "cr_msjx0g6cmrkeg": "20"
+        },
+        "c_mudx6juoteii8": {
+          "cr_msjx0g6cb3mzw": "30",
+          "cr_msjx0g6cpq2p5": "13.6",
+          "cr_msjx0g6cem2vw": "25",
+          "cr_msjx0g6cmrkeg": "20"
+        }
+      }
+    },
     "seg_mskz0yw750nou": {
       "j_msevir2rimw5a": {
         "c_mskyt6aoencik": {
@@ -364,6 +449,32 @@
           "cr_mskz0yw7o7xke": "25",
           "cr_mskz0yw7oynnq": "25",
           "cr_mskz0yw7tdwoq": "20"
+        }
+      },
+      "j_mu6ct9j84zp4d": {
+        "c_muc9zmey4qa7b": {
+          "cr_mskz0yw7vax2i": "25",
+          "cr_mskz0yw7o7xke": "20",
+          "cr_mskz0yw7oynnq": "20",
+          "cr_mskz0yw7tdwoq": "15"
+        },
+        "c_muca09kkg81h2": {
+          "cr_mskz0yw7vax2i": "28",
+          "cr_mskz0yw7o7xke": "25",
+          "cr_mskz0yw7oynnq": "20",
+          "cr_mskz0yw7tdwoq": "20"
+        },
+        "c_mudwutlrayw45": {
+          "cr_mskz0yw7vax2i": "29",
+          "cr_mskz0yw7o7xke": "25",
+          "cr_mskz0yw7oynnq": "25",
+          "cr_mskz0yw7tdwoq": "20"
+        },
+        "c_mudx6juoteii8": {
+          "cr_mskz0yw7vax2i": "29",
+          "cr_mskz0yw7o7xke": "25",
+          "cr_mskz0yw7oynnq": "25",
+          "cr_mskz0yw7tdwoq": "19"
         }
       }
     }
