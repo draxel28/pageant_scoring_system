@@ -153,6 +153,13 @@
     font-size: 0.87rem;
   }
 
+  .subtitle {
+    color: var(--text-muted);
+    font-size: 0.87rem;
+    margin-top: -10px;
+    margin-bottom: 15px;
+  }
+
   /* Responsive Table Wrap */
   .table-responsive {
     width: 100%;
@@ -401,37 +408,8 @@
       width: 100%;
       padding: 11px;
     }
-
-    /* Make navigation header stack nicely */
-    .card .row[style*="space-between"] {
-      flex-direction: column;
-      align-items: stretch !important;
-      gap: 12px;
-    }
-
-    .navigation-controls {
-      display: flex;
-      gap: 8px;
-      width: 100%;
-    }
-
-    .navigation-controls button {
-      flex: 1;
-    }
-
-    /* Reports & Export stack */
-    .card .row[style*="align-items: flex-end"] {
-      flex-direction: column;
-      align-items: stretch !important;
-    }
-
-    .card .row[style*="align-items: flex-end"] > div {
-      max-width: 100% !important;
-      flex-direction: column;
-    }
   }
 </style>
-
 </head>
 <body>
 <div class="wrap">
@@ -556,6 +534,31 @@
     </div>
   </div>
 
+  <!-- Segment Display Selector Control Card -->
+  <div class="card">
+    <h3>Segment Display Selector</h3>
+    <p class="subtitle">Select a created segment and background to broadcast directly onto the standalone screen.</p>
+    
+    <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 15px;">
+      <select id="overlaySegmentSelect" class="form-control" style="flex: 1;">
+        <option value="">-- Choose Segment --</option>
+      </select>
+      <button type="button" id="overlayDisplayBtn" class="btn btn-primary" onclick="toggleOverlaySegment()">Display</button>
+      <button type="button" class="btn btn-danger" onclick="clearOverlaySegment()">Clear Display</button>
+    </div>
+
+    <div class="form-group">
+      <label>Display Background (Image/Video)</label>
+      <div style="display: flex; gap: 10px;">
+        <!-- Added onchange handler so choosing a background saves and syncs it immediately -->
+        <select id="segmentBgSelect" class="form-control" style="flex: 1;" onchange="updateSegmentBackground()">
+          <option value="">-- None (Default Gradient) --</option>
+        </select>
+        <button type="button" class="btn btn-secondary" id="triggerBgUploadBtn" onclick="triggerBgUpload()">Upload New</button>
+      </div>
+    </div>
+  </div>
+
   <div class="card">
     <h2>Live Submission Tracker</h2>
     <div id="tracker" class="muted">Select an active segment to see who has submitted.</div>
@@ -593,5 +596,56 @@
 
 <script src="/socket.io/socket.io.js"></script>
 <script src="admin.js"></script>
+<script>
+  // Your requested async function for background updates
+  async function updateSegmentBackground() {
+    const segmentId = document.getElementById('overlaySegmentSelect').value;
+    const backgroundId = document.getElementById('segmentBgSelect').value;
+
+    try {
+      await fetch('/api/admin/overlay-segment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ segmentId, backgroundId })
+      });
+    } catch (err) {
+      console.error('Error updating background selection:', err);
+    }
+  }
+
+  // Optional helper functions if your admin.js relies on them for these specific IDs
+  async function toggleOverlaySegment() {
+    const segmentId = document.getElementById('overlaySegmentSelect').value;
+    const backgroundId = document.getElementById('segmentBgSelect').value;
+    try {
+      await fetch('/api/admin/overlay-segment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ segmentId, backgroundId, active: true })
+      });
+    } catch (err) {
+      console.error('Error displaying segment:', err);
+    }
+  }
+
+  async function clearOverlaySegment() {
+    document.getElementById('overlaySegmentSelect').value = '';
+    try {
+      await fetch('/api/admin/overlay-segment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ segmentId: null, active: false })
+      });
+    } catch (err) {
+      console.error('Error clearing display:', err);
+    }
+  }
+
+  function triggerBgUpload() {
+    // Triggers file selector or redirects to background upload section
+    const bgInput = document.getElementById('bgImageInput');
+    if (bgInput) bgInput.click();
+  }
+</script>
 </body>
 </html>
