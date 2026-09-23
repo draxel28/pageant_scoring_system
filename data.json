@@ -1,9 +1,9 @@
 {
   "event": {
     "name": "Pageant Night",
-    "activeSegmentId": "seg_msjx0g6ckx4kv",
+    "activeSegmentId": "seg_mseuv7gxh4xd7",
     "displayMode": "judges",
-    "activeContestantIndex": 0,
+    "activeContestantIndex": 1,
     "selectedSegmentOverlayId": "seg_mskz0yw750nou",
     "segmentDisplayBgId": "sdbg_mu84oy9qbzsvg"
   },
@@ -26,18 +26,18 @@
   ],
   "contestants": [
     {
-      "id": "c_mskyt6aoencik",
+      "id": "c_muc9zmey4qa7b",
       "number": "1",
-      "name": "Pia Wurtzbach",
-      "barangay": "Bohol",
-      "photo": "/uploads/contestant-1786242711056-575347067.jpg"
+      "name": "NIKKA AROPO",
+      "barangay": "N/A",
+      "photo": "/uploads/contestant-1790057452830-751399579.jpg"
     },
     {
-      "id": "c_mslcio72kifgf",
+      "id": "c_muca09kkg81h2",
       "number": "2",
-      "name": "Catriona Gray",
-      "barangay": "Tacloban",
-      "photo": "/uploads/contestant-1786252331741-299438872.jpg"
+      "name": "MILENE MORALES",
+      "barangay": "N/A",
+      "photo": "/uploads/contestant-1790057482850-550764373.jpg"
     }
   ],
   "segments": [
@@ -359,40 +359,16 @@
   ],
   "segmentPhotos": [
     {
-      "id": "sp_msl6zvytxcydh",
-      "segmentId": "seg_mskz0yw750nou",
-      "contestantId": "c_mskyt6aoencik",
-      "url": "/uploads/segment-photo-1786243057284-592175893.png"
-    },
-    {
-      "id": "sp_msl71j85e8ii0",
+      "id": "sp_muca112im1297",
       "segmentId": "seg_mseuv7gxh4xd7",
-      "contestantId": "c_mskyt6aoencik",
-      "url": "/uploads/segment-photo-1786243134096-815869172.png"
+      "contestantId": "c_muc9zmey4qa7b",
+      "url": "/uploads/segment-media-1790057518492-243344874.jpg"
     },
     {
-      "id": "sp_msl76f0nom6dp",
-      "segmentId": "seg_msjx0g6ckx4kv",
-      "contestantId": "c_mskyt6aoencik",
-      "url": "/uploads/segment-photo-1786243361915-16069785.png"
-    },
-    {
-      "id": "sp_mslco2yj8na15",
+      "id": "sp_muca35tfzmz38",
       "segmentId": "seg_mseuv7gxh4xd7",
-      "contestantId": "c_mslcio72kifgf",
-      "url": "/uploads/segment-photo-1786252584178-75281478.png"
-    },
-    {
-      "id": "sp_mslcocf048lk6",
-      "segmentId": "seg_msjx0g6ckx4kv",
-      "contestantId": "c_mslcio72kifgf",
-      "url": "/uploads/segment-photo-1786252596435-543639260.png"
-    },
-    {
-      "id": "sp_mslcokmjnbtok",
-      "segmentId": "seg_mskz0yw750nou",
-      "contestantId": "c_mslcio72kifgf",
-      "url": "/uploads/segment-photo-1786252607076-363573525.png"
+      "contestantId": "c_muca09kkg81h2",
+      "url": "/uploads/segment-media-1790057617962-45354445.jpg"
     }
   ],
   "segmentDisplayBackgrounds": [
