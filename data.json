@@ -3,7 +3,7 @@
     "name": "Pageant Night",
     "activeSegmentId": "seg_mseuv7gxh4xd7",
     "displayMode": "judges",
-    "activeContestantIndex": 1,
+    "activeContestantIndex": 2,
     "selectedSegmentOverlayId": "seg_mskz0yw750nou",
     "segmentDisplayBgId": "sdbg_mu84oy9qbzsvg"
   },
@@ -48,6 +48,14 @@
       "name": "MILENE MORALES",
       "barangay": "N/A",
       "photo": "/uploads/contestant-1790057482850-550764373.jpg"
+    },
+    {
+      "id": "c_mudwutlrayw45",
+      "number": "1",
+      "name": "Drxel Santos",
+      "barangay": "San Jose",
+      "gender": "male",
+      "photo": "/uploads/contestant-1790156326214-28615371.jpg"
     }
   ],
   "segments": [
