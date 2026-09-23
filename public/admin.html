@@ -431,6 +431,7 @@
     }
   }
 </style>
+
 </head>
 <body>
 <div class="wrap">
@@ -442,7 +443,7 @@
       <label class="muted">Navigate through contestants for the projector / display screen:</label>
       <div class="navigation-controls">
         <button type="button" class="secondary" onclick="prevContestant()">&#8592; Prev</button>
-        <button type="button" class="secondary" onclick="nextContestant()">Next &#8592;</button>
+        <button type="button" class="secondary" onclick="nextContestant()">Next &#8594;</button>
       </div>
     </div>
     <!-- Stepper Progress Bar Indicator -->
@@ -484,6 +485,10 @@
       <input id="cNumber" placeholder="No." style="flex: 0 0 80px;">
       <input id="cName" placeholder="Contestant name" style="flex: 2; min-width: 150px;">
       <input id="cBarangay" placeholder="Barangay" style="flex: 1.5; min-width: 130px;">
+      <select id="cGender" style="flex: 0 0 110px;">
+        <option value="female">Female</option>
+        <option value="male">Male</option>
+      </select>
       <input type="file" id="cPhoto" accept="image/*,video/*" style="flex: 1.5; padding: 6px; min-width: 180px;">
       <button onclick="addContestant()">Add Contestant</button>
     </div>
@@ -495,6 +500,7 @@
             <th style="width: 60px;">#</th>
             <th>Name</th>
             <th>Barangay</th>
+            <th>Gender</th>
             <th></th>
           </tr>
         </thead>
@@ -550,33 +556,6 @@
     </div>
   </div>
 
-
-<div class="card">
-  <h3>Segment Display Selector</h3>
-  <p class="subtitle">Select a created segment and background to broadcast directly onto the standalone screen.</p>
-  
-  <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 15px;">
-    <select id="overlaySegmentSelect" class="form-control" style="flex: 1;">
-      <option value="">-- Choose Segment --</option>
-    </select>
-    <button type="button" id="overlayDisplayBtn" class="btn btn-primary" onclick="toggleOverlaySegment()">Display</button>
-    <button type="button" class="btn btn-danger" onclick="clearOverlaySegment()">Clear Display</button>
-  </div>
-
-  <div class="form-group">
-    <label>Display Background (Image/Video)</label>
-    <div style="display: flex; gap: 10px;">
-      <!-- Added onchange handler so choosing a background saves and syncs it immediately -->
-      <select id="segmentBgSelect" class="form-control" style="flex: 1;" onchange="updateSegmentBackground()">
-        <option value="">-- None (Default Gradient) --</option>
-      </select>
-      <button type="button" class="btn btn-secondary" id="triggerBgUploadBtn" onclick="triggerBgUpload()">Upload New</button>
-    </div>
-  </div>
-</div>
-
-
-
   <div class="card">
     <h2>Live Submission Tracker</h2>
     <div id="tracker" class="muted">Select an active segment to see who has submitted.</div>
@@ -614,69 +593,5 @@
 
 <script src="/socket.io/socket.io.js"></script>
 <script src="admin.js"></script>
-<script>
-// Handle background upload form submission dynamically
-async function uploadSegmentBackground(inputElement) {
-  const file = inputElement.files[0];
-  if (!file) return;
-
-  const formData = new FormData();
-  formData.append('segmentDisplayBg', file);
-
-  try {
-    const res = await fetch('/api/admin/segment-display-backgrounds', {
-      method: 'POST',
-      body: formData
-    });
-    const newBg = await res.json();
-    if (res.ok) {
-      alert('Background uploaded successfully!');
-      // Optionally auto-select the newly uploaded background
-      document.getElementById('segmentBgSelect').value = newBg.id;
-      if (typeof updateOverlaySegment === 'function') {
-        updateOverlaySegment();
-      }
-    } else {
-      alert('Upload failed: ' + (newBg.error || 'Unknown error'));
-    }
-  } catch (err) {
-    console.error('Error uploading background:', err);
-    alert('Error uploading background file.');
-  }
-}
-
-// Trigger hidden file picker input programmatically
-function triggerBgUpload() {
-  const fileInput = document.createElement('input');
-  fileInput.type = 'file';
-  fileInput.accept = 'image/*,video/mp4,video/webm,video/ogg,video/quicktime';
-  fileInput.onchange = (e) => uploadSegmentBackground(e.target);
-  fileInput.click();
-}
-
-// Populate background dropdown options dynamically based on the state update
-function updateAdminDropdowns(state) {
-  const bgSelect = document.getElementById('segmentBgSelect');
-  if (!bgSelect) return;
-
-  // Save currently selected value
-  const currentVal = bgSelect.value;
-
-  // Rebuild options
-  bgSelect.innerHTML = '<option value="">-- None (Default Gradient) --</option>';
-  
-  if (state.segmentDisplayBackgrounds) {
-    state.segmentDisplayBackgrounds.forEach(bg => {
-      const option = document.createElement('option');
-      option.value = bg.id;
-      option.textContent = bg.originalName || bg.url.split('/').pop();
-      bgSelect.appendChild(option);
-    });
-  }
-
-  // Restore selection if it still exists
-  bgSelect.value = currentVal;
-}
-</script>
 </body>
 </html>

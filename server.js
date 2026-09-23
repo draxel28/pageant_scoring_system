@@ -16,6 +16,12 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Global navigation index tracker for the display
 let globalContestantIndex = 0;
 
+// How the man and the woman on stage are matched up for the OBS overlay.
+//   'number'   -> the two contestants with the same contestant number
+//   'barangay' -> the two contestants from the same barangay
+//   'adjacent' -> contestants 1&2, 3&4, 5&6... in the admin list
+const PAIR_BY = 'number';
+
 // ---------- Multer Configuration for Uploads (Supports Images & Videos) ----------
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -84,6 +90,12 @@ function newId(prefix) {
   return prefix + '_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 }
 
+// Only 'male' or 'female' are stored; anything else becomes an empty string.
+function normalizeGender(value) {
+  const g = String(value ?? '').trim().toLowerCase();
+  return g === 'male' || g === 'female' ? g : '';
+}
+
 // Build the state object sent to clients.
 // includePins=true is used ONLY for the admin room, so judge/display
 // clients never receive PIN values over the socket.
@@ -102,7 +114,7 @@ function publicState(includePins = false) {
     segments: segmentsWithResults,
     backgrounds: data.backgrounds || [],
     segmentPhotos: data.segmentPhotos || [],
-    segmentDisplayBackgrounds: data.segmentDisplayBackgrounds || [], // <-- Added this line!
+    segmentDisplayBackgrounds: data.segmentDisplayBackgrounds || [],
     scores: data.scores
   };
 }
@@ -185,9 +197,16 @@ app.get('/api/state', (req, res) => {
 
 app.post('/api/admin/contestants', upload.single('photo'), (req, res) => {
   const data = loadData();
-  const { number, name, barangay } = req.body;
+  const { number, name, barangay, gender } = req.body;
   const photoUrl = req.file ? `/uploads/${req.file.filename}` : null;
-  const c = { id: newId('c'), number: number || '', name: name || '', barangay: barangay || '', photo: photoUrl };
+  const c = {
+    id: newId('c'),
+    number: number || '',
+    name: name || '',
+    barangay: barangay || '',
+    gender: normalizeGender(gender),
+    photo: photoUrl
+  };
   data.contestants.push(c);
   saveData(data);
   broadcast();
@@ -196,13 +215,14 @@ app.post('/api/admin/contestants', upload.single('photo'), (req, res) => {
 
 app.put('/api/admin/contestants/:id', upload.single('photo'), (req, res) => {
   const data = loadData();
-  const { number, name, barangay } = req.body;
+  const { number, name, barangay, gender } = req.body;
   const c = data.contestants.find(item => item.id === req.params.id);
   if (!c) return res.status(404).json({ error: 'Contestant not found' });
 
   if (number !== undefined) c.number = number;
   if (name !== undefined) c.name = name;
   if (barangay !== undefined) c.barangay = barangay;
+  if (gender !== undefined) c.gender = normalizeGender(gender);
   if (req.file) {
     if (c.photo && fs.existsSync(path.join(__dirname, 'public', c.photo))) {
       try { fs.unlinkSync(path.join(__dirname, 'public', c.photo)); } catch(e) {}
@@ -327,6 +347,55 @@ app.delete('/api/admin/backgrounds/:id', (req, res) => {
     return res.json({ ok: true });
   }
   res.status(404).json({ error: 'Background not found' });
+});
+
+// ---------- Admin: Segment Display Background Upload ----------
+app.post('/api/admin/segment-display-backgrounds', upload.single('segmentDisplayBg'), (req, res) => {
+  const data = loadData();
+  if (!req.file) {
+    return res.status(400).json({ error: 'No file uploaded' });
+  }
+
+  const newBg = {
+    id: newId('sdbg'),
+    url: `/uploads/${req.file.filename}`, // Saved in public/uploads folder
+    originalName: req.file.originalname
+  };
+
+  if (!data.segmentDisplayBackgrounds) data.segmentDisplayBackgrounds = [];
+  data.segmentDisplayBackgrounds.push(newBg);
+  saveData(data);
+  broadcast();
+  res.json(newBg);
+});
+
+// ---------- Admin: Overlay Segment & Background Selection ----------
+app.post('/api/admin/overlay-segment', (req, res) => {
+  try {
+    const data = loadData();
+    const { segmentId, backgroundId } = req.body;
+
+    if (!data.event) {
+      data.event = { displayMode: 'combined', activeContestantIndex: 0 };
+    }
+
+    data.event.selectedSegmentOverlayId = segmentId || null;
+    if (backgroundId !== undefined) {
+      data.event.segmentDisplayBgId = backgroundId || null;
+    }
+
+    saveData(data);
+    broadcast();
+
+    res.json({
+      success: true,
+      selectedSegmentOverlayId: data.event.selectedSegmentOverlayId,
+      segmentDisplayBgId: data.event.segmentDisplayBgId
+    });
+  } catch (err) {
+    console.error('Error in overlay-segment route:', err);
+    res.status(500).json({ error: 'Failed to update display: ' + err.message });
+  }
 });
 
 // ---------- Admin: judges ----------
@@ -468,37 +537,74 @@ app.get('/api/results-overall', (req, res) => {
   res.json(computeOverallResults(data));
 });
 
-// Per-judge score breakdown for whoever is currently on stage (for the OBS overlay).
-// Follows the same "current contestant" your next/prev navigation already tracks
-// via globalContestantIndex, so no separate spotlight control is needed.
+// ---------- OBS overlay: contestants currently on stage ----------
+function normalizeKey(value) {
+  return String(value ?? '').trim().toLowerCase();
+}
+
+// Returns the contestant at `index` plus their partner (if any).
+// Always ordered the way they appear in the admin list, so the overlay
+// keeps the same left/right sides no matter which of the two is selected.
+function findPair(data, index) {
+  const list = data.contestants;
+  const current = list[index];
+  if (!current) return [];
+
+  let partner;
+  if (PAIR_BY === 'adjacent') {
+    partner = list[index % 2 === 0 ? index + 1 : index - 1];
+  } else {
+    const key = normalizeKey(current[PAIR_BY]);
+    partner = key && list.find(c => c.id !== current.id && normalizeKey(c[PAIR_BY]) === key);
+  }
+
+  const pair = partner ? [current, partner] : [current];
+  return pair.sort((a, b) => list.indexOf(a) - list.indexOf(b));
+}
+
+// Per-judge score breakdown for the contestants currently on stage.
+// Follows the same "current contestant" that next/prev already tracks via
+// globalContestantIndex, and returns an array with up to two entries.
 app.get('/api/spotlight', (req, res) => {
   const data = loadData();
-  const contestant = data.contestants[globalContestantIndex];
   const segment = data.segments.find(s => s.id === data.event.activeSegmentId);
-  if (!contestant || !segment) return res.json(null);
+  const pair = findPair(data, globalContestantIndex);
+  if (!segment || pair.length === 0) return res.json([]);
 
   const segScores = data.scores[segment.id] || {};
-  const perJudge = data.judges.map(j => {
-    const judgeScores = segScores[j.id] && segScores[j.id][contestant.id];
-    let total = null;
-    if (judgeScores) {
-      total = 0;
-      segment.criteria.forEach(cr => { total += Number(judgeScores[cr.id]) || 0; });
-    }
-    return { judgeId: j.id, judgeName: j.name, score: total };
+
+  const items = pair.map(contestant => {
+    const perJudge = data.judges.map(j => {
+      const judgeScores = segScores[j.id] && segScores[j.id][contestant.id];
+      let total = null;
+      if (judgeScores) {
+        total = 0;
+        segment.criteria.forEach(cr => { total += Number(judgeScores[cr.id]) || 0; });
+      }
+      return { judgeId: j.id, judgeName: j.name, score: total };
+    });
+
+    const submitted = perJudge.filter(j => j.score !== null);
+    const average = submitted.length > 0
+      ? submitted.reduce((a, j) => a + j.score, 0) / submitted.length
+      : null;
+
+    return {
+      contestant: {
+        id: contestant.id,
+        number: contestant.number,
+        name: contestant.name,
+        hometown: contestant.barangay,
+        gender: contestant.gender || '',
+        photo: contestant.photo
+      },
+      segment: { id: segment.id, name: segment.name },
+      perJudge,
+      average
+    };
   });
 
-  const submitted = perJudge.filter(j => j.score !== null);
-  const average = submitted.length > 0
-    ? submitted.reduce((a, j) => a + j.score, 0) / submitted.length
-    : null;
-
-  res.json({
-    contestant: { id: contestant.id, number: contestant.number, name: contestant.name, hometown: contestant.barangay, photo: contestant.photo },
-    segment: { id: segment.id, name: segment.name },
-    perJudge,
-    average
-  });
+  res.json(items);
 });
 
 // ---------- CSV export ----------
@@ -589,54 +695,4 @@ server.listen(PORT, '0.0.0.0', () => {
     }
   });
   console.log('=======================================\n');
-});
-
-
-// ---------- Admin: Segment Display Background Upload ----------
-app.post('/api/admin/segment-display-backgrounds', upload.single('segmentDisplayBg'), (req, res) => {
-  const data = loadData();
-  if (!req.file) {
-    return res.status(400).json({ error: 'No file uploaded' });
-  }
-
-  const newBg = {
-    id: newId('sdbg'),
-    url: `/uploads/${req.file.filename}`, // Saved in public/uploads folder
-    originalName: req.file.originalname
-  };
-
-  if (!data.segmentDisplayBackgrounds) data.segmentDisplayBackgrounds = [];
-  data.segmentDisplayBackgrounds.push(newBg);
-  saveData(data);
-  broadcast();
-  res.json(newBg);
-});
-
-// ---------- Admin: Overlay Segment & Background Selection ----------
-app.post('/api/admin/overlay-segment', (req, res) => {
-  try {
-    const data = loadData();
-    const { segmentId, backgroundId } = req.body;
-    
-    if (!data.event) {
-      data.event = { displayMode: 'combined', activeContestantIndex: 0 };
-    }
-    
-    data.event.selectedSegmentOverlayId = segmentId || null;
-    if (backgroundId !== undefined) {
-      data.event.segmentDisplayBgId = backgroundId || null;
-    }
-    
-    saveData(data);
-    broadcast();
-    
-    res.json({ 
-      success: true, 
-      selectedSegmentOverlayId: data.event.selectedSegmentOverlayId,
-      segmentDisplayBgId: data.event.segmentDisplayBgId 
-    });
-  } catch (err) {
-    console.error('Error in overlay-segment route:', err);
-    res.status(500).json({ error: 'Failed to update display: ' + err.message });
-  }
 });

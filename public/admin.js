@@ -73,6 +73,12 @@ function isVideoFile(url) {
   return ['mp4', 'webm', 'ogg', 'mov', 'quicktime'].includes(ext);
 }
 
+function genderLabel(gender) {
+  if (gender === 'male') return 'Male';
+  if (gender === 'female') return 'Female';
+  return '—';
+}
+
 function addCritRow() {
   critDraft.push({ name: '', maxScore: 10 });
   renderCritRows();
@@ -93,6 +99,7 @@ async function addContestant() {
   const number = document.getElementById('cNumber').value.trim();
   const name = document.getElementById('cName').value.trim();
   const barangay = document.getElementById('cBarangay').value.trim();
+  const gender = document.getElementById('cGender').value;
   const photoInput = document.getElementById('cPhoto');
   
   if (!name) return showNotice('Enter a contestant name');
@@ -101,6 +108,7 @@ async function addContestant() {
   formData.append('number', number);
   formData.append('name', name);
   formData.append('barangay', barangay);
+  formData.append('gender', gender);
   if (photoInput && photoInput.files[0]) {
     formData.append('photo', photoInput.files[0]);
   }
@@ -122,6 +130,7 @@ async function saveEditContestant(id) {
   const number = document.getElementById(`editNum_${id}`).value.trim();
   const name = document.getElementById(`editName_${id}`).value.trim();
   const barangay = document.getElementById(`editBarangay_${id}`).value.trim();
+  const gender = document.getElementById(`editGender_${id}`).value;
   const photoInput = document.getElementById(`editPhoto_${id}`);
 
   if (!name) return showNotice('Contestant name cannot be empty.');
@@ -130,6 +139,7 @@ async function saveEditContestant(id) {
   formData.append('number', number);
   formData.append('name', name);
   formData.append('barangay', barangay);
+  formData.append('gender', gender);
   if (photoInput && photoInput.files[0]) {
     formData.append('photo', photoInput.files[0]);
   }
@@ -406,6 +416,13 @@ function render() {
             <td><input id="editNum_${c.id}" value="${c.number || ''}" style="width: 60px; padding: 8px; background: rgba(0,0,0,0.5); border: 1px solid var(--gold); border-radius: 8px; color: #fff;"></td>
             <td><input id="editName_${c.id}" value="${c.name}" placeholder="Name" style="padding: 6px; background: rgba(0,0,0,0.5); border: 1px solid var(--gold); border-radius: 6px; color: #fff; width: 100%;"></td>
             <td><input id="editBarangay_${c.id}" value="${c.barangay || ''}" placeholder="Barangay" style="padding: 6px; background: rgba(0,0,0,0.5); border: 1px solid var(--gold); border-radius: 6px; color: #fff; width: 100%;"></td>
+            <td>
+              <select id="editGender_${c.id}" style="padding: 6px; width: 100%;">
+                <option value="" ${!c.gender ? 'selected' : ''}>—</option>
+                <option value="female" ${c.gender === 'female' ? 'selected' : ''}>Female</option>
+                <option value="male" ${c.gender === 'male' ? 'selected' : ''}>Male</option>
+              </select>
+            </td>
             <td style="white-space: nowrap; text-align: right;">
               <button type="button" onclick="saveEditContestant('${c.id}')" style="padding: 8px 14px; font-size: 0.85rem;">Save</button>
               <button type="button" class="secondary" onclick="cancelEditContestant()" style="padding: 8px 14px; font-size: 0.85rem; margin-left: 6px;">Cancel</button>
@@ -419,6 +436,7 @@ function render() {
           <td>${c.number || ''}</td>
           <td><strong>${c.name}</strong></td>
           <td><strong>${c.barangay || '—'}</strong></td>
+          <td>${genderLabel(c.gender)}</td>
           <td style="white-space: nowrap; text-align: right;">
             <button type="button" class="secondary" onclick="startEditContestant('${c.id}')" style="padding: 8px 14px; font-size: 0.85rem;">Edit</button>
             <button type="button" class="danger" onclick="removeContestant('${c.id}')" style="padding: 8px 14px; font-size: 0.85rem; margin-left: 6px;">Remove</button>
@@ -566,6 +584,63 @@ function renderSegmentScoreTabs() {
   contentContainer.innerHTML = segmentActionHtml + getSegmentReportHtml(currentSegment);
 }
 
+// ==================================================================
+// In admin.js:
+//   1. DELETE the old  getOverallSummaryHtml()  function
+//   2. DELETE the old  getSegmentReportHtml()   function
+//   3. PASTE everything below in their place.
+// (admin.html and server.js do not change.)
+// ==================================================================
+
+// ---------- Shared helpers ----------
+
+const GENDER_GROUPS = [
+  { key: 'female', label: '👩 Female Contestants', color: '#e88bb4' },
+  { key: 'male',   label: '👨 Male Contestants',   color: '#6fa8dc' },
+  { key: '',       label: 'Gender Not Set',        color: 'var(--text-muted)' }
+];
+
+// Splits any list of rows (that have a contestantId) into Female / Male /
+// "Gender Not Set" groups. Row order inside each group is kept as-is.
+function splitByGender(rows) {
+  return GENDER_GROUPS.map(g => ({
+    ...g,
+    rows: rows.filter(r => {
+      const c = state.contestants.find(x => x.id === r.contestantId);
+      return ((c && c.gender) || '') === g.key;
+    })
+  })).filter(g => g.rows.length > 0);
+}
+
+function genderHeadingHtml(g, isFirst) {
+  return `
+    <h4 style="margin: ${isFirst ? '12px' : '32px'} 0 4px 0; padding: 8px 12px; border-left: 4px solid ${g.color}; background: rgba(255,255,255,0.04); color: ${g.color}; font-size: 0.95rem;">
+      ${g.label} <span class="muted" style="font-weight: 400;">(${g.rows.length})</span>
+    </h4>
+  `;
+}
+
+// Gives each row its own rank INSIDE its gender group.
+// rows must already be sorted best-first. Ties share a rank (1, 1, 3).
+// Rows with no score yet get "—".
+function assignRanks(rows, getScore) {
+  let lastScore = null;
+  let currentRank = 0;
+  let position = 0;
+  return rows.map(r => {
+    const score = getScore(r);
+    if (score === null || score === undefined) return { ...r, groupRank: '—' };
+    position++;
+    if (score !== lastScore) {
+      currentRank = position;
+      lastScore = score;
+    }
+    return { ...r, groupRank: currentRank };
+  });
+}
+
+// ---------- Overall leaderboard (Overall Summary tab) ----------
+
 function getOverallSummaryHtml() {
   const overallMap = {};
   state.contestants.forEach(c => {
@@ -602,27 +677,9 @@ function getOverallSummaryHtml() {
     return b.overallAverage - a.overallAverage;
   });
 
-  let currentRank = 0;
-  let lastScore = null;
-  let skipped = 1;
-  overallList.forEach((item) => {
-    if (item.overallAverage === null) {
-      item.rank = '—';
-    } else {
-      if (item.overallAverage === lastScore) {
-        skipped++;
-      } else {
-        currentRank += skipped;
-        skipped = 1;
-        lastScore = item.overallAverage;
-      }
-      item.rank = currentRank;
-    }
-  });
-
-  return `
-    <h3 style="margin-top: 0; color: var(--gold);">Overall Competition Leaderboard &amp; Ranks</h3>
-    <p class="muted" style="margin-bottom: 20px;">Cumulative summary of average scores across all segments.</p>
+  const groupsHtml = splitByGender(overallList).map((g, i) => {
+    const ranked = assignRanks(g.rows, r => r.overallAverage);
+    return genderHeadingHtml(g, i === 0) + `
     <table>
       <thead>
         <tr>
@@ -634,12 +691,13 @@ function getOverallSummaryHtml() {
         </tr>
       </thead>
       <tbody>
-        ${overallList.map(r => {
+        ${ranked.map(r => {
           const contestantObj = state.contestants.find(c => c.id === r.contestantId) || r;
           const avatar = renderContestantAvatar(contestantObj);
+          const isWinner = r.groupRank === 1 && r.overallAverage !== null;
           return `
-          <tr ${r.rank === 1 && r.overallAverage !== null ? 'style="background: rgba(243, 156, 18, 0.05);"' : ''}>
-            <td><strong>${r.rank === 1 && r.overallAverage !== null ? '👑 ' : ''}${r.rank}</strong></td>
+          <tr ${isWinner ? 'style="background: rgba(243, 156, 18, 0.05);"' : ''}>
+            <td><strong>${isWinner ? '👑 ' : ''}${r.groupRank}</strong></td>
             <td>${r.number ? `#${r.number}` : ''}</td>
             <td>
               <div style="display: flex; align-items: center;">
@@ -653,6 +711,181 @@ function getOverallSummaryHtml() {
         `;
         }).join('')}
       </tbody>
+    </table>`;
+  }).join('');
+
+  return `
+    <h3 style="margin-top: 0; color: var(--gold);">Overall Competition Leaderboard &amp; Ranks</h3>
+    <p class="muted" style="margin-bottom: 8px;">Cumulative summary of average scores across all segments. Females and males are ranked separately.</p>
+    ${groupsHtml || '<span class="muted">No contestants yet.</span>'}
+  `;
+}
+
+// ---------- Per-judge breakdown table (one per gender group) ----------
+
+function renderJudgeBreakdownTable(results, criteria, judges, segScores) {
+  return `
+    <table style="font-size: 0.90rem; width: 100%;">
+      <thead>
+        <tr>
+          <th style="width: 50px;">No.</th>
+          <th>Contestant Name</th>
+          <th>Judge Name</th>
+          ${criteria.map(c => `<th style="text-align: right;">${c.name} (${c.maxScore})</th>`).join('')}
+          <th style="text-align: right;">Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${results.map(r => {
+          const contestantObj = state.contestants.find(c => c.id === r.contestantId) || r;
+          const avatar = renderContestantAvatar(contestantObj);
+          let rowsForContestant = '';
+          judges.forEach((j, jIndex) => {
+            const jScores = segScores[j.id] && segScores[j.id][r.contestantId];
+            let judgeTotal = 0;
+            let hasSubmitted = jScores !== undefined;
+
+            let critCols = criteria.map(crit => {
+              const val = hasSubmitted ? (jScores[crit.id] !== undefined ? jScores[crit.id] : '—') : '—';
+              if (hasSubmitted && jScores[crit.id] !== undefined) {
+                judgeTotal += Number(jScores[crit.id]) || 0;
+              }
+              return `<td style="text-align: right;">${val}</td>`;
+            }).join('');
+
+            const isFirst = jIndex === 0;
+            const isLast = jIndex === judges.length - 1;
+            const borderStyle = isLast ? 'border-bottom: 2px solid #cbd5e1;' : 'border-bottom: 1px solid #f1f5f9;';
+
+            rowsForContestant += `
+              <tr style="${borderStyle}">
+                <td style="${!isFirst ? 'color: transparent;' : ''}">${r.number ? `#${r.number}` : ''}</td>
+                <td style="${!isFirst ? 'color: transparent;' : ''}">${isFirst ? `<div style="display: flex; align-items: center;">${avatar}<strong>${r.name}</strong></div>` : ''}</td>
+                <td style="color: #64748b;">${j.name}</td>${critCols}
+                <td style="text-align: right; font-weight: 700;">${hasSubmitted ? judgeTotal.toFixed(2) : '—'}</td>
+              </tr>
+            `;
+          });
+          return rowsForContestant;
+        }).join('')}
+      </tbody>
+    </table>
+  `;
+}
+
+// ---------- Segment report (leaderboard + per-judge matrix) ----------
+
+function getSegmentReportHtml(currentSegment) {
+  const segScores = state.scores[currentSegment.id] || {};
+  const criteria = currentSegment.criteria || [];
+  const judges = state.judges || [];
+
+  // Female / Male groups, each already sorted best-first by the server.
+  const groups = splitByGender(currentSegment.results);
+
+  const leaderboardHtml = groups.map((g, i) => {
+    const ranked = assignRanks(g.rows, r => r.average);
+    return genderHeadingHtml(g, i === 0) + `
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 80px;">Rank</th>
+          <th style="width: 90px;">No.</th>
+          <th>Contestant Name</th>
+          <th style="text-align: right;">Submissions</th>
+          <th style="text-align: right;">Average Score</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${ranked.map(r => {
+          const contestantObj = state.contestants.find(c => c.id === r.contestantId) || r;
+          const avatar = renderContestantAvatar(contestantObj);
+          return `
+          <tr>
+            <td><strong>${r.groupRank}</strong></td>
+            <td>${r.number ? `#${r.number}` : ''}</td>
+            <td>
+              <div style="display: flex; align-items: center;">
+                ${avatar}
+                <strong>${r.name}</strong>
+              </div>
+            </td>
+            <td style="text-align: right;" class="muted">${r.submittedCount} /${r.totalJudges}</td>
+            <td style="text-align: right; font-weight: 700; color: var(--gold);">${r.average !== null ? r.average.toFixed(2) : '—'}</td>
+          </tr>
+        `;
+        }).join('')}
+      </tbody>
+    </table>`;
+  }).join('');
+
+  const breakdownHtml = groups.map((g, i) =>
+    genderHeadingHtml(g, i === 0) +
+    renderJudgeBreakdownTable(g.rows, criteria, judges, segScores)
+  ).join('');
+
+  return `
+    <h3 style="margin-top: 0; color: var(--gold);">${currentSegment.name} - Leaderboard &amp; Ranks</h3>
+    ${leaderboardHtml}
+
+    <h3 style="margin-top: 35px; border-top: 1px solid var(--border-color); padding-top: 20px; color: var(--gold);">Per-Judge Breakdown Matrix (Detailed Scores)</h3>
+    ${breakdownHtml}
+  `;
+}
+
+// ============================================================
+// In admin.js: DELETE the old getSegmentReportHtml() function
+// and paste BOTH functions below in its place.
+// (Everything else in admin.js / admin.html / server.js stays as is.)
+// ============================================================
+
+// Builds one Per-Judge Breakdown table for a list of result rows.
+function renderJudgeBreakdownTable(results, criteria, judges, segScores) {
+  return `
+    <table style="font-size: 0.90rem; width: 100%;">
+      <thead>
+        <tr>
+          <th style="width: 50px;">No.</th>
+          <th>Contestant Name</th>
+          <th>Judge Name</th>
+          ${criteria.map(c => `<th style="text-align: right;">${c.name} (${c.maxScore})</th>`).join('')}
+          <th style="text-align: right;">Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${results.map(r => {
+          const contestantObj = state.contestants.find(c => c.id === r.contestantId) || r;
+          const avatar = renderContestantAvatar(contestantObj);
+          let rowsForContestant = '';
+          judges.forEach((j, jIndex) => {
+            const jScores = segScores[j.id] && segScores[j.id][r.contestantId];
+            let judgeTotal = 0;
+            let hasSubmitted = jScores !== undefined;
+
+            let critCols = criteria.map(crit => {
+              const val = hasSubmitted ? (jScores[crit.id] !== undefined ? jScores[crit.id] : '—') : '—';
+              if (hasSubmitted && jScores[crit.id] !== undefined) {
+                judgeTotal += Number(jScores[crit.id]) || 0;
+              }
+              return `<td style="text-align: right;">${val}</td>`;
+            }).join('');
+
+            const isFirst = jIndex === 0;
+            const isLast = jIndex === judges.length - 1;
+            const borderStyle = isLast ? 'border-bottom: 2px solid #cbd5e1;' : 'border-bottom: 1px solid #f1f5f9;';
+
+            rowsForContestant += `
+              <tr style="${borderStyle}">
+                <td style="${!isFirst ? 'color: transparent;' : ''}">${r.number ? `#${r.number}` : ''}</td>
+                <td style="${!isFirst ? 'color: transparent;' : ''}">${isFirst ? `<div style="display: flex; align-items: center;">${avatar}<strong>${r.name}</strong></div>` : ''}</td>
+                <td style="color: #64748b;">${j.name}</td>${critCols}
+                <td style="text-align: right; font-weight: 700;">${hasSubmitted ? judgeTotal.toFixed(2) : '—'}</td>
+              </tr>
+            `;
+          });
+          return rowsForContestant;
+        }).join('')}
+      </tbody>
     </table>
   `;
 }
@@ -661,6 +894,26 @@ function getSegmentReportHtml(currentSegment) {
   const segScores = state.scores[currentSegment.id] || {};
   const criteria = currentSegment.criteria || [];
   const judges = state.judges || [];
+
+  // Split the results into Female / Male (and anyone without a gender set),
+  // keeping the existing rank order inside each group.
+  const genderOf = (r) => {
+    const c = state.contestants.find(x => x.id === r.contestantId);
+    return (c && c.gender) || '';
+  };
+  const groups = [
+    { key: 'female', label: '👩 Female Contestants', color: '#e88bb4' },
+    { key: 'male',   label: '👨 Male Contestants',   color: '#6fa8dc' },
+    { key: '',       label: 'Gender Not Set',        color: 'var(--text-muted)' }
+  ].map(g => ({ ...g, rows: currentSegment.results.filter(r => genderOf(r) === g.key) }))
+   .filter(g => g.rows.length > 0);
+
+  const breakdownHtml = groups.map((g, i) => `
+    <h4 style="margin: ${i === 0 ? '12px' : '32px'} 0 4px 0; padding: 8px 12px; border-left: 4px solid ${g.color}; background: rgba(255,255,255,0.04); color: ${g.color}; font-size: 0.95rem;">
+      ${g.label} <span class="muted" style="font-weight: 400;">(${g.rows.length})</span>
+    </h4>
+    ${renderJudgeBreakdownTable(g.rows, criteria, judges, segScores)}
+  `).join('');
 
   return `
     <h3 style="margin-top: 0; color: var(--gold);">${currentSegment.name} - Leaderboard &amp; Ranks</h3>
@@ -697,51 +950,7 @@ function getSegmentReportHtml(currentSegment) {
     </table>
 
     <h3 style="margin-top: 35px; border-top: 1px solid var(--border-color); padding-top: 20px; color: var(--gold);">Per-Judge Breakdown Matrix (Detailed Scores)</h3>
-    <table style="font-size: 0.90rem; width: 100%;">
-      <thead>
-        <tr>
-          <th style="width: 50px;">No.</th>
-          <th>Contestant Name</th>
-          <th>Judge Name</th>
-          ${criteria.map(c => `<th style="text-align: right;">${c.name} (${c.maxScore})</th>`).join('')}
-          <th style="text-align: right;">Total</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${currentSegment.results.map(r => {
-          const contestantObj = state.contestants.find(c => c.id === r.contestantId) || r;
-          const avatar = renderContestantAvatar(contestantObj);
-          let rowsForContestant = '';
-          judges.forEach((j, jIndex) => {
-            const jScores = segScores[j.id] && segScores[j.id][r.contestantId];
-            let judgeTotal = 0;
-            let hasSubmitted = jScores !== undefined;
-
-            let critCols = criteria.map(crit => {
-              const val = hasSubmitted ? (jScores[crit.id] !== undefined ? jScores[crit.id] : '—') : '—';
-              if (hasSubmitted && jScores[crit.id] !== undefined) {
-                judgeTotal += Number(jScores[crit.id]) || 0;
-              }
-              return `<td style="text-align: right;">${val}</td>`;
-            }).join('');
-
-            const isFirst = jIndex === 0;
-            const isLast = jIndex === judges.length - 1;
-            const borderStyle = isLast ? 'border-bottom: 2px solid #cbd5e1;' : 'border-bottom: 1px solid #f1f5f9;';
-
-            rowsForContestant += `
-              <tr style="${borderStyle}">
-                <td style="${!isFirst ? 'color: transparent;' : ''}">${r.number ? `#${r.number}` : ''}</td>
-                <td style="${!isFirst ? 'color: transparent;' : ''}">${isFirst ? `<div style="display: flex; align-items: center;">${avatar}<strong>${r.name}</strong></div>` : ''}</td>
-                <td style="color: #64748b;">${j.name}</td>${critCols}
-                <td style="text-align: right; font-weight: 700;">${hasSubmitted ? judgeTotal.toFixed(2) : '—'}</td>
-              </tr>
-            `;
-          });
-          return rowsForContestant;
-        }).join('')}
-      </tbody>
-    </table>
+    ${breakdownHtml}
   `;
 }
 

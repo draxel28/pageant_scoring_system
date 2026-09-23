@@ -3,7 +3,7 @@
     "name": "Pageant Night",
     "activeSegmentId": "seg_msjx0g6ckx4kv",
     "displayMode": "judges",
-    "activeContestantIndex": 0,
+    "activeContestantIndex": 1,
     "selectedSegmentOverlayId": "seg_mskz0yw750nou",
     "segmentDisplayBgId": "sdbg_mu84oy9qbzsvg"
   },
@@ -22,6 +22,16 @@
       "id": "j_mu6ct9j84zp4d",
       "name": "TIMZ",
       "pin": "6468"
+    },
+    {
+      "id": "j_mub7d6mrhsqa2",
+      "name": "Dey",
+      "pin": "1297"
+    },
+    {
+      "id": "j_mub7dampjo9gq",
+      "name": "jp",
+      "pin": "8669"
     }
   ],
   "contestants": [
@@ -30,14 +40,24 @@
       "number": "1",
       "name": "Pia Wurtzbach",
       "barangay": "Bohol",
-      "photo": "/uploads/contestant-1786242711056-575347067.jpg"
+      "photo": "/uploads/contestant-1786242711056-575347067.jpg",
+      "gender": "female"
     },
     {
       "id": "c_mslcio72kifgf",
       "number": "2",
       "name": "Catriona Gray",
       "barangay": "Tacloban",
-      "photo": "/uploads/contestant-1786252331741-299438872.jpg"
+      "photo": "/uploads/contestant-1786252331741-299438872.jpg",
+      "gender": "female"
+    },
+    {
+      "id": "c_mub73rb20r2zr",
+      "number": "1",
+      "name": "Drexel Santos",
+      "barangay": "Ternate",
+      "gender": "male",
+      "photo": "/uploads/contestant-1789992140784-890056343.jpg"
     }
   ],
   "segments": [
@@ -93,7 +113,7 @@
           "maxScore": 20
         }
       ],
-      "revealed": true
+      "revealed": false
     },
     {
       "id": "seg_mskz0yw750nou",
@@ -120,7 +140,7 @@
           "maxScore": 20
         }
       ],
-      "revealed": true
+      "revealed": false
     }
   ],
   "scores": {

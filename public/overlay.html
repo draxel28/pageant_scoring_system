@@ -3,81 +3,219 @@
 <head>
 <meta charset="UTF-8">
 <title>Pageant Overlay</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
+  :root {
+    --ink: #f2ece0;
+    --muted: rgba(242, 236, 224, 0.6);
+    --gold: #cda45e;
+    --gold-bright: #f0d9a3;
+    --rose: #b1657a;
+    --steel: #5b7ea3;
+    --serif: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+    --sans: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+
   html, body {
     margin: 0; padding: 0;
     background: transparent;
     width: 1920px; height: 1080px;
     overflow: hidden;
-    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    font-family: var(--sans);
   }
-  #bar {
+
+  /* One slim slot per side, leaving the middle of the screen clear for the camera */
+  .slot {
     position: absolute;
-    left: 40px; right: 40px; bottom: 40px;
-    height: 110px;
-    background: rgba(15, 13, 20, 0.82);
-    border-radius: 14px;
+    top: 64px; bottom: 64px;
+    width: 220px;
     display: flex;
     align-items: center;
-    padding: 0 24px;
-    gap: 20px;
+    pointer-events: none;
+  }
+  .slot.female { left: 40px;  --accent: var(--rose); --from: -24px; }
+  .slot.male   { right: 40px; --accent: var(--steel); --from: 24px; }
+
+  /* The spine: a single vertical rule on the edge nearest the camera / center of frame */
+  .panel {
+    position: relative;
+    width: 100%;
+    padding: 0 22px;
+    display: flex;
+    flex-direction: column;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
     opacity: 0;
-    transform: translateY(20px);
-    transition: opacity 0.4s ease, transform 0.4s ease;
-    box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+    transform: translateX(var(--from));
+    transition: opacity 0.5s ease, transform 0.5s ease;
   }
-  #bar.show { opacity: 1; transform: translateY(0); }
+  .slot.show .panel { opacity: 1; transform: none; }
 
-  #photoImg, #photoFallback {
-    width: 82px; height: 82px; border-radius: 50%;
-    border: 3px solid #d4af37;
-    background: #2a2733;
-    flex-shrink: 0;
+  .slot.female .panel {
+    text-align: right;
+    border-right: 1px solid;
+    border-image: linear-gradient(180deg, transparent, var(--accent) 15%, var(--accent) 85%, transparent) 1;
   }
-  #photoImg { object-fit: cover; }
-  #photoFallback.placeholder {
-    display: flex; align-items: center; justify-content: center;
-    color: #d4af37; font-weight: 700; font-size: 28px;
+  .slot.male .panel {
+    text-align: left;
+    border-left: 1px solid;
+    border-image: linear-gradient(180deg, transparent, var(--accent) 15%, var(--accent) 85%, transparent) 1;
   }
 
-  #info { min-width: 220px; flex-shrink: 0; }
-  #name { color: #fff; font-size: 26px; font-weight: 700; line-height: 1.1; }
-  #meta { color: #b8b3c2; font-size: 15px; margin-top: 4px; }
-
-  #divider { width: 1px; align-self: stretch; background: rgba(255,255,255,0.15); margin: 12px 0; }
-
-  #judges {
-    display: flex; gap: 22px; flex: 1;
-    align-items: center;
+  /* Identity block */
+  .portrait {
+    width: 58px; height: 58px;
+    border-radius: 50%;
     overflow: hidden;
+    border: 1px solid var(--accent);
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.35);
   }
-  .judge-cell { text-align: center; min-width: 56px; }
-  .judge-name { color: #8f8a9c; font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; }
-  .judge-score { color: #fff; font-size: 24px; font-weight: 700; margin-top: 2px; }
-  .judge-score.pending { color: #55506a; }
+  .slot.female .portrait { margin-left: auto; margin-right: 0; }
+  .slot.male .portrait { margin-right: auto; margin-left: 0; }
+  .portrait img {
+    display: block;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    object-position: center top;
+    /* unify photos of any lighting/color into the panel's warm, muted tone */
+    filter: grayscale(0.85) sepia(0.25) brightness(0.92) contrast(1.08);
+  }
+  .portrait-mark {
+    width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 22px;
+    color: var(--gold);
+    background: rgba(0, 0, 0, 0.2);
+  }
 
-  #avgWrap { text-align: center; flex-shrink: 0; padding-left: 16px; }
-  #avgLabel { color: #8f8a9c; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; }
-  #avgScore { color: #d4af37; font-size: 34px; font-weight: 800; line-height: 1; margin-top: 2px; }
+  .id-mark {
+    margin-top: 12px;
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 16px;
+    color: var(--gold);
+    letter-spacing: 0.03em;
+    opacity: 0.85;
+  }
+  .name {
+    margin-top: 6px;
+    font-family: var(--serif);
+    font-size: 30px;
+    font-weight: 600;
+    line-height: 1.08;
+    color: var(--ink);
+    overflow-wrap: anywhere;
+  }
+  .meta { margin-top: 10px; }
+  .hometown {
+    color: var(--ink);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+  }
+  .segment {
+    color: var(--muted);
+    font-size: 12px;
+    margin-top: 2px;
+    font-style: italic;
+    font-family: var(--serif);
+  }
+
+  .divider {
+    height: 1px;
+    margin: 18px 0;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    opacity: 0.6;
+  }
+
+  /* Judges: quiet ledger rows */
+  .judges { flex-shrink: 0; }
+  .judge {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 10px;
+    padding: 7px 0;
+  }
+  .slot.male .judge { flex-direction: row; }
+  .slot.female .judge { flex-direction: row-reverse; }
+
+  .judge-name {
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 500;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .judge-score {
+    display: inline-block;
+    font-family: var(--serif);
+    font-style: italic;
+    color: var(--ink);
+    font-size: 19px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    transform-origin: center;
+  }
+  .judge-score.pending { color: rgba(242, 236, 224, 0.38); font-style: normal; font-weight: 400; }
+  .judge-score.flash { animation: scoreIn 1.4s ease-out; }
+  @keyframes scoreIn {
+    0%   { color: var(--gold-bright); transform: scale(1.3); }
+    100% { color: var(--ink); transform: scale(1); }
+  }
+
+  /* The average: a ledger total, the one moment of scale */
+  .avg {
+    position: relative;
+    margin-top: 6px;
+    padding-top: 14px;
+    border-top: 1px solid var(--gold);
+  }
+  .avg-label {
+    font-family: var(--serif);
+    font-style: italic;
+    font-variant: small-caps;
+    letter-spacing: 0.02em;
+    font-size: 15px;
+    color: var(--gold);
+  }
+  .avg-score {
+    margin-top: 2px;
+    font-family: var(--serif);
+    font-size: 48px;
+    font-weight: 600;
+    line-height: 1.05;
+    font-variant-numeric: tabular-nums;
+    background: linear-gradient(180deg, var(--gold-bright) 0%, var(--gold) 60%, #a67f3f 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    text-shadow: none;
+    filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.7));
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .panel { transform: none; transition: opacity 0.2s ease; }
+    .judge-score.flash { animation: none; }
+  }
 </style>
 </head>
 <body>
-  <div id="bar">
-    <img id="photoImg" src="" alt="" style="display:none">
-    <div id="photoFallback" class="placeholder" style="display:none"></div>
-    <div id="info">
-      <div id="name">—</div>
-      <div id="meta">—</div>
-    </div>
-    <div id="divider"></div>
-    <div id="judges"></div>
-    <div id="avgWrap">
-      <div id="avgLabel">Average</div>
-      <div id="avgScore">—</div>
-    </div>
-  </div>
+  <section id="slot-female" class="slot female"></section>
+  <section id="slot-male" class="slot male"></section>
 
 <script src="/socket.io/socket.io.js"></script>
 <script src="overlay.js"></script>
+<script>
+  // Add ?preview to the URL to see the overlay over a mid-tone backdrop in a normal browser tab.
+  if (/[?&]preview/.test(location.search)) {
+    document.body.style.background = 'linear-gradient(135deg, #241a1f, #1c2733)';
+  }
+</script>
 </body>
 </html>
