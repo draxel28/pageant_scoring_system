@@ -3,9 +3,9 @@
     "name": "Pageant Night",
     "activeSegmentId": "seg_mseuv7gxh4xd7",
     "displayMode": "judges",
-    "activeContestantIndex": 1,
+    "activeContestantIndex": 0,
     "selectedSegmentOverlayId": "seg_msjx0g6ckx4kv",
-    "segmentDisplayBgId": "sdbg_mu84oy9qbzsvg"
+    "segmentDisplayBgId": "sdbg_mu84n2jaxk8nt"
   },
   "judges": [
     {
@@ -481,9 +481,9 @@
   },
   "backgrounds": [
     {
-      "id": "bg_msle6nl8hjghv",
-      "url": "/uploads/background-1786255130258-960854498.mp4",
-      "originalName": "1911e8b44e6753e95e67323d2569bcca.mp4"
+      "id": "bg_mudxm59zefzqt",
+      "url": "/uploads/background-1790157600051-787256405.mp4",
+      "originalName": "2ND BG.mp4"
     }
   ],
   "segmentPhotos": [
