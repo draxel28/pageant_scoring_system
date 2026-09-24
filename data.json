@@ -3,7 +3,7 @@
     "name": "Pageant Night",
     "activeSegmentId": "seg_mseuv7gxh4xd7",
     "displayMode": "judges",
-    "activeContestantIndex": 4,
+    "activeContestantIndex": 0,
     "selectedSegmentOverlayId": null,
     "segmentDisplayBgId": null
   },
@@ -977,8 +977,8 @@
       }
     ],
     "display": {
-      "mode": "award",
-      "awardId": "ma_muevgqf2y25z6"
+      "mode": "none",
+      "awardId": null
     }
   },
   "program": {
@@ -1022,7 +1022,7 @@
     ],
     "display": {
       "itemId": "pg_mueyfys4mh0sd",
-      "backgroundId": "sdbg_mu83tsaxofml4"
+      "backgroundId": "sdbg_mu84oy9qbzsvg"
     }
   }
 }
