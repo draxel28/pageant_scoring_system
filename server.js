@@ -22,6 +22,14 @@ let globalContestantIndex = 0;
 //   'adjacent' -> contestants 1&2, 3&4, 5&6... in the admin list
 const PAIR_BY = 'number';
 
+// Awards created the first time the server starts (edit/remove them from the admin page).
+// 'minor' and 'major' work the same way; each has its own list, admin card and display screen.
+const AWARD_KINDS = {
+  minor: ['Mr. Congeniality', 'Ms. Congeniality', 'Best in Photography'],
+  major: ['Mr. Winner', 'Ms. Winner', 'Mr. 1st Runner-Up', 'Ms. 1st Runner-Up', 'Mr. 2nd Runner-Up', 'Ms. 2nd Runner-Up']
+};
+const awardKey = kind => kind + 'Awards'; // stored in data.json as minorAwards / majorAwards
+
 // ---------- Multer Configuration for Uploads (Supports Images & Videos) ----------
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -67,9 +75,23 @@ const upload = multer({
 });
 
 // ---------- Persistence ----------
+function newId(prefix) {
+  return prefix + '_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+}
+
+function defaultAwards(kind) {
+  return {
+    awards: AWARD_KINDS[kind].map(name => ({ id: newId('ma'), name, winnerId: null })),
+    display: { mode: 'none', awardId: null }
+  };
+}
+
 function loadData() {
   if (!fs.existsSync(DATA_FILE)) {
-    const initial = { event: { displayMode: 'combined', activeContestantIndex: 0 }, judges: [], contestants: [], segments: [], backgrounds: [], segmentPhotos: [], scores: {} };
+    const initial = {
+      event: { displayMode: 'combined', activeContestantIndex: 0 },
+      judges: [], contestants: [], segments: [], backgrounds: [], segmentPhotos: [], scores: {}
+    };
     fs.writeFileSync(DATA_FILE, JSON.stringify(initial, null, 2));
   }
   const data = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
@@ -81,13 +103,19 @@ function loadData() {
   } else {
     globalContestantIndex = data.event.activeContestantIndex;
   }
+  // Existing data.json files from before the awards existed get them added once.
+  let awardsAdded = false;
+  Object.keys(AWARD_KINDS).forEach(kind => {
+    if (!data[awardKey(kind)]) {
+      data[awardKey(kind)] = defaultAwards(kind);
+      awardsAdded = true;
+    }
+  });
+  if (awardsAdded) fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
   return data;
 }
 function saveData(data) {
   fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
-}
-function newId(prefix) {
-  return prefix + '_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 }
 
 // Only 'male' or 'female' are stored; anything else becomes an empty string.
@@ -128,6 +156,48 @@ function broadcast() {
   adminState.contestantIndex = globalContestantIndex;
   if (adminState.event) adminState.event.activeContestantIndex = globalContestantIndex;
   io.to('admin').emit('state-updated', adminState);
+}
+
+// ---------- Awards (minor + major) ----------
+// Awards store only the winner's contestant id. The name / number / barangay / photo
+// are looked up live, so editing a contestant later updates the award screen too.
+function awardsView(data, kind) {
+  const group = data[awardKey(kind)];
+  return {
+    display: group.display,
+    awards: group.awards.map(a => {
+      const c = a.winnerId && data.contestants.find(x => x.id === a.winnerId);
+      return {
+        id: a.id,
+        name: a.name,
+        winner: c ? {
+          contestantId: c.id,
+          name: c.name,
+          number: c.number || '',
+          barangay: c.barangay || '',
+          photo: c.photo || ''
+        } : null
+      };
+    })
+  };
+}
+function broadcastAwards(data, kind) {
+  io.emit(`${kind}-awards-updated`, awardsView(data, kind));
+}
+function broadcastAllAwards(data) {
+  Object.keys(AWARD_KINDS).forEach(kind => broadcastAwards(data, kind));
+}
+// Called when a contestant is removed: un-assign them from any award they won.
+function clearAwardWinner(data, contestantId) {
+  Object.keys(AWARD_KINDS).forEach(kind => {
+    const group = data[awardKey(kind)];
+    group.awards.forEach(a => {
+      if (a.winnerId === contestantId) {
+        a.winnerId = null;
+        if (group.display.awardId === a.id) group.display = { mode: 'none', awardId: null };
+      }
+    });
+  });
 }
 
 // ---------- Scoring math ----------
@@ -232,6 +302,7 @@ app.put('/api/admin/contestants/:id', upload.single('photo'), (req, res) => {
 
   saveData(data);
   broadcast();
+  broadcastAllAwards(data); // winner details are looked up live
   res.json(c);
 });
 
@@ -251,8 +322,10 @@ app.delete('/api/admin/contestants/:id', (req, res) => {
     });
     data.segmentPhotos = data.segmentPhotos.filter(p => p.contestantId !== req.params.id);
   }
+  clearAwardWinner(data, req.params.id);
   saveData(data);
   broadcast();
+  broadcastAllAwards(data);
   res.json({ ok: true });
 });
 
@@ -492,6 +565,77 @@ app.post('/api/admin/segments/:id/reveal', (req, res) => {
   res.json({ ok: true });
 });
 
+// ---------- Admin: minor + major awards ----------
+// For each kind ('minor', 'major') this registers:
+//   GET    /api/<kind>-awards                    admin card + display screen
+//   POST   /api/admin/<kind>-awards              add an award     { name }
+//   DELETE /api/admin/<kind>-awards/:id
+//   PUT    /api/admin/<kind>-awards/:id/winner   { contestantId }  or  { winner: null }
+//   POST   /api/admin/<kind>-awards/display      { mode: 'none' | 'award' | 'all', awardId }
+Object.keys(AWARD_KINDS).forEach(kind => {
+  const base = `/api/admin/${kind}-awards`;
+
+  app.get(`/api/${kind}-awards`, (req, res) => {
+    res.json(awardsView(loadData(), kind));
+  });
+
+  app.post(base, (req, res) => {
+    const name = String(req.body.name || '').trim();
+    if (!name) return res.status(400).json({ error: 'Award name required' });
+    const data = loadData();
+    data[awardKey(kind)].awards.push({ id: newId('ma'), name, winnerId: null });
+    saveData(data);
+    broadcastAwards(data, kind);
+    res.json({ success: true });
+  });
+
+  app.delete(`${base}/:id`, (req, res) => {
+    const data = loadData();
+    const group = data[awardKey(kind)];
+    group.awards = group.awards.filter(a => a.id !== req.params.id);
+    if (group.display.awardId === req.params.id) group.display = { mode: 'none', awardId: null };
+    saveData(data);
+    broadcastAwards(data, kind);
+    res.json({ success: true });
+  });
+
+  app.put(`${base}/:id/winner`, (req, res) => {
+    const data = loadData();
+    const group = data[awardKey(kind)];
+    const award = group.awards.find(a => a.id === req.params.id);
+    if (!award) return res.status(404).json({ error: 'Award not found' });
+
+    if (req.body.winner === null || !req.body.contestantId) {
+      award.winnerId = null;
+      if (group.display.awardId === award.id) group.display = { mode: 'none', awardId: null };
+    } else {
+      const c = data.contestants.find(x => String(x.id) === String(req.body.contestantId));
+      if (!c) return res.status(404).json({ error: 'Contestant not found' });
+      award.winnerId = c.id;
+    }
+    saveData(data);
+    broadcastAwards(data, kind);
+    res.json({ success: true });
+  });
+
+  app.post(`${base}/display`, (req, res) => {
+    const data = loadData();
+    const { mode, awardId } = req.body;
+    if (mode === 'award') {
+      const view = awardsView(data, kind).awards.find(a => a.id === awardId);
+      if (!view || !view.winner) return res.status(400).json({ error: 'Pick a winner for this award first' });
+      data[awardKey(kind)].display = { mode: 'award', awardId };
+    } else if (mode === 'all') {
+      data[awardKey(kind)].display = { mode: 'all', awardId: null };
+    } else {
+      data[awardKey(kind)].display = { mode: 'none', awardId: null };
+    }
+    saveData(data);
+    broadcastAwards(data, kind);
+    res.json({ success: true });
+  });
+});
+
 // ---------- Judge auth ----------
 app.post('/api/judge/login', (req, res) => {
   const data = loadData();
@@ -692,6 +836,8 @@ server.listen(PORT, '0.0.0.0', () => {
       console.log(`   Segment Display: http://${n.address}:${PORT}/segment-display.html`);
       console.log(`   Sponsors Display:http://${n.address}:${PORT}/sponsors-display.html`);
       console.log(`   Dead Air Display:http://${n.address}:${PORT}/deadair-display.html`);
+      console.log(`   Minor Awards:    http://${n.address}:${PORT}/minoraward.html`);
+      console.log(`   Major Awards:    http://${n.address}:${PORT}/majoraward.html`);
     }
   });
   console.log('=======================================\n');

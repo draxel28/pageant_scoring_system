@@ -3,9 +3,13 @@
     "name": "Pageant Night",
     "activeSegmentId": "seg_mseuv7gxh4xd7",
     "displayMode": "judges",
+<<<<<<< HEAD
     "activeContestantIndex": 2,
+=======
+    "activeContestantIndex": 10,
+>>>>>>> 85fc6de8311353e3a4a88953304beb1717d666bb
     "selectedSegmentOverlayId": "seg_msjx0g6ckx4kv",
-    "segmentDisplayBgId": "sdbg_mu84n2jaxk8nt"
+    "segmentDisplayBgId": "sdbg_mu84oy9qbzsvg"
   },
   "judges": [
     {
@@ -36,26 +40,244 @@
   ],
   "contestants": [
     {
-      "id": "c_muc9zmey4qa7b",
+      "id": "c_muevq0d54z6jw",
       "number": "1",
-      "name": "NIKKA AROPO",
-      "barangay": "N/A",
-      "photo": "/uploads/contestant-1790057452830-751399579.jpg"
+      "name": "Mylene Romero",
+      "barangay": "",
+      "gender": "female",
+      "photo": "/uploads/contestant-1790214888269-155992980.jpg"
     },
     {
-      "id": "c_muca09kkg81h2",
-      "number": "2",
-      "name": "MILENE MORALES",
-      "barangay": "N/A",
-      "photo": "/uploads/contestant-1790057482850-550764373.jpg"
-    },
-    {
-      "id": "c_mudwutlrayw45",
+      "id": "c_muevqkhv51aju",
       "number": "1",
-      "name": "Drxel Santos",
-      "barangay": "San Jose",
+      "name": "Brylle Fuentes",
+      "barangay": "",
       "gender": "male",
-      "photo": "/uploads/contestant-1790156326214-28615371.jpg"
+      "photo": "/uploads/contestant-1790214914366-169986985.jpg"
+    },
+    {
+      "id": "c_muevrcpkslq31",
+      "number": "2",
+      "name": "Colleen Campano",
+      "barangay": "",
+      "gender": "female",
+      "photo": "/uploads/contestant-1790214950926-696866718.jpg"
+    },
+    {
+      "id": "c_muevs2n8onkaj",
+      "number": "2",
+      "name": "John Andrew Pitagan",
+      "barangay": "",
+      "gender": "male",
+      "photo": "/uploads/contestant-1790214984544-723683566.jpg"
+    },
+    {
+      "id": "c_muevsphf1bkcx",
+      "number": "3",
+      "name": "Shaina Ann Marcial",
+      "barangay": "",
+      "gender": "female",
+      "photo": "/uploads/contestant-1790215014143-628361191.jpg"
+    },
+    {
+      "id": "c_muevt8gklr5m0",
+      "number": "3",
+      "name": "Charles Matthew Felisilda",
+      "barangay": "",
+      "gender": "male",
+      "photo": "/uploads/contestant-1790215038735-631123189.jpg"
+    },
+    {
+      "id": "c_muevvph2urssa",
+      "number": "4",
+      "name": "Kirsten Timaliuan",
+      "barangay": "",
+      "gender": "female",
+      "photo": "/uploads/contestant-1790215154097-679350923.jpg"
+    },
+    {
+      "id": "c_muevwbj04jmny",
+      "number": "4",
+      "name": "Gerald De Jesus",
+      "barangay": "",
+      "gender": "male",
+      "photo": "/uploads/contestant-1790215182679-72192358.jpg"
+    },
+    {
+      "id": "c_muevyrt2g709v",
+      "number": "5",
+      "name": "Fiona Orap",
+      "barangay": "",
+      "gender": "female",
+      "photo": "/uploads/contestant-1790215297089-218620780.jpg"
+    },
+    {
+      "id": "c_muevzigl533sr",
+      "number": "5",
+      "name": "Edson Felimor",
+      "barangay": "",
+      "gender": "male",
+      "photo": "/uploads/contestant-1790215331633-813133786.jpg"
+    },
+    {
+      "id": "c_muew03j272xzb",
+      "number": "6",
+      "name": "Milene Morales",
+      "barangay": "",
+      "gender": "female",
+      "photo": "/uploads/contestant-1790215358935-310263363.jpg"
+    },
+    {
+      "id": "c_muew0l2o8cg56",
+      "number": "6",
+      "name": "Eren Inguanzo",
+      "barangay": "",
+      "gender": "male",
+      "photo": "/uploads/contestant-1790215381676-41190680.jpg"
+    },
+    {
+      "id": "c_muew19trg6af9",
+      "number": "7",
+      "name": "Gwy Marcelo",
+      "barangay": "",
+      "gender": "female",
+      "photo": "/uploads/contestant-1790215413751-754132025.jpg"
+    },
+    {
+      "id": "c_muew1vmq7zj1g",
+      "number": "7",
+      "name": "Jade Lorenz Fernandez",
+      "barangay": "",
+      "gender": "male",
+      "photo": "/uploads/contestant-1790215442015-589528101.jpg"
+    },
+    {
+      "id": "c_muew2jpmhxk2h",
+      "number": "8",
+      "name": "Joylyn Sabado",
+      "barangay": "",
+      "gender": "female",
+      "photo": "/uploads/contestant-1790215473222-92196193.jpg"
+    },
+    {
+      "id": "c_muew34tmjy5ip",
+      "number": "8",
+      "name": "Austin Taglinao",
+      "barangay": "",
+      "gender": "male",
+      "photo": "/uploads/contestant-1790215500581-184920344.jpg"
+    },
+    {
+      "id": "c_muew3r9acks12",
+      "number": "9",
+      "name": "Mickaella Que",
+      "barangay": "",
+      "gender": "female",
+      "photo": "/uploads/contestant-1790215529658-877722890.jpg"
+    },
+    {
+      "id": "c_muew51otqfyk1",
+      "number": "9",
+      "name": "James Maceda",
+      "barangay": "",
+      "gender": "male",
+      "photo": "/uploads/contestant-1790215589831-331115595.jpg"
+    },
+    {
+      "id": "c_muewuog55l3yg",
+      "number": "10",
+      "name": "Nikka Aropo",
+      "barangay": "",
+      "gender": "female",
+      "photo": "/uploads/contestant-1790216785725-964619531.jpg"
+    },
+    {
+      "id": "c_muewv6i0s413y",
+      "number": "10",
+      "name": "Justine Salvador",
+      "barangay": "",
+      "gender": "male",
+      "photo": "/uploads/contestant-1790216809122-837923888.jpg"
+    },
+    {
+      "id": "c_muewwb9wjgcj9",
+      "number": "11",
+      "name": "Elyza Drilon",
+      "barangay": "",
+      "gender": "female",
+      "photo": "/uploads/contestant-1790216861968-944683656.jpg"
+    },
+    {
+      "id": "c_muewwyg2ywmxr",
+      "number": "11",
+      "name": "Joshua Flores",
+      "barangay": "",
+      "gender": "male",
+      "photo": "/uploads/contestant-1790216892000-950015728.jpg"
+    },
+    {
+      "id": "c_muewxh6e3uqci",
+      "number": "12",
+      "name": "Angel Shrine Aswer",
+      "barangay": "",
+      "gender": "female",
+      "photo": "/uploads/contestant-1790216916273-473437124.jpg"
+    },
+    {
+      "id": "c_muewxxae5pwmf",
+      "number": "12",
+      "name": "Joshua Cerbito",
+      "barangay": "",
+      "gender": "male",
+      "photo": "/uploads/contestant-1790216937153-16230631.jpg"
+    },
+    {
+      "id": "c_muewyqt911d68",
+      "number": "13",
+      "name": "Jasmine Tagsuan",
+      "barangay": "",
+      "gender": "female",
+      "photo": "/uploads/contestant-1790216975418-141300682.jpg"
+    },
+    {
+      "id": "c_muewziep6ns5g",
+      "number": "13",
+      "name": "John Kenneth Pascual",
+      "barangay": "",
+      "gender": "male",
+      "photo": "/uploads/contestant-1790217011179-919122789.jpg"
+    },
+    {
+      "id": "c_muex0etplu39f",
+      "number": "14",
+      "name": "Jessa Albis",
+      "barangay": "",
+      "gender": "female",
+      "photo": "/uploads/contestant-1790217053177-336498329.jpg"
+    },
+    {
+      "id": "c_muex0x9rjnlck",
+      "number": "14",
+      "name": "Jobert Bandola",
+      "barangay": "",
+      "gender": "male",
+      "photo": "/uploads/contestant-1790217077099-282212916.jpg"
+    },
+    {
+      "id": "c_muex1trku0dgj",
+      "number": "15",
+      "name": "Nicka Atienza",
+      "barangay": "",
+      "gender": "female",
+      "photo": "/uploads/contestant-1790217119210-792492036.jpg"
+    },
+    {
+      "id": "c_muex2b7lgnb00",
+      "number": "15",
+      "name": "Val Christian Tanauan",
+      "barangay": "",
+      "gender": "male",
+      "photo": "/uploads/contestant-1790217141820-968902228.jpg"
     }
   ],
   "segments": [
@@ -111,7 +333,7 @@
           "maxScore": 20
         }
       ],
-      "revealed": false
+      "revealed": true
     },
     {
       "id": "seg_mskz0yw750nou",
@@ -138,7 +360,7 @@
           "maxScore": 20
         }
       ],
-      "revealed": false
+      "revealed": true
     }
   ],
   "scores": {
@@ -345,6 +567,7 @@
           "cr_mseuv7gx34x7t": "20"
         },
         "c_muc9zmey4qa7b": {
+<<<<<<< HEAD
           "cr_mseuv7gxpix33": "28",
           "cr_mseuv7gxzjxfy": "28",
           "cr_mseuv7gx85b78": "19",
@@ -361,6 +584,30 @@
           "cr_mseuv7gxzjxfy": "29",
           "cr_mseuv7gx85b78": "17",
           "cr_mseuv7gx34x7t": "20"
+=======
+          "cr_mseuv7gxpix33": "30",
+          "cr_mseuv7gxzjxfy": "30",
+          "cr_mseuv7gx85b78": "20",
+          "cr_mseuv7gx34x7t": "20"
+        },
+        "c_muca09kkg81h2": {
+          "cr_mseuv7gxpix33": "0",
+          "cr_mseuv7gxzjxfy": "0",
+          "cr_mseuv7gx85b78": "0",
+          "cr_mseuv7gx34x7t": "0"
+        },
+        "c_mudwutlrayw45": {
+          "cr_mseuv7gxpix33": "0",
+          "cr_mseuv7gxzjxfy": "0",
+          "cr_mseuv7gx85b78": "0",
+          "cr_mseuv7gx34x7t": "0"
+        },
+        "c_mudx6juoteii8": {
+          "cr_mseuv7gxpix33": "0",
+          "cr_mseuv7gxzjxfy": "0",
+          "cr_mseuv7gx85b78": "0",
+          "cr_mseuv7gx34x7t": "0"
+>>>>>>> 85fc6de8311353e3a4a88953304beb1717d666bb
         }
       },
       "j_mu6ct9j84zp4d": {
@@ -430,7 +677,60 @@
         }
       }
     },
-    "seg_msjx0g6ckx4kv": {},
+    "seg_msjx0g6ckx4kv": {
+      "j_mu51h3a2f4y92": {
+        "c_muc9zmey4qa7b": {
+          "cr_msjx0g6cb3mzw": "29",
+          "cr_msjx0g6cpq2p5": "25",
+          "cr_msjx0g6cem2vw": "25",
+          "cr_msjx0g6cmrkeg": "20"
+        },
+        "c_muca09kkg81h2": {
+          "cr_msjx0g6cb3mzw": "25",
+          "cr_msjx0g6cpq2p5": "25",
+          "cr_msjx0g6cem2vw": "25",
+          "cr_msjx0g6cmrkeg": "20"
+        },
+        "c_mudwutlrayw45": {
+          "cr_msjx0g6cb3mzw": "30",
+          "cr_msjx0g6cpq2p5": "25",
+          "cr_msjx0g6cem2vw": "25",
+          "cr_msjx0g6cmrkeg": "20"
+        },
+        "c_mudx6juoteii8": {
+          "cr_msjx0g6cb3mzw": "30",
+          "cr_msjx0g6cpq2p5": "25",
+          "cr_msjx0g6cem2vw": "25",
+          "cr_msjx0g6cmrkeg": "20"
+        }
+      },
+      "j_mu5c82107ohgr": {
+        "c_muc9zmey4qa7b": {
+          "cr_msjx0g6cb3mzw": "29",
+          "cr_msjx0g6cpq2p5": "25",
+          "cr_msjx0g6cem2vw": "25",
+          "cr_msjx0g6cmrkeg": "20"
+        },
+        "c_muca09kkg81h2": {
+          "cr_msjx0g6cb3mzw": "25",
+          "cr_msjx0g6cpq2p5": "25",
+          "cr_msjx0g6cem2vw": "25",
+          "cr_msjx0g6cmrkeg": "20"
+        },
+        "c_mudwutlrayw45": {
+          "cr_msjx0g6cb3mzw": "30",
+          "cr_msjx0g6cpq2p5": "25",
+          "cr_msjx0g6cem2vw": "25",
+          "cr_msjx0g6cmrkeg": "20"
+        },
+        "c_mudx6juoteii8": {
+          "cr_msjx0g6cb3mzw": "30",
+          "cr_msjx0g6cpq2p5": "13.6",
+          "cr_msjx0g6cem2vw": "25",
+          "cr_msjx0g6cmrkeg": "20"
+        }
+      }
+    },
     "seg_mskz0yw750nou": {
       "j_msevir2rimw5a": {
         "c_mskyt6aoencik": {
@@ -459,6 +759,32 @@
           "cr_mskz0yw7oynnq": "25",
           "cr_mskz0yw7tdwoq": "20"
         }
+      },
+      "j_mu6ct9j84zp4d": {
+        "c_muc9zmey4qa7b": {
+          "cr_mskz0yw7vax2i": "25",
+          "cr_mskz0yw7o7xke": "20",
+          "cr_mskz0yw7oynnq": "20",
+          "cr_mskz0yw7tdwoq": "15"
+        },
+        "c_muca09kkg81h2": {
+          "cr_mskz0yw7vax2i": "28",
+          "cr_mskz0yw7o7xke": "25",
+          "cr_mskz0yw7oynnq": "20",
+          "cr_mskz0yw7tdwoq": "20"
+        },
+        "c_mudwutlrayw45": {
+          "cr_mskz0yw7vax2i": "29",
+          "cr_mskz0yw7o7xke": "25",
+          "cr_mskz0yw7oynnq": "25",
+          "cr_mskz0yw7tdwoq": "20"
+        },
+        "c_mudx6juoteii8": {
+          "cr_mskz0yw7vax2i": "29",
+          "cr_mskz0yw7o7xke": "25",
+          "cr_mskz0yw7oynnq": "25",
+          "cr_mskz0yw7tdwoq": "19"
+        }
       }
     }
   },
@@ -469,20 +795,7 @@
       "originalName": "2ND BG.mp4"
     }
   ],
-  "segmentPhotos": [
-    {
-      "id": "sp_muca112im1297",
-      "segmentId": "seg_mseuv7gxh4xd7",
-      "contestantId": "c_muc9zmey4qa7b",
-      "url": "/uploads/segment-media-1790057518492-243344874.jpg"
-    },
-    {
-      "id": "sp_muca35tfzmz38",
-      "segmentId": "seg_mseuv7gxh4xd7",
-      "contestantId": "c_muca09kkg81h2",
-      "url": "/uploads/segment-media-1790057617962-45354445.jpg"
-    }
-  ],
+  "segmentPhotos": [],
   "segmentDisplayBackgrounds": [
     {
       "id": "sdbg_mu839autv4i1h",
@@ -569,5 +882,126 @@
       "url": "/uploads/contestant-1789806691794-864940144.mp4",
       "originalName": "2ND BG.mp4"
     }
-  ]
+  ],
+  "minorAwards": {
+    "awards": [
+      {
+        "id": "ma_mue8bmfphqx3m",
+        "name": "Mr. Congeniality",
+        "winnerId": null
+      },
+      {
+        "id": "ma_mue8bmfp3kw7e",
+        "name": "Ms. Congeniality",
+        "winnerId": null
+      },
+      {
+        "id": "ma_mue8bmfpjwgd1",
+        "name": "Best in Photography",
+        "winnerId": null
+      },
+      {
+        "id": "ma_mue8dvd5z8nyq",
+        "name": "Mr. Popular",
+        "winnerId": null
+      },
+      {
+        "id": "ma_mue8dzzy62utz",
+        "name": "Ms. Popular",
+        "winnerId": null
+      },
+      {
+        "id": "ma_mue8ea5ny1lxc",
+        "name": "Best in Production Number",
+        "winnerId": null
+      },
+      {
+        "id": "ma_mue8ffhefpoe7",
+        "name": "Best in Ramp Modeling",
+        "winnerId": null
+      },
+      {
+        "id": "ma_mue8fpwqzjwzk",
+        "name": "Mr Body Shot",
+        "winnerId": null
+      },
+      {
+        "id": "ma_mue8fxdbig7mb",
+        "name": "Ms. Body Shot",
+        "winnerId": null
+      },
+      {
+        "id": "ma_mue8g811kecn7",
+        "name": "Mr. Photogenic",
+        "winnerId": null
+      },
+      {
+        "id": "ma_mue8geesesb3l",
+        "name": "Ms. Photogenic",
+        "winnerId": null
+      },
+      {
+        "id": "ma_mue8hwacx58q0",
+        "name": "Best in Swim Wear",
+        "winnerId": null
+      },
+      {
+        "id": "ma_mue8igmgyqkg2",
+        "name": "Mr. Eloquent",
+        "winnerId": null
+      },
+      {
+        "id": "ma_mue8im2ljsjk2",
+        "name": "Ms. Eloquent",
+        "winnerId": null
+      },
+      {
+        "id": "ma_mue8ivh4j21hl",
+        "name": "Best in Formal Wear",
+        "winnerId": null
+      }
+    ],
+    "display": {
+      "mode": "none",
+      "awardId": null
+    }
+  },
+  "majorAwards": {
+    "awards": [
+      {
+        "id": "ma_muevgqf23s7ce",
+        "name": "Mr. Winner",
+        "winnerId": null
+      },
+      {
+        "id": "ma_muevgqf2y25z6",
+        "name": "Ms. Winner",
+        "winnerId": null
+      },
+      {
+        "id": "ma_muevgqf2wji48",
+        "name": "Mr. 1st Runner-Up",
+        "winnerId": null
+      },
+      {
+        "id": "ma_muevgqf21y8qa",
+        "name": "Ms. 1st Runner-Up",
+        "winnerId": null
+      },
+      {
+        "id": "ma_muevgqf27uqpn",
+        "name": "Mr. 2nd Runner-Up",
+        "winnerId": null
+      },
+      {
+        "id": "ma_muevgqf2wfpon",
+        "name": "Ms. 2nd Runner-Up",
+        "winnerId": null
+      }
+    ],
+    "display": {
+      "mode": "none",
+      "awardId": null
+    }
+  }
 }

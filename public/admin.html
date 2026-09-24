@@ -534,6 +534,36 @@
     </div>
   </div>
 
+  <div class="card">
+  <h2>Minor Awards</h2>
+  <p class="subtitle">Pick a winner for each award, then press Show to put it on the minor award screen.</p>
+  <div class="row">
+    <input id="maName" placeholder="New award (e.g. Best in Talent)">
+    <button onclick="addMinorAward()">Add Award</button>
+  </div>
+  <div id="minorAwardList" style="margin-top: 14px;"></div>
+  <div class="row" style="margin-top: 14px;">
+    <button class="secondary" onclick="showAllMinorWinners()">Show All Winners</button>
+    <button class="danger" onclick="clearMinorDisplay()">Clear Screen</button>
+    <button class="secondary" onclick="window.open('/minoraward.html', '_blank')">Open Display Screen</button>
+  </div>
+</div>
+
+<div class="card">
+  <h2>Major Awards</h2>
+  <p class="subtitle">Pick a winner for each award, then press Show to put it on the major award screen.</p>
+  <div class="row">
+    <input id="mjName" placeholder="New award (e.g. Best in Evening Gown)">
+    <button onclick="addMajorAward()">Add Award</button>
+  </div>
+  <div id="majorAwardList" style="margin-top: 14px;"></div>
+  <div class="row" style="margin-top: 14px;">
+    <button class="secondary" onclick="showAllMajorWinners()">Show All Winners</button>
+    <button class="danger" onclick="clearMajorDisplay()">Clear Screen</button>
+    <button class="secondary" onclick="window.open('/majoraward.html', '_blank')">Open Display Screen</button>
+  </div>
+</div>
+
   <!-- Segment Display Selector Control Card -->
   <div class="card">
     <h3>Segment Display Selector</h3>
