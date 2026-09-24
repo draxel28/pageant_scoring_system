@@ -503,6 +503,7 @@ function render() {
   
   updateOverlaySegmentDropdown(state);
   AWARD_KINDS.forEach(kind => renderAwards(kind));
+  renderProgram();
 }
 
 function updatePdfDropdownOptions() {
@@ -1172,5 +1173,93 @@ const addMajorAward = () => addAward('major', 'mjName');
 const showAllMajorWinners = () => showAllWinners('major');
 const clearMajorDisplay = () => clearAwardDisplay('major');
 
+// ---------- Program display (invocation, prayer, message...) ----------
+let programData = { items: [], display: { itemId: null, backgroundId: null }, current: null, background: null };
+let programKey = '';
+
+socket.on('program-updated', (d) => {
+  programData = d;
+  renderProgram();
+});
+
+async function loadProgram() {
+  try {
+    programData = await (await fetch('/api/program')).json();
+    renderProgram(true);
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+function renderProgram(force) {
+  const listEl = document.getElementById('programList');
+  const bgSelect = document.getElementById('programBgSelect');
+  if (!listEl) return;
+
+  const bgs = [...((state && state.backgrounds) || []), ...((state && state.segmentDisplayBackgrounds) || [])];
+
+  // Only redraw when something changed, so an open dropdown isn't reset by unrelated updates.
+  const key = JSON.stringify([programData, bgs.map(b => [b.id, b.originalName])]);
+  if (!force && key === programKey) return;
+  programKey = key;
+
+  const currentId = programData.display && programData.display.itemId;
+  listEl.innerHTML = programData.items.length ? programData.items.map(p => `
+    <div class="row" style="padding: 10px 0; border-bottom: 1px solid var(--border);">
+      ${p.image ? `<img src="${escMA(p.image)}" alt="" style="width: 44px; height: 44px; object-fit: cover; border-radius: 8px;">` : ''}
+      <div style="flex: 1; min-width: 180px;">
+        <strong>${escMA(p.title)}</strong>
+        ${p.id === currentId ? '<span style="color: var(--success); font-size: 0.78rem; margin-left: 8px;">on screen</span>' : ''}
+        ${p.detail ? `<div class="muted">${escMA(p.detail)}</div>` : ''}
+      </div>
+      <button type="button" onclick="showProgramItem('${p.id}')">Show</button>
+      <button type="button" class="danger" onclick="removeProgramItem('${p.id}')">Remove</button>
+    </div>`).join('') : '<span class="muted">No program parts yet. Add one above.</span>';
+
+  if (bgSelect) {
+    const selectedBg = programData.display && programData.display.backgroundId;
+    bgSelect.innerHTML = '<option value="">-- None (Default Gradient) --</option>' + bgs.map(b =>
+      `<option value="${escMA(b.id)}" ${b.id === selectedBg ? 'selected' : ''}>${escMA(b.originalName || b.id)}</option>`).join('');
+  }
+}
+
+async function addProgramItem() {
+  const titleEl = document.getElementById('pgTitle');
+  const detailEl = document.getElementById('pgDetail');
+  const imageEl = document.getElementById('pgImage');
+  const title = titleEl.value.trim();
+  if (!title) return showNotice('Enter the name of the program part');
+
+  const formData = new FormData();
+  formData.append('title', title);
+  formData.append('detail', detailEl.value.trim());
+  if (imageEl && imageEl.files[0]) formData.append('image', imageEl.files[0]); // optional
+
+  try {
+    const res = await fetch('/api/admin/program', { method: 'POST', body: formData });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      return showNotice(err.error || 'Could not add this program part (is the image a valid picture?).');
+    }
+    titleEl.value = '';
+    detailEl.value = '';
+    if (imageEl) imageEl.value = '';
+  } catch (e) {
+    console.error(e);
+    showNotice('Could not reach the server.');
+  }
+}
+
+async function removeProgramItem(id) {
+  const ok = await showConfirm('Remove this program part?');
+  if (!ok) return;
+  await awardRequest('/api/admin/program/' + id, 'DELETE');
+}
+
+const showProgramItem = (id) => awardRequest('/api/admin/program/display', 'POST', { itemId: id });
+const clearProgramDisplay = () => awardRequest('/api/admin/program/display', 'POST', { itemId: null });
+const setProgramBackground = (id) => awardRequest('/api/admin/program/display', 'POST', { backgroundId: id });
+
 loadAwards();
+loadProgram();
 refresh();

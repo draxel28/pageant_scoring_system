@@ -3,9 +3,9 @@
     "name": "Pageant Night",
     "activeSegmentId": "seg_mseuv7gxh4xd7",
     "displayMode": "judges",
-    "activeContestantIndex": 10,
-    "selectedSegmentOverlayId": "seg_msjx0g6ckx4kv",
-    "segmentDisplayBgId": "sdbg_mu84oy9qbzsvg"
+    "activeContestantIndex": 4,
+    "selectedSegmentOverlayId": null,
+    "segmentDisplayBgId": null
   },
   "judges": [
     {
@@ -903,6 +903,50 @@
     "display": {
       "mode": "none",
       "awardId": null
+    }
+  },
+  "program": {
+    "items": [
+      {
+        "id": "pg_muey6jdr3qvd6",
+        "title": "Invocation",
+        "detail": "",
+        "image": null
+      },
+      {
+        "id": "pg_muey6vopp6ij7",
+        "title": "The Philippine National Anthem",
+        "detail": "",
+        "image": null
+      },
+      {
+        "id": "pg_muey9w6b2wzd8",
+        "title": "Welcome Address",
+        "detail": "Ms. Krystal Joy Velasco",
+        "image": "/uploads/program-1790219175193-496590953.png"
+      },
+      {
+        "id": "pg_mueybemov1inh",
+        "title": "Message",
+        "detail": "Dr. Leni D. Marinas",
+        "image": "/uploads/program-1790219245768-164693386.png"
+      },
+      {
+        "id": "pg_mueydrnmh94wq",
+        "title": "Message",
+        "detail": "Dr. Rommel Mojica",
+        "image": "/uploads/program-1790219355959-370598037.png"
+      },
+      {
+        "id": "pg_mueyfys4mh0sd",
+        "title": "Message",
+        "detail": "Mr. Timothy Burca",
+        "image": "/uploads/program-1790219458506-101366072.png"
+      }
+    ],
+    "display": {
+      "itemId": "pg_mueyfys4mh0sd",
+      "backgroundId": "sdbg_mu83tsaxofml4"
     }
   }
 }
