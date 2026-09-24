@@ -108,6 +108,7 @@ function loadData() {
   if (!data.backgrounds) data.backgrounds = [];
   if (!data.segmentPhotos) data.segmentPhotos = [];
   if (!data.event) data.event = {};
+  if (!data.event.otherContestantSelections) data.event.otherContestantSelections = {};
   if (typeof data.event.activeContestantIndex !== 'number') {
     data.event.activeContestantIndex = globalContestantIndex;
   } else {
@@ -579,6 +580,47 @@ app.post('/api/admin/segments/:id/reveal', (req, res) => {
   res.json({ ok: true });
 });
 
+// ---------- Other segments display ----------
+app.post('/api/admin/other-segments-display', (req, res) => {
+  const data = loadData();
+  const { mode, segmentId, contestantId } = req.body;
+
+  if (mode === 'single') {
+    const segment = data.segments.find(s => s.id === segmentId);
+    const contestant = data.contestants.find(c => c.id === contestantId);
+    if (!segment || !contestant) {
+      return res.status(400).json({ error: 'Select a valid segment and contestant' });
+    }
+
+    data.event.otherSegmentId = segment.id;
+    data.event.otherContestantId = contestant.id;
+    data.event.otherContestantSelections[segment.id] = contestant.id;
+    data.event.otherDisplayMode = 'single';
+  } else if (mode === 'remove') {
+    delete data.event.otherContestantSelections[segmentId];
+    if (data.event.otherSegmentId === segmentId) {
+      data.event.otherSegmentId = null;
+      data.event.otherContestantId = null;
+      data.event.otherDisplayMode = 'none';
+    }
+  } else if (mode === 'all') {
+    data.event.otherDisplayMode = 'all';
+  } else {
+    data.event.otherSegmentId = null;
+    data.event.otherContestantId = null;
+    data.event.otherDisplayMode = 'none';
+  }
+
+  saveData(data);
+  broadcast();
+  io.emit('other-segments-display-updated', {
+    mode: data.event.otherDisplayMode,
+    segmentId: data.event.otherSegmentId || null,
+    contestantId: data.event.otherContestantId || null
+  });
+  res.json({ success: true });
+});
+
 // ---------- Admin: minor + major awards ----------
 // For each kind ('minor', 'major') this registers:
 //   GET    /api/<kind>-awards                    admin card + display screen
@@ -919,6 +961,7 @@ server.listen(PORT, '0.0.0.0', () => {
       console.log(`   Display goes to: http://${n.address}:${PORT}/display.html`);
       console.log(`   OBS overlay:     http://${n.address}:${PORT}/overlay.html`);
       console.log(`   Segment Display: http://${n.address}:${PORT}/segment-display.html`);
+      console.log(`   Other Segments:  http://${n.address}:${PORT}/other-segments-display.html`);
       console.log(`   Sponsors Display:http://${n.address}:${PORT}/sponsors-display.html`);
       console.log(`   Dead Air Display:http://${n.address}:${PORT}/deadair-display.html`);
       console.log(`   Minor Awards:    http://${n.address}:${PORT}/minoraward.html`);

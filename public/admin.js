@@ -217,10 +217,8 @@ function renderSegmentPhotosUI(state) {
     segSelect.innerHTML += `<option value="${seg.id}">${seg.name}</option>`;
   });
 
-  conSelect.innerHTML = '<option value="">Select Contestant...</option>';
-  (state.contestants || []).forEach(c => {
-    conSelect.innerHTML += `<option value="${c.id}">#${c.number} - ${c.name}</option>`;
-  });
+  // Use grouped contestant utility
+  populateContestantSelectGrouped(conSelect, state.contestants || [], "Select Contestant...");
 
   listEl.innerHTML = '';
   (state.segmentPhotos || []).forEach(p => {
@@ -498,6 +496,7 @@ function render() {
   updatePdfDropdownOptions();
   renderTracker();
   renderSegmentScoreTabs();
+  renderOtherSegmentCards();
   renderBackgroundGallery(state.backgrounds || []);
   renderContestantsStepper(state.contestants);
   
@@ -606,8 +605,6 @@ const GENDER_GROUPS = [
   { key: '',       label: 'Gender Not Set',        color: 'var(--text-muted)' }
 ];
 
-// Splits any list of rows (that have a contestantId) into Female / Male /
-// "Gender Not Set" groups. Row order inside each group is kept as-is.
 function splitByGender(rows) {
   return GENDER_GROUPS.map(g => ({
     ...g,
@@ -626,9 +623,6 @@ function genderHeadingHtml(g, isFirst) {
   `;
 }
 
-// Gives each row its own rank INSIDE its gender group.
-// rows must already be sorted best-first. Ties share a rank (1, 1, 3).
-// Rows with no score yet get "—".
 function assignRanks(rows, getScore) {
   let lastScore = null;
   let currentRank = 0;
@@ -643,6 +637,160 @@ function assignRanks(rows, getScore) {
     }
     return { ...r, groupRank: currentRank };
   });
+}
+
+// ---------- Helper for grouping <select> options by gender ----------
+
+function populateContestantSelectGrouped(selectElement, contestantsArray, defaultOptionText = "Select contestant") {
+  if (!selectElement) return;
+  
+  let html = `<option value="">${defaultOptionText}</option>`;
+  
+  const females = contestantsArray.filter(c => (c.gender || '').toLowerCase() === 'female');
+  const males = contestantsArray.filter(c => (c.gender || '').toLowerCase() === 'male');
+  const unassigned = contestantsArray.filter(c => !c.gender || (c.gender.toLowerCase() !== 'female' && c.gender.toLowerCase() !== 'male'));
+
+  if (females.length > 0) {
+    html += `<optgroup label="Female Candidates">`;
+    females.forEach(c => {
+      html += `<option value="${c.id}">#${c.number || ''} ${c.name}</option>`;
+    });
+    html += `</optgroup>`;
+  }
+
+  if (males.length > 0) {
+    html += `<optgroup label="Male Candidates">`;
+    males.forEach(c => {
+      html += `<option value="${c.id}">#${c.number || ''} ${c.name}</option>`;
+    });
+    html += `</optgroup>`;
+  }
+
+  if (unassigned.length > 0) {
+    html += `<optgroup label="Gender Not Set">`;
+    unassigned.forEach(c => {
+      html += `<option value="${c.id}">#${c.number || ''} ${c.name}</option>`;
+    });
+    html += `</optgroup>`;
+  }
+
+  selectElement.innerHTML = html;
+}
+
+// ---------- Segment Scores & Ranking Display Helper Functions ----------
+
+let otherSegmentsDisplayState = { mode: 'none', segmentId: null, contestantId: null };
+
+socket.on('other-segments-display-updated', (d) => {
+  otherSegmentsDisplayState = d;
+  renderOtherSegmentCards();
+});
+
+function renderOtherSegmentCards() {
+  const container = document.getElementById('otherSegmentCardList');
+  if (!container) return;
+
+  if (!state || !state.segments || state.segments.length === 0) {
+    container.innerHTML = `<p class="muted">No segments created yet. Create a segment above first.</p>`;
+    return;
+  }
+
+  const currentDisplayMode = otherSegmentsDisplayState.mode;
+  const currentActiveSegmentId = otherSegmentsDisplayState.segmentId || (state.event && state.event.otherSegmentId);
+  const displayMode = (state.event && state.event.otherDisplayMode) || currentDisplayMode;
+
+  let html = '';
+  state.segments.forEach((seg) => {
+    const isLive = displayMode === 'single' && currentActiveSegmentId === seg.id;
+    const selectedContestantId = state.event && state.event.otherContestantSelections
+      ? state.event.otherContestantSelections[seg.id] || ''
+      : '';
+      
+    html += `
+      <div class="row" style="padding: 10px 0; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+        <div style="flex: 1; min-width: 180px;">
+          <strong>${escMA(seg.name)}</strong>
+          ${isLive ? '<span style="color: var(--success); font-size: 0.78rem; margin-left: 8px;">on screen</span>' : ''}
+        </div>
+        <select id="otherSegmentContestant_${seg.id}" style="min-width: 220px;">
+          <!-- Dropdown options populated dynamically below -->
+        </select>
+        <button type="button" onclick="showSegmentScores('${seg.id}')">Show</button>
+        <button type="button" class="danger" onclick="removeSegmentDisplay('${seg.id}')">Remove</button>
+      </div>
+    `;
+  });
+
+  container.innerHTML = html;
+
+  // Now populate each generated select element using the grouped utility
+  state.segments.forEach((seg) => {
+    const selectEl = document.getElementById(`otherSegmentContestant_${seg.id}`);
+    if (selectEl) {
+      populateContestantSelectGrouped(selectEl, state.contestants || [], "Select contestant");
+      const selectedContestantId = state.event && state.event.otherContestantSelections
+        ? state.event.otherContestantSelections[seg.id] || ''
+        : '';
+      if (selectedContestantId) {
+        selectEl.value = selectedContestantId;
+      }
+    }
+  });
+}
+
+async function showSegmentScores(segmentId) {
+  const contestantSelect = document.getElementById(`otherSegmentContestant_${segmentId}`);
+  const contestantId = contestantSelect ? contestantSelect.value : '';
+  if (!contestantId) {
+    await showNotice('Select a contestant for this segment first.');
+    return;
+  }
+
+  try {
+    await fetch('/api/admin/other-segments-display', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mode: 'single', segmentId, contestantId })
+    });
+  } catch (err) {
+    console.error('Error showing segment scores:', err);
+  }
+}
+
+async function removeSegmentDisplay(segmentId) {
+  try {
+    await fetch('/api/admin/other-segments-display', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mode: 'remove', segmentId })
+    });
+  } catch (err) {
+    console.error('Error removing segment contestant:', err);
+  }
+}
+
+async function showAllOtherSegmentDisplays() {
+  try {
+    await fetch('/api/admin/other-segments-display', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mode: 'all' })
+    });
+  } catch (err) {
+    console.error('Error broadcasting all segment scores:', err);
+  }
+}
+
+async function clearOtherSegmentDisplay() {
+  try {
+    await fetch('/api/admin/other-segments-display', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mode: 'none' })
+    });
+  } catch (err) {
+    console.error('Error clearing other segment display:', err);
+  }
 }
 
 // ---------- Overall leaderboard (Overall Summary tab) ----------
@@ -729,7 +877,6 @@ function getOverallSummaryHtml() {
 
 // ---------- Segment report (leaderboard + per-judge matrix) ----------
 
-// Builds one Per-Judge Breakdown table for a list of result rows.
 function renderJudgeBreakdownTable(results, criteria, judges, segScores) {
   return `
     <table style="font-size: 0.90rem; width: 100%;">
@@ -780,8 +927,6 @@ function renderJudgeBreakdownTable(results, criteria, judges, segScores) {
   `;
 }
 
-// The leaderboard is one combined ranking; the per-judge breakdown is split
-// into Female / Male groups.
 function getSegmentReportHtml(currentSegment) {
   const segScores = state.scores[currentSegment.id] || {};
   const criteria = currentSegment.criteria || [];
@@ -930,33 +1075,55 @@ function renderBackgroundGallery(backgrounds) {
 function updateOverlaySegmentDropdown(state) {
   const selectEl = document.getElementById('overlaySegmentSelect');
   const btnEl = document.getElementById('overlayDisplayBtn');
-  if (!selectEl) return;
+  
+  const otherSegSelect = document.getElementById('otherSegSelect');
+  const femaleSelect = document.getElementById('otherSegFemaleSelect');
+  const maleSelect = document.getElementById('otherSegMaleSelect');
 
   const currentSelected = state.event && state.event.selectedSegmentOverlayId;
   
-  let optionsHtml = '<option value="">-- Choose Segment to Display --</option>';
+  let optionsHtml = '<option value="">-- Choose Segment --</option>';
   if (state.segments) {
     state.segments.forEach(seg => {
       const isSelected = seg.id === currentSelected ? 'selected' : '';
       optionsHtml += `<option value="${seg.id}" ${isSelected}>${seg.name}</option>`;
     });
   }
-  selectEl.innerHTML = optionsHtml;
 
-  if (currentSelected) {
-    btnEl.textContent = 'Clear Display';
-    btnEl.className = 'danger';
-  } else {
-    btnEl.textContent = 'Display';
-    btnEl.className = '';
+  if (selectEl) selectEl.innerHTML = optionsHtml;
+  if (otherSegSelect) otherSegSelect.innerHTML = optionsHtml;
+
+  let femaleOptions = '<option value="">-- Select Female Candidate --</option>';
+  let maleOptions = '<option value="">-- Select Male Candidate --</option>';
+
+  if (state.contestants) {
+    state.contestants.forEach(c => {
+      const label = `#${c.number || ''} - ${c.name} (${c.barangay || ''})`;
+      if (c.gender === 'female') {
+        femaleOptions += `<option value="${c.id}">${label}</option>`;
+      } else if (c.gender === 'male') {
+        maleOptions += `<option value="${c.id}">${label}</option>`;
+      }
+    });
+  }
+
+  if (femaleSelect) femaleSelect.innerHTML = femaleOptions;
+  if (maleSelect) maleSelect.innerHTML = maleOptions;
+
+  if (btnEl) {
+    if (currentSelected) {
+      btnEl.textContent = 'Clear Display';
+      btnEl.className = 'danger';
+    } else {
+      btnEl.textContent = 'Display';
+      btnEl.className = '';
+    }
   }
 }
 
 async function toggleOverlaySegment() {
-  const segmentId = document.getElementById('overlaySegmentSelect').value;
+  const segmentId = document.getElementById('overlaySegmentSelect')?.value || document.getElementById('otherSegSelect')?.value;
   const backgroundId = document.getElementById('segmentBgSelect').value;
-
-  console.log("Sending Segment:", segmentId, "Background:", backgroundId);
 
   try {
     const res = await fetch('/api/admin/overlay-segment', {
@@ -983,7 +1150,10 @@ async function clearOverlaySegment() {
     });
     
     if (response.ok) {
-      document.getElementById('overlaySegmentSelect').value = '';
+      if (document.getElementById('overlaySegmentSelect')) document.getElementById('overlaySegmentSelect').value = '';
+      if (document.getElementById('otherSegSelect')) document.getElementById('otherSegSelect').value = '';
+      if (document.getElementById('otherSegFemaleSelect')) document.getElementById('otherSegFemaleSelect').value = '';
+      if (document.getElementById('otherSegMaleSelect')) document.getElementById('otherSegMaleSelect').value = '';
       const bgSelect = document.getElementById('segmentBgSelect');
       if (bgSelect) bgSelect.value = '';
     }
@@ -1019,7 +1189,6 @@ document.addEventListener('DOMContentLoaded', () => {
       formData.append('segmentDisplayBg', file);
 
       try {
-        console.log('Uploading background file...');
         const res = await fetch('/api/admin/segment-display-backgrounds', {
           method: 'POST',
           body: formData
@@ -1033,7 +1202,7 @@ document.addEventListener('DOMContentLoaded', () => {
             option.value = newBg.id;
             option.textContent = newBg.originalName || file.name;
             bgSelect.appendChild(option);
-            bgSelect.value = newBg.id; // Automatically select the newly uploaded background
+            bgSelect.value = newBg.id;
           }
           fileInput.value = '';
           alert('Background uploaded successfully!');
@@ -1050,7 +1219,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ---------- Awards (minor + major) ----------
-// Both kinds share the same code. Each needs a <div id="<kind>AwardList"> card in admin.html.
 const AWARD_KINDS = ['minor', 'major'];
 const awardsData = {};
 const awardsKey = {};
@@ -1093,7 +1261,6 @@ async function loadAwards() {
   }
 }
 
-// Contestant dropdown options, grouped Female / Male.
 function awardContestantOptions(selectedId) {
   const list = (state && state.contestants) || [];
   const opt = c => `<option value="${escMA(c.id)}" ${String(c.id) === String(selectedId) ? 'selected' : ''}>${c.number ? '#' + escMA(c.number) + ' - ' : ''}${escMA(c.name)}</option>`;
@@ -1109,8 +1276,6 @@ function renderAwards(kind, force) {
   const el = document.getElementById(`${kind}AwardList`);
   if (!el) return;
 
-  // Only redraw when something changed, so an open dropdown isn't reset
-  // by unrelated live updates (scores coming in, etc.).
   const data = awardsData[kind];
   const contestants = (state && state.contestants) || [];
   const key = JSON.stringify([data, contestants.map(c => [c.id, c.number, c.name, c.gender])]);
@@ -1155,7 +1320,6 @@ async function removeAward(kind, id) {
   await awardRequest(`/api/admin/${kind}-awards/${id}`, 'DELETE');
 }
 
-// The server looks up the contestant's name, number, barangay and photo itself.
 async function setAwardWinner(kind, awardId, contestantId) {
   await awardRequest(`/api/admin/${kind}-awards/${awardId}/winner`, 'PUT',
     contestantId ? { contestantId } : { winner: null });
@@ -1165,7 +1329,6 @@ const showAward = (kind, awardId) => awardRequest(`/api/admin/${kind}-awards/dis
 const showAllWinners = (kind) => awardRequest(`/api/admin/${kind}-awards/display`, 'POST', { mode: 'all' });
 const clearAwardDisplay = (kind) => awardRequest(`/api/admin/${kind}-awards/display`, 'POST', { mode: 'none' });
 
-// Handlers used by the buttons in the admin.html cards
 const addMinorAward = () => addAward('minor', 'maName');
 const showAllMinorWinners = () => showAllWinners('minor');
 const clearMinorDisplay = () => clearAwardDisplay('minor');
@@ -1173,7 +1336,7 @@ const addMajorAward = () => addAward('major', 'mjName');
 const showAllMajorWinners = () => showAllWinners('major');
 const clearMajorDisplay = () => clearAwardDisplay('major');
 
-// ---------- Program display (invocation, prayer, message...) ----------
+// ---------- Program display ----------
 let programData = { items: [], display: { itemId: null, backgroundId: null }, current: null, background: null };
 let programKey = '';
 
@@ -1198,7 +1361,6 @@ function renderProgram(force) {
 
   const bgs = [...((state && state.backgrounds) || []), ...((state && state.segmentDisplayBackgrounds) || [])];
 
-  // Only redraw when something changed, so an open dropdown isn't reset by unrelated updates.
   const key = JSON.stringify([programData, bgs.map(b => [b.id, b.originalName])]);
   if (!force && key === programKey) return;
   programKey = key;
@@ -1233,13 +1395,13 @@ async function addProgramItem() {
   const formData = new FormData();
   formData.append('title', title);
   formData.append('detail', detailEl.value.trim());
-  if (imageEl && imageEl.files[0]) formData.append('image', imageEl.files[0]); // optional
+  if (imageEl && imageEl.files[0]) formData.append('image', imageEl.files[0]);
 
   try {
     const res = await fetch('/api/admin/program', { method: 'POST', body: formData });
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
-      return showNotice(err.error || 'Could not add this program part (is the image a valid picture?).');
+      return showNotice(err.error || 'Could not add this program part.');
     }
     titleEl.value = '';
     detailEl.value = '';

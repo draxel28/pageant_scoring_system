@@ -78,6 +78,48 @@
     color: var(--text-main);
   }
 
+  /* Collapsible Card Styles */
+  .card-header-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 12px;
+    margin-bottom: 18px;
+  }
+  
+  .card-header-flex h2 {
+    margin: 0;
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
+  .collapse-content {
+    max-height: 2000px;
+    overflow: hidden;
+    transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
+    opacity: 1;
+  }
+
+  .card.collapsed .collapse-content {
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+  }
+
+  .toggle-icon {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    transition: transform 0.2s ease;
+  }
+
+  .card.collapsed .toggle-icon {
+    transform: rotate(-90deg);
+  }
+
   .row {
     display: flex;
     gap: 10px;
@@ -480,33 +522,40 @@
       </div>
     </div>
   </div>
-  <div class="card">
-    <h2>Contestants</h2>
-    <div class="row" style="flex-wrap: wrap; gap: 10px;">
-      <input id="cNumber" placeholder="No." style="flex: 0 0 80px;">
-      <input id="cName" placeholder="Contestant name" style="flex: 2; min-width: 150px;">
-      <input id="cBarangay" placeholder="Barangay" style="flex: 1.5; min-width: 130px;">
-      <select id="cGender" style="flex: 0 0 110px;">
-        <option value="female">Female</option>
-        <option value="male">Male</option>
-      </select>
-      <input type="file" id="cPhoto" accept="image/*,video/*" style="flex: 1.5; padding: 6px; min-width: 180px;">
-      <button onclick="addContestant()">Add Contestant</button>
+
+  <!-- COLLAPSIBLE CONTESTANTS CARD -->
+  <div class="card" id="contestantsCard">
+    <div class="card-header-flex" onclick="toggleCardCollapse('contestantsCard')">
+      <h2>Contestants</h2>
+      <span class="toggle-icon">&#9660;</span>
     </div>
-    <div class="table-responsive">
-      <table id="contestantTable">
-        <thead>
-          <tr>
-            <th style="width: 70px;">Media</th>
-            <th style="width: 60px;">#</th>
-            <th>Name</th>
-            <th>Barangay</th>
-            <th>Gender</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
+    <div class="collapse-content">
+      <div class="row" style="flex-wrap: wrap; gap: 10px;">
+        <input id="cNumber" placeholder="No." style="flex: 0 0 80px;">
+        <input id="cName" placeholder="Contestant name" style="flex: 2; min-width: 150px;">
+        <input id="cBarangay" placeholder="Barangay" style="flex: 1.5; min-width: 130px;">
+        <select id="cGender" style="flex: 0 0 110px;">
+          <option value="female">Female</option>
+          <option value="male">Male</option>
+        </select>
+        <input type="file" id="cPhoto" accept="image/*,video/*" style="flex: 1.5; padding: 6px; min-width: 180px;">
+        <button onclick="addContestant()">Add Contestant</button>
+      </div>
+      <div class="table-responsive">
+        <table id="contestantTable">
+          <thead>
+            <tr>
+              <th style="width: 70px;">Media</th>
+              <th style="width: 60px;">#</th>
+              <th>Name</th>
+              <th>Barangay</th>
+              <th>Gender</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
     </div>
   </div>
 
@@ -554,6 +603,20 @@
         </thead>
         <tbody></tbody>
       </table>
+    </div>
+  </div>
+
+  <!-- SEGMENT SCORES & RANKING DISPLAY CONTROL (Updated to match JSX specification) -->
+  <div class="card">
+    <h2>Segment Scores &amp; Ranking Display</h2>
+    <p class="subtitle">Select candidate representatives for each created segment, then press Show to broadcast their scores onto the display screen.</p>
+    
+    <div id="otherSegmentCardList" style="margin-top: 14px;"></div>
+
+    <div class="row" style="margin-top: 14px; border-top: 1px solid var(--border); padding-top: 14px;">
+      <button class="secondary" onclick="showAllOtherSegmentDisplays()">Show All Segments</button>
+      <button class="danger" onclick="clearOtherSegmentDisplay()">Clear Screen</button>
+      <button class="secondary" onclick="window.open('/Other-segments-display.html', '_blank')" style="margin-left: auto;">Open Display Screen</button>
     </div>
   </div>
 
@@ -612,9 +675,12 @@
 </div>
   
 
+  <!-- WRAPPED LIVE SUBMISSION TRACKER IN .table-responsive FOR HORIZONTAL SCROLLING -->
   <div class="card">
     <h2>Live Submission Tracker</h2>
-    <div id="tracker" class="muted">Select an active segment to see who has submitted.</div>
+    <div class="table-responsive">
+      <div id="tracker" class="muted">Select an active segment to see who has submitted.</div>
+    </div>
   </div>
 
   <div class="card">
@@ -650,6 +716,14 @@
 <script src="/socket.io/socket.io.js"></script>
 <script src="admin.js"></script>
 <script>
+  // Card collapse toggle handler function
+  function toggleCardCollapse(cardId) {
+    const card = document.getElementById(cardId);
+    if (card) {
+      card.classList.toggle('collapsed');
+    }
+  }
+
   // Your requested async function for background updates
   async function updateSegmentBackground() {
     const segmentId = document.getElementById('overlaySegmentSelect').value;
@@ -694,8 +768,32 @@
     }
   }
 
+  // Handlers for Other Segments Display (Award-style workflow mapped to Segments)
+  async function clearOtherSegmentDisplay() {
+    try {
+      await fetch('/api/admin/other-segments-display', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mode: 'none' })
+      });
+    } catch (err) {
+      console.error('Error clearing other segment display:', err);
+    }
+  }
+
+  async function showAllOtherSegmentDisplays() {
+    try {
+      await fetch('/api/admin/other-segments-display', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mode: 'all' })
+      });
+    } catch (err) {
+      console.error('Error broadcasting all segment scores:', err);
+    }
+  }
+
   function triggerBgUpload() {
-    // Triggers file selector or redirects to background upload section
     const bgInput = document.getElementById('bgImageInput');
     if (bgInput) bgInput.click();
   }

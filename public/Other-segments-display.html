@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Segment Score Display Overlay</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="/socket.io/socket.io.js"></script>
+  <style>
+    :root {
+      --ink: #f7dc94;
+      --muted: #e2bd6f;
+      --gold: #e6b95c;
+      --gold-bright: #ffeab0;
+      --serif: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+      --sans: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      width: 1920px;
+      height: 1080px;
+      overflow: hidden;
+      font-family: var(--sans);
+      background: transparent;
+      color: #ffffff;
+    }
+
+    body.preview-mode {
+      background: linear-gradient(135deg, #141622, #08090e);
+    }
+
+    .display-container {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      background-size: cover;
+      background-position: center;
+      padding: 60px 100px;
+      pointer-events: none;
+    }
+
+    /* Top-right score display box */
+    .top-score-overlay {
+      position: absolute;
+      top: 50px;
+      right: 60px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: rgba(10, 10, 15, 0.75);
+      border: 1px solid rgba(230, 185, 92, 0.5);
+      padding: 12px 28px;
+      border-radius: 50px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.7);
+      backdrop-filter: blur(6px);
+      z-index: 10;
+      opacity: 0;
+      transform: translateY(-20px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+
+    .top-score-overlay.show {
+      opacity: 1;
+      transform: none;
+    }
+
+    .score-label {
+      font-family: var(--sans);
+      font-size: 0.9rem;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 500;
+    }
+
+    .score-badge {
+      font-family: var(--serif);
+      font-size: 2rem;
+      font-weight: 600;
+      color: var(--gold-bright);
+      letter-spacing: 0.05em;
+    }
+
+    .content-wrapper {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      max-width: 1600px;
+      width: 100%;
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+
+    .content-wrapper.show {
+      opacity: 1;
+      transform: none;
+    }
+
+    .cards-flex-container {
+      display: flex;
+      gap: 80px;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      width: 100%;
+    }
+
+    .candidate-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      text-shadow: 
+        0 0 2px rgba(0, 0, 0, 0.95),
+        0 1px 3px rgba(0, 0, 0, 0.9),
+        0 2px 10px rgba(0, 0, 0, 0.75);
+    }
+
+    .candidate-role-label {
+      font-family: var(--sans);
+      font-size: 0.9rem;
+      color: var(--gold);
+      text-transform: uppercase;
+      margin-bottom: 6px;
+      letter-spacing: 0.1em;
+      font-weight: 600;
+    }
+
+    .candidate-name {
+      font-family: var(--serif);
+      font-size: clamp(2.4rem, 4vw, 3.8rem);
+      font-weight: 600;
+      line-height: 1.1;
+      color: var(--ink);
+      margin-bottom: 8px;
+    }
+
+    .candidate-meta {
+      font-family: var(--sans);
+      font-size: clamp(1rem, 1.6vw, 1.3rem);
+      color: var(--gold-bright);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 500;
+    }
+
+    .placeholder-text {
+      font-family: var(--serif);
+      font-size: clamp(1.2rem, 2.2vw, 2rem);
+      color: rgba(247, 220, 148, 0.4);
+      font-style: italic;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.8);
+    }
+  </style>
+</head>
+<body class="preview-mode">
+
+  <div id="displayContainer" class="display-container">
+    <!-- Top-Right Score Box -->
+    <div id="topScoreOverlay" class="top-score-overlay">
+      <span id="scoreBadge" class="score-badge">0.00</span>
+    </div>
+
+    <div id="contentWrapper" class="content-wrapper">
+      <div id="contentArea" class="cards-flex-container">
+        <div class="placeholder-text">Awaiting Candidate Selection...</div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  if (!/[?&]preview/.test(location.search)) {
+    document.body.classList.remove('preview-mode');
+  }
+
+  const socket = io();
+
+  let currentState = {
+    segments: [],
+    contestants: [],
+    backgrounds: [],
+    segmentDisplayBackgrounds: [],
+    event: {}
+  };
+
+  socket.on('state-updated', (state) => {
+    currentState = state;
+    renderDisplay();
+  });
+
+  async function fetchInitialState() {
+    try {
+      const res = await fetch('/api/state');
+      currentState = await res.json();
+      renderDisplay();
+    } catch (err) {
+      console.error('Failed to fetch initial state:', err);
+    }
+  }
+
+  function getMediaUrl(bgId) {
+    if (!bgId) return '';
+    const allBgs = [
+      ...(currentState.backgrounds || []),
+      ...(currentState.segmentDisplayBackgrounds || [])
+    ];
+    const match = allBgs.find(b => b.id === bgId);
+    return match ? match.url : '';
+  }
+
+  function esc(s) {
+    return String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  function renderDisplay() {
+    const container = document.getElementById('displayContainer');
+    const wrapperEl = document.getElementById('contentWrapper');
+    const scoreOverlay = document.getElementById('topScoreOverlay');
+    const scoreBadge = document.getElementById('scoreBadge');
+    const contentArea = document.getElementById('contentArea');
+
+    const eventData = currentState.event || {};
+    const selectedSegmentId = eventData.otherSegmentId;
+    
+    const femaleId = eventData.otherFemaleId || eventData.otherContestantId;
+    const maleId = eventData.otherMaleId;
+    const backgroundId = eventData.segmentDisplayBackgroundId;
+
+    const bgUrl = getMediaUrl(backgroundId);
+    container.style.backgroundImage = bgUrl ? `url('${bgUrl}')` : 'none';
+
+    wrapperEl.classList.remove('show');
+    scoreOverlay.classList.remove('show');
+
+    if (!selectedSegmentId) {
+      contentArea.innerHTML = `<div class="placeholder-text">Awaiting Segment Selection...</div>`;
+      setTimeout(() => wrapperEl.classList.add('show'), 50);
+      return;
+    }
+
+    const segment = (currentState.segments || []).find(s => s.id === selectedSegmentId);
+    if (!segment) {
+      contentArea.innerHTML = `<div class="placeholder-text">Segment not found</div>`;
+      setTimeout(() => wrapperEl.classList.add('show'), 50);
+      return;
+    }
+
+    if (!femaleId && !maleId) {
+      contentArea.innerHTML = `<div class="placeholder-text">Awaiting Candidate Selection...</div>`;
+      setTimeout(() => wrapperEl.classList.add('show'), 50);
+      return;
+    }
+
+    const results = segment.results || [];
+    let cardsHtml = '';
+    
+    // If multiple candidates are selected, grab the first one's score for the top right badge, or handle accordingly
+    let primaryContestantId = femaleId || maleId;
+    const candidateResult = results.find(r => r.contestantId === primaryContestantId);
+    const avgScore = candidateResult && candidateResult.average !== null && candidateResult.average !== undefined 
+      ? candidateResult.average.toFixed(2) 
+      : '0.00';
+    scoreBadge.textContent = avgScore;
+
+    const renderCandidateCard = (contestantId, labelPrefix = '') => {
+      const contestant = (currentState.contestants || []).find(c => c.id === contestantId);
+      if (!contestant) return '';
+
+      const numberText = contestant.number ? `Candidate #${esc(contestant.number)}` : '';
+
+      return `
+        <div class="candidate-card">
+          ${labelPrefix ? `<div class="candidate-role-label">${esc(labelPrefix)}</div>` : ''}
+          <div class="candidate-name">${esc(contestant.name)}</div>
+          ${numberText ? `<div class="candidate-meta">${numberText}</div>` : ''}
+        </div>
+      `;
+    };
+
+    if (femaleId) {
+      cardsHtml += renderCandidateCard(femaleId, maleId ? 'Female Representative' : '');
+    }
+    if (maleId) {
+      cardsHtml += renderCandidateCard(maleId, femaleId ? 'Male Representative' : '');
+    }
+
+    if (!cardsHtml) {
+      contentArea.innerHTML = `<div class="placeholder-text">Candidate not found</div>`;
+      setTimeout(() => wrapperEl.classList.add('show'), 50);
+      return;
+    }
+
+    contentArea.innerHTML = cardsHtml;
+    setTimeout(() => {
+      wrapperEl.classList.add('show');
+      scoreOverlay.classList.add('show');
+    }, 50);
+  }
+
+  fetchInitialState();
+</script>
+</body>
+</html>

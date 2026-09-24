@@ -4,6 +4,7 @@
   "description": "Local network pageant scoring system: judges score on laptops, results shown live on a big screen.",
   "main": "server.js",
   "scripts": {
+    "prestart": "node scripts/ensure-port.js",
     "start": "node server.js"
   },
   "dependencies": {

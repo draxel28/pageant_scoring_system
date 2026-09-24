@@ -3,9 +3,17 @@
     "name": "Pageant Night",
     "activeSegmentId": "seg_mueyz7txia8n6",
     "displayMode": "judges",
-    "activeContestantIndex": 0,
-    "selectedSegmentOverlayId": null,
-    "segmentDisplayBgId": null
+    "activeContestantIndex": 6,
+    "selectedSegmentOverlayId": "seg_mufqjd8zldvmg",
+    "segmentDisplayBgId": "sdbg_mu84oy9qbzsvg",
+    "otherContestantSelections": {
+      "seg_mueyz7txia8n6": "c_muevq0d54z6jw",
+      "seg_muez2rjypw1e0": "c_muewxh6e3uqci",
+      "seg_muez4c2dry8gc": "c_muevs2n8onkaj"
+    },
+    "otherSegmentId": "seg_mueyz7txia8n6",
+    "otherContestantId": "c_muevq0d54z6jw",
+    "otherDisplayMode": "single"
   },
   "judges": [
     {
@@ -297,7 +305,7 @@
           "maxScore": 20
         }
       ],
-      "revealed": false
+      "revealed": true
     },
     {
       "id": "seg_muez2rjypw1e0",
@@ -324,7 +332,7 @@
           "maxScore": 20
         }
       ],
-      "revealed": false
+      "revealed": true
     },
     {
       "id": "seg_muez4c2dry8gc",
@@ -351,7 +359,34 @@
           "maxScore": 20
         }
       ],
-      "revealed": false
+      "revealed": true
+    },
+    {
+      "id": "seg_mufqjd8zldvmg",
+      "name": "Swim Wear",
+      "criteria": [
+        {
+          "id": "cr_mufqjd8zfijcj",
+          "name": "Style and Fashion Sense",
+          "maxScore": 30
+        },
+        {
+          "id": "cr_mufqjd8z2dz0u",
+          "name": "Confidence & Poise",
+          "maxScore": 25
+        },
+        {
+          "id": "cr_mufqjd8zbrw5g",
+          "name": "Personality & stage Prersense",
+          "maxScore": 25
+        },
+        {
+          "id": "cr_mufqjd8zjaszd",
+          "name": "Suitability of outfit",
+          "maxScore": 20
+        }
+      ],
+      "revealed": true
     }
   ],
   "scores": {
@@ -637,7 +672,51 @@
     },
     "seg_muez13tdk6nwy": {},
     "seg_muez2rjypw1e0": {},
-    "seg_muez4c2dry8gc": {}
+    "seg_muez4c2dry8gc": {},
+    "seg_mufqjd8zldvmg": {
+      "j_mu51h3a2f4y92": {
+        "c_muevq0d54z6jw": {
+          "cr_mufqjd8zfijcj": "30",
+          "cr_mufqjd8z2dz0u": "23",
+          "cr_mufqjd8zbrw5g": "22",
+          "cr_mufqjd8zjaszd": "19"
+        }
+      }
+    },
+    "seg_mueyz7txia8n6": {
+      "j_mu51h3a2f4y92": {
+        "c_muevq0d54z6jw": {
+          "cr_mueyz7txsgzcz": "30",
+          "cr_mseuv7gxzjxfy": "28",
+          "cr_mseuv7gx85b78": "17",
+          "cr_mseuv7gx34x7t": "19"
+        }
+      },
+      "j_mu5c82107ohgr": {
+        "c_muevq0d54z6jw": {
+          "cr_mueyz7txsgzcz": "28",
+          "cr_mseuv7gxzjxfy": "29",
+          "cr_mseuv7gx85b78": "17",
+          "cr_mseuv7gx34x7t": "19"
+        }
+      },
+      "j_mu6ct9j84zp4d": {
+        "c_muevq0d54z6jw": {
+          "cr_mueyz7txsgzcz": "30",
+          "cr_mseuv7gxzjxfy": "26",
+          "cr_mseuv7gx85b78": "18",
+          "cr_mseuv7gx34x7t": "17"
+        }
+      },
+      "j_mub7d6mrhsqa2": {
+        "c_muevq0d54z6jw": {
+          "cr_mueyz7txsgzcz": "30",
+          "cr_mseuv7gxzjxfy": "27",
+          "cr_mseuv7gx85b78": "18",
+          "cr_mseuv7gx34x7t": "18"
+        }
+      }
+    }
   },
   "backgrounds": [
     {
@@ -739,17 +818,17 @@
       {
         "id": "ma_mue8bmfphqx3m",
         "name": "Mr. Congeniality",
-        "winnerId": "c_muevs2n8onkaj"
+        "winnerId": "c_muevrcpkslq31"
       },
       {
         "id": "ma_mue8bmfp3kw7e",
         "name": "Ms. Congeniality",
-        "winnerId": "c_muew19trg6af9"
+        "winnerId": "c_muew3r9acks12"
       },
       {
         "id": "ma_mue8bmfpjwgd1",
         "name": "Best in Photography",
-        "winnerId": null
+        "winnerId": "c_muew2jpmhxk2h"
       },
       {
         "id": "ma_mue8dvd5z8nyq",
@@ -813,46 +892,66 @@
       }
     ],
     "display": {
-      "mode": "none",
-      "awardId": null
+      "mode": "award",
+      "awardId": "ma_mue8bmfpjwgd1"
     }
   },
   "majorAwards": {
     "awards": [
       {
-        "id": "ma_muevgqf23s7ce",
-        "name": "Mr. Winner",
-        "winnerId": "c_muevs2n8onkaj"
-      },
-      {
-        "id": "ma_muevgqf2y25z6",
-        "name": "Ms. Winner",
-        "winnerId": "c_muevrcpkslq31"
-      },
-      {
-        "id": "ma_muevgqf2wji48",
-        "name": "Mr. 1st Runner-Up",
+        "id": "ma_mufr75gmfrk7e",
+        "name": "MS. CTHM 2026 FOURTH RUNNER- UP",
         "winnerId": null
       },
       {
-        "id": "ma_muevgqf21y8qa",
-        "name": "Ms. 1st Runner-Up",
+        "id": "ma_mufr7dvbzjouw",
+        "name": "MR. CTHM 2026 FOURTH RUNNER- UP",
         "winnerId": null
       },
       {
-        "id": "ma_muevgqf27uqpn",
-        "name": "Mr. 2nd Runner-Up",
+        "id": "ma_mufr7x9cx2erc",
+        "name": "MS. CTHM 2026 THIRD RUNNER- UP",
         "winnerId": null
       },
       {
-        "id": "ma_muevgqf2wfpon",
-        "name": "Ms. 2nd Runner-Up",
+        "id": "ma_mufr84sen5e2b",
+        "name": "MR. CTHM 2026 THIRD RUNNER- UP",
         "winnerId": null
+      },
+      {
+        "id": "ma_mufr8hahgp4sx",
+        "name": "MS. CTHM 2026 SECOND RUNNER- UP",
+        "winnerId": null
+      },
+      {
+        "id": "ma_mufr8objlcizf",
+        "name": "MR. CTHM 2026 SECOND RUNNER- UP",
+        "winnerId": null
+      },
+      {
+        "id": "ma_mufr90i11jufm",
+        "name": "MS. CTHM 2026 FIRST RUNNER- UP",
+        "winnerId": null
+      },
+      {
+        "id": "ma_mufr96i00kzze",
+        "name": "MR. CTHM 2026 FIRST RUNNER- UP",
+        "winnerId": null
+      },
+      {
+        "id": "ma_mufr9sfmqjpv5",
+        "name": "MS. CTHM 2026 WINNER",
+        "winnerId": "c_muevyrt2g709v"
+      },
+      {
+        "id": "ma_mufra0axkni5m",
+        "name": "MR. CTHM 2026 WINNER",
+        "winnerId": "c_muevwbj04jmny"
       }
     ],
     "display": {
-      "mode": "none",
-      "awardId": null
+      "mode": "award",
+      "awardId": "ma_mufr9sfmqjpv5"
     }
   },
   "program": {
