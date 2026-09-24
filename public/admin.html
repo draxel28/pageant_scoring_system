@@ -456,7 +456,30 @@
     </form>
     <div id="segmentPhotosList" style="margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap;"></div>
   </div>
+<!-- Segment Display Selector Control Card -->
+  <div class="card">
+    <h3>Segment Display Selector</h3>
+    <p class="subtitle">Select a created segment and background to broadcast directly onto the standalone screen.</p>
+    
+    <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 15px;">
+      <select id="overlaySegmentSelect" class="form-control" style="flex: 1;">
+        <option value="">-- Choose Segment --</option>
+      </select>
+      <button type="button" id="overlayDisplayBtn" class="btn btn-primary" onclick="toggleOverlaySegment()">Display</button>
+      <button type="button" class="btn btn-danger" onclick="clearOverlaySegment()">Clear Display</button>
+    </div>
 
+    <div class="form-group">
+      <label>Display Background (Image/Video)</label>
+      <div style="display: flex; gap: 10px;">
+        <!-- Added onchange handler so choosing a background saves and syncs it immediately -->
+        <select id="segmentBgSelect" class="form-control" style="flex: 1;" onchange="updateSegmentBackground()">
+          <option value="">-- None (Default Gradient) --</option>
+        </select>
+        <button type="button" class="btn btn-secondary" id="triggerBgUploadBtn" onclick="triggerBgUpload()">Upload New</button>
+      </div>
+    </div>
+  </div>
   <div class="card">
     <h2>Contestants</h2>
     <div class="row" style="flex-wrap: wrap; gap: 10px;">
@@ -564,30 +587,30 @@
   </div>
 </div>
 
-  <!-- Segment Display Selector Control Card -->
-  <div class="card">
-    <h3>Segment Display Selector</h3>
-    <p class="subtitle">Select a created segment and background to broadcast directly onto the standalone screen.</p>
-    
-    <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 15px;">
-      <select id="overlaySegmentSelect" class="form-control" style="flex: 1;">
-        <option value="">-- Choose Segment --</option>
-      </select>
-      <button type="button" id="overlayDisplayBtn" class="btn btn-primary" onclick="toggleOverlaySegment()">Display</button>
-      <button type="button" class="btn btn-danger" onclick="clearOverlaySegment()">Clear Display</button>
-    </div>
-
-    <div class="form-group">
-      <label>Display Background (Image/Video)</label>
-      <div style="display: flex; gap: 10px;">
-        <!-- Added onchange handler so choosing a background saves and syncs it immediately -->
-        <select id="segmentBgSelect" class="form-control" style="flex: 1;" onchange="updateSegmentBackground()">
-          <option value="">-- None (Default Gradient) --</option>
-        </select>
-        <button type="button" class="btn btn-secondary" id="triggerBgUploadBtn" onclick="triggerBgUpload()">Upload New</button>
-      </div>
-    </div>
+<div class="card">
+  <h2>Program Display</h2>
+  <p class="subtitle">Show which part of the program is happening (invocation, prayer, message...) on the general program screen.</p>
+  <div class="row">
+    <input id="pgTitle" placeholder="Program part (e.g. Invocation)">
+    <input id="pgDetail" placeholder="Optional line under it (e.g. name of speaker)">
+    <button onclick="addProgramItem()">Add</button>
   </div>
+  
+    <div class="row" style="margin-top: 10px;">
+    <label class="muted">Optional image:</label>
+    <input type="file" id="pgImage" accept="image/*">
+  </div>
+
+  <div id="programList" style="margin-top: 14px;"></div>
+  <div class="row" style="margin-top: 14px;">
+    <select id="programBgSelect" onchange="setProgramBackground(this.value)">
+      <option value="">-- None (Default Gradient) --</option>
+    </select>
+    <button class="danger" onclick="clearProgramDisplay()">Clear Screen</button>
+    <button class="secondary" onclick="window.open('/program-display.html', '_blank')">Open Display Screen</button>
+  </div>
+</div>
+  
 
   <div class="card">
     <h2>Live Submission Tracker</h2>

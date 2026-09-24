@@ -28,6 +28,8 @@ const AWARD_KINDS = {
   minor: ['Mr. Congeniality', 'Ms. Congeniality', 'Best in Photography'],
   major: ['Mr. Winner', 'Ms. Winner', 'Mr. 1st Runner-Up', 'Ms. 1st Runner-Up', 'Mr. 2nd Runner-Up', 'Ms. 2nd Runner-Up']
 };
+// Parts of the program the admin can put on the general program screen.
+const DEFAULT_PROGRAM_ITEMS = ['Invocation', 'Prayer', 'Message'];
 const awardKey = kind => kind + 'Awards'; // stored in data.json as minorAwards / majorAwards
 
 // ---------- Multer Configuration for Uploads (Supports Images & Videos) ----------
@@ -44,6 +46,7 @@ const storage = multer.diskStorage({
     let prefix = 'contestant';
     if (file.fieldname === 'background') prefix = 'background';
     if (file.fieldname === 'segmentPhoto') prefix = 'segment-media';
+    if (file.fieldname === 'image') prefix = 'program';
     cb(null, prefix + '-' + uniqueSuffix + path.extname(file.originalname));
   }
 });
@@ -86,6 +89,13 @@ function defaultAwards(kind) {
   };
 }
 
+function defaultProgram() {
+  return {
+    items: DEFAULT_PROGRAM_ITEMS.map(title => ({ id: newId('pg'), title, detail: '', image: null })),
+    display: { itemId: null, backgroundId: null }
+  };
+}
+
 function loadData() {
   if (!fs.existsSync(DATA_FILE)) {
     const initial = {
@@ -104,14 +114,18 @@ function loadData() {
     globalContestantIndex = data.event.activeContestantIndex;
   }
   // Existing data.json files from before the awards existed get them added once.
-  let awardsAdded = false;
+  let dataMigrated = false;
   Object.keys(AWARD_KINDS).forEach(kind => {
     if (!data[awardKey(kind)]) {
       data[awardKey(kind)] = defaultAwards(kind);
-      awardsAdded = true;
+      dataMigrated = true;
     }
   });
-  if (awardsAdded) fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
+  if (!data.program) {
+    data.program = defaultProgram();
+    dataMigrated = true;
+  }
+  if (dataMigrated) fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
   return data;
 }
 function saveData(data) {
@@ -636,6 +650,77 @@ Object.keys(AWARD_KINDS).forEach(kind => {
   });
 });
 
+// ---------- Admin: program display (invocation, prayer, message...) ----------
+// The general program screen (program-display.html) shows one program part at a time,
+// with an optional line under it and an optional background image/video.
+function programView(data) {
+  const p = data.program;
+  const item = p.display.itemId && p.items.find(i => i.id === p.display.itemId);
+  const bgId = p.display.backgroundId;
+  const bg = bgId && [...(data.backgrounds || []), ...(data.segmentDisplayBackgrounds || [])].find(b => b.id === bgId);
+  return {
+    items: p.items,
+    display: { itemId: item ? item.id : null, backgroundId: bg ? bg.id : null },
+    current: item || null,
+    background: bg ? { id: bg.id, url: bg.url } : null
+  };
+}
+function broadcastProgram(data) {
+  io.emit('program-updated', programView(data));
+}
+
+app.get('/api/program', (req, res) => {
+  res.json(programView(loadData()));
+});
+
+// multipart form: title, detail (optional), image (optional)
+app.post('/api/admin/program', upload.single('image'), (req, res) => {
+  const title = String(req.body.title || '').trim();
+  if (!title) {
+    if (req.file) { try { fs.unlinkSync(req.file.path); } catch (e) {} }
+    return res.status(400).json({ error: 'Program part name required' });
+  }
+  const data = loadData();
+  data.program.items.push({
+    id: newId('pg'),
+    title,
+    detail: String(req.body.detail || '').trim(),
+    image: req.file ? `/uploads/${req.file.filename}` : null
+  });
+  saveData(data);
+  broadcastProgram(data);
+  res.json({ success: true });
+});
+
+app.delete('/api/admin/program/:id', (req, res) => {
+  const data = loadData();
+  const item = data.program.items.find(i => i.id === req.params.id);
+  if (item && item.image && fs.existsSync(path.join(__dirname, 'public', item.image))) {
+    try { fs.unlinkSync(path.join(__dirname, 'public', item.image)); } catch (e) {}
+  }
+  data.program.items = data.program.items.filter(i => i.id !== req.params.id);
+  if (data.program.display.itemId === req.params.id) data.program.display.itemId = null;
+  saveData(data);
+  broadcastProgram(data);
+  res.json({ success: true });
+});
+
+// body: { itemId } to show a part (null clears the screen) and/or { backgroundId } to change the background
+app.post('/api/admin/program/display', (req, res) => {
+  const data = loadData();
+  const { itemId, backgroundId } = req.body;
+  if (itemId !== undefined) {
+    if (itemId && !data.program.items.find(i => i.id === itemId)) {
+      return res.status(404).json({ error: 'Program part not found' });
+    }
+    data.program.display.itemId = itemId || null;
+  }
+  if (backgroundId !== undefined) data.program.display.backgroundId = backgroundId || null;
+  saveData(data);
+  broadcastProgram(data);
+  res.json({ success: true });
+});
+
 // ---------- Judge auth ----------
 app.post('/api/judge/login', (req, res) => {
   const data = loadData();
@@ -838,6 +923,7 @@ server.listen(PORT, '0.0.0.0', () => {
       console.log(`   Dead Air Display:http://${n.address}:${PORT}/deadair-display.html`);
       console.log(`   Minor Awards:    http://${n.address}:${PORT}/minoraward.html`);
       console.log(`   Major Awards:    http://${n.address}:${PORT}/majoraward.html`);
+      console.log(`   Program Display: http://${n.address}:${PORT}/program-display.html`);
     }
   });
   console.log('=======================================\n');
