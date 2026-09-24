@@ -3,6 +3,10 @@ const socket = typeof io === 'function' ? io() : null;
 // Add ?demo to the overlay URL to preview the layout with sample data.
 const DEMO_MODE = new URLSearchParams(location.search).has('demo');
 
+// How long the old contestant takes to fade out before the next one starts
+// their (delayed) entrance. Matches the 0.8s fade in overlay.html.
+const SWAP_MS = 900;
+
 const slots = {
   female: document.getElementById('slot-female'),
   male: document.getElementById('slot-male'),
@@ -11,8 +15,8 @@ const slots = {
 // Remembers what each side last showed, so we only redraw on real changes
 // and can flash a score the moment it comes in.
 const memory = {
-  female: { sig: '', who: '', scores: {} },
-  male: { sig: '', who: '', scores: {} },
+  female: { sig: '', who: '', scores: {}, timer: null, next: null },
+  male: { sig: '', who: '', scores: {}, timer: null, next: null },
 };
 
 function esc(value) {
@@ -50,11 +54,13 @@ function scoreMap(item) {
   return Object.fromEntries((item.perJudge || []).map(j => [j.judgeName, j.score]));
 }
 
-function panelHtml(item, prevScores) {
-  const c = item.contestant;
-  const segmentName = item.segment && item.segment.name;
+// Identifies "who is on this side right now" (a score change keeps the same id).
+function whoOf(item) {
+  return [item.contestant.number, item.contestant.name, item.segment && item.segment.name].join('|');
+}
 
-  const judges = (item.perJudge || []).map(j => {
+function judgesHtml(item, prevScores) {
+  return (item.perJudge || []).map(j => {
     const pending = j.score === null || j.score === undefined;
     const changed = prevScores && !pending && prevScores[j.judgeName] !== j.score;
     return `
@@ -63,10 +69,17 @@ function panelHtml(item, prevScores) {
         <span class="judge-score${pending ? ' pending' : ''}${changed ? ' flash' : ''}">${pending ? '—' : esc(j.score)}</span>
       </div>`;
   }).join('');
+}
 
-  const avg = item.average === null || item.average === undefined
+function avgText(item) {
+  return item.average === null || item.average === undefined
     ? '—'
     : Number(item.average).toFixed(2);
+}
+
+function panelHtml(item, prevScores) {
+  const c = item.contestant;
+  const segmentName = item.segment && item.segment.name;
 
   const meta = (c.hometown || segmentName) ? `
       <div class="meta">
@@ -85,12 +98,45 @@ function panelHtml(item, prevScores) {
       <div class="name">${esc(c.name)}</div>
       ${meta}
       <div class="divider"></div>
-      <div class="judges">${judges}</div>
+      <div class="judges">${judgesHtml(item, prevScores)}</div>
       <div class="avg">
         <div class="avg-label">Average</div>
-        <div class="avg-score">${avg}</div>
+        <div class="avg-score">${avgText(item)}</div>
       </div>
     </article>`;
+}
+
+function showSlot(slot) {
+  if (!slot.classList.contains('show')) {
+    void slot.offsetWidth; // flush styles so the slide-in animates
+    slot.classList.add('show');
+  }
+}
+
+// Draws a brand-new panel (the entrance animations play when the slot gets .show).
+function build(side, item) {
+  const mem = memory[side];
+  const who = whoOf(item);
+  const prevScores = mem.who === who ? mem.scores : null;
+  slots[side].innerHTML = panelHtml(item, prevScores);
+  mem.sig = JSON.stringify(item);
+  mem.who = who;
+  mem.scores = scoreMap(item);
+}
+
+// Same contestant, new scores: update only the judge rows and the average.
+// The photo, name and entrance animations are left alone, so nothing replays
+// and the judges never pop in ahead of their delay.
+function updateInPlace(side, item) {
+  const slot = slots[side];
+  const mem = memory[side];
+  const judgesEl = slot.querySelector('.judges');
+  const avgEl = slot.querySelector('.avg-score');
+  if (!judgesEl || !avgEl) return build(side, item);
+  judgesEl.innerHTML = judgesHtml(item, mem.scores);
+  avgEl.textContent = avgText(item);
+  mem.sig = JSON.stringify(item);
+  mem.scores = scoreMap(item);
 }
 
 function paint(side, item) {
@@ -99,24 +145,44 @@ function paint(side, item) {
 
   if (!item) {
     // Hide but keep the old content so it can slide out smoothly.
+    clearTimeout(mem.timer);
+    mem.timer = null;
+    mem.next = null;
     slot.classList.remove('show');
     return;
   }
 
+  // A contestant swap is already in progress: just remember the latest data.
+  if (mem.timer) { mem.next = item; return; }
+
   const sig = JSON.stringify(item);
-  if (sig !== mem.sig) {
-    const who = [item.contestant.number, item.contestant.name, item.segment && item.segment.name].join('|');
-    const prevScores = mem.who === who ? mem.scores : null;
-    slot.innerHTML = panelHtml(item, prevScores);
-    mem.sig = sig;
-    mem.who = who;
-    mem.scores = scoreMap(item);
+  if (sig === mem.sig) { showSlot(slot); return; }
+
+  const who = whoOf(item);
+  const shown = slot.classList.contains('show');
+
+  if (shown && mem.who && mem.who !== who) {
+    // A different contestant while the old one is on screen: fade the old one out,
+    // then bring the new one in from scratch so EVERYTHING (judges included)
+    // follows the same delayed entrance.
+    slot.classList.remove('show');
+    mem.next = item;
+    mem.timer = setTimeout(() => {
+      mem.timer = null;
+      const next = mem.next;
+      mem.next = null;
+      if (!next) return;
+      build(side, next);
+      showSlot(slot);
+    }, SWAP_MS);
+    return;
   }
 
-  if (!slot.classList.contains('show')) {
-    void slot.offsetWidth; // flush styles so the slide-in animates
-    slot.classList.add('show');
-  }
+  if (shown && mem.who === who) { updateInPlace(side, item); return; }
+
+  // Slot was hidden: draw the panel, then reveal it.
+  build(side, item);
+  showSlot(slot);
 }
 
 function render(data) {

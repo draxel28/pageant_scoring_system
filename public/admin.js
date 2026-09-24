@@ -95,6 +95,8 @@ function renderCritRows() {
     </div>`).join('');
 }
 
+// ---------- Contestants ----------
+
 async function addContestant() {
   const number = document.getElementById('cNumber').value.trim();
   const name = document.getElementById('cName').value.trim();
@@ -168,6 +170,8 @@ function cancelEditContestant() {
   render();
 }
 
+// ---------- Judges ----------
+
 async function addJudge() {
   const name = document.getElementById('jName').value.trim();
   if (!name) return showNotice('Enter a judge name');
@@ -197,6 +201,8 @@ async function updateDisplayMode(mode) {
     body: JSON.stringify({ mode })
   });
 }
+
+// ---------- Segment-specific media ----------
 
 // Populate dropdowns and render segment photo / video list
 function renderSegmentPhotosUI(state) {
@@ -285,6 +291,8 @@ async function deleteSegmentPhoto(id) {
   }
 }
 
+// ---------- Segments ----------
+
 async function addSegment() {
   const name = document.getElementById('sName').value.trim();
   if (!name) return showNotice('Enter a segment name');
@@ -319,6 +327,8 @@ function renderContestantAvatar(c) {
   }
   return `<div style="width: 32px; height: 32px; background: rgba(255,255,255,0.05); border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 0.6rem; color: var(--text-muted); vertical-align: middle; margin-right: 8px;">No Img</div>`;
 }
+
+// ---------- Contestant navigation ----------
 
 function nextContestant() {
   if (!state || !state.contestants || state.contestants.length === 0) return;
@@ -391,6 +401,8 @@ function updateSteppersUI() {
     }
   });
 }
+
+// ---------- Main render ----------
 
 function render() {
   if (!state) return;
@@ -490,6 +502,7 @@ function render() {
   renderContestantsStepper(state.contestants);
   
   updateOverlaySegmentDropdown(state);
+  AWARD_KINDS.forEach(kind => renderAwards(kind));
 }
 
 function updatePdfDropdownOptions() {
@@ -584,15 +597,7 @@ function renderSegmentScoreTabs() {
   contentContainer.innerHTML = segmentActionHtml + getSegmentReportHtml(currentSegment);
 }
 
-// ==================================================================
-// In admin.js:
-//   1. DELETE the old  getOverallSummaryHtml()  function
-//   2. DELETE the old  getSegmentReportHtml()   function
-//   3. PASTE everything below in their place.
-// (admin.html and server.js do not change.)
-// ==================================================================
-
-// ---------- Shared helpers ----------
+// ---------- Shared report helpers ----------
 
 const GENDER_GROUPS = [
   { key: 'female', label: '👩 Female Contestants', color: '#e88bb4' },
@@ -721,123 +726,7 @@ function getOverallSummaryHtml() {
   `;
 }
 
-// ---------- Per-judge breakdown table (one per gender group) ----------
-
-function renderJudgeBreakdownTable(results, criteria, judges, segScores) {
-  return `
-    <table style="font-size: 0.90rem; width: 100%;">
-      <thead>
-        <tr>
-          <th style="width: 50px;">No.</th>
-          <th>Contestant Name</th>
-          <th>Judge Name</th>
-          ${criteria.map(c => `<th style="text-align: right;">${c.name} (${c.maxScore})</th>`).join('')}
-          <th style="text-align: right;">Total</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${results.map(r => {
-          const contestantObj = state.contestants.find(c => c.id === r.contestantId) || r;
-          const avatar = renderContestantAvatar(contestantObj);
-          let rowsForContestant = '';
-          judges.forEach((j, jIndex) => {
-            const jScores = segScores[j.id] && segScores[j.id][r.contestantId];
-            let judgeTotal = 0;
-            let hasSubmitted = jScores !== undefined;
-
-            let critCols = criteria.map(crit => {
-              const val = hasSubmitted ? (jScores[crit.id] !== undefined ? jScores[crit.id] : '—') : '—';
-              if (hasSubmitted && jScores[crit.id] !== undefined) {
-                judgeTotal += Number(jScores[crit.id]) || 0;
-              }
-              return `<td style="text-align: right;">${val}</td>`;
-            }).join('');
-
-            const isFirst = jIndex === 0;
-            const isLast = jIndex === judges.length - 1;
-            const borderStyle = isLast ? 'border-bottom: 2px solid #cbd5e1;' : 'border-bottom: 1px solid #f1f5f9;';
-
-            rowsForContestant += `
-              <tr style="${borderStyle}">
-                <td style="${!isFirst ? 'color: transparent;' : ''}">${r.number ? `#${r.number}` : ''}</td>
-                <td style="${!isFirst ? 'color: transparent;' : ''}">${isFirst ? `<div style="display: flex; align-items: center;">${avatar}<strong>${r.name}</strong></div>` : ''}</td>
-                <td style="color: #64748b;">${j.name}</td>${critCols}
-                <td style="text-align: right; font-weight: 700;">${hasSubmitted ? judgeTotal.toFixed(2) : '—'}</td>
-              </tr>
-            `;
-          });
-          return rowsForContestant;
-        }).join('')}
-      </tbody>
-    </table>
-  `;
-}
-
 // ---------- Segment report (leaderboard + per-judge matrix) ----------
-
-function getSegmentReportHtml(currentSegment) {
-  const segScores = state.scores[currentSegment.id] || {};
-  const criteria = currentSegment.criteria || [];
-  const judges = state.judges || [];
-
-  // Female / Male groups, each already sorted best-first by the server.
-  const groups = splitByGender(currentSegment.results);
-
-  const leaderboardHtml = groups.map((g, i) => {
-    const ranked = assignRanks(g.rows, r => r.average);
-    return genderHeadingHtml(g, i === 0) + `
-    <table>
-      <thead>
-        <tr>
-          <th style="width: 80px;">Rank</th>
-          <th style="width: 90px;">No.</th>
-          <th>Contestant Name</th>
-          <th style="text-align: right;">Submissions</th>
-          <th style="text-align: right;">Average Score</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${ranked.map(r => {
-          const contestantObj = state.contestants.find(c => c.id === r.contestantId) || r;
-          const avatar = renderContestantAvatar(contestantObj);
-          return `
-          <tr>
-            <td><strong>${r.groupRank}</strong></td>
-            <td>${r.number ? `#${r.number}` : ''}</td>
-            <td>
-              <div style="display: flex; align-items: center;">
-                ${avatar}
-                <strong>${r.name}</strong>
-              </div>
-            </td>
-            <td style="text-align: right;" class="muted">${r.submittedCount} /${r.totalJudges}</td>
-            <td style="text-align: right; font-weight: 700; color: var(--gold);">${r.average !== null ? r.average.toFixed(2) : '—'}</td>
-          </tr>
-        `;
-        }).join('')}
-      </tbody>
-    </table>`;
-  }).join('');
-
-  const breakdownHtml = groups.map((g, i) =>
-    genderHeadingHtml(g, i === 0) +
-    renderJudgeBreakdownTable(g.rows, criteria, judges, segScores)
-  ).join('');
-
-  return `
-    <h3 style="margin-top: 0; color: var(--gold);">${currentSegment.name} - Leaderboard &amp; Ranks</h3>
-    ${leaderboardHtml}
-
-    <h3 style="margin-top: 35px; border-top: 1px solid var(--border-color); padding-top: 20px; color: var(--gold);">Per-Judge Breakdown Matrix (Detailed Scores)</h3>
-    ${breakdownHtml}
-  `;
-}
-
-// ============================================================
-// In admin.js: DELETE the old getSegmentReportHtml() function
-// and paste BOTH functions below in its place.
-// (Everything else in admin.js / admin.html / server.js stays as is.)
-// ============================================================
 
 // Builds one Per-Judge Breakdown table for a list of result rows.
 function renderJudgeBreakdownTable(results, criteria, judges, segScores) {
@@ -890,30 +779,17 @@ function renderJudgeBreakdownTable(results, criteria, judges, segScores) {
   `;
 }
 
+// The leaderboard is one combined ranking; the per-judge breakdown is split
+// into Female / Male groups.
 function getSegmentReportHtml(currentSegment) {
   const segScores = state.scores[currentSegment.id] || {};
   const criteria = currentSegment.criteria || [];
   const judges = state.judges || [];
 
-  // Split the results into Female / Male (and anyone without a gender set),
-  // keeping the existing rank order inside each group.
-  const genderOf = (r) => {
-    const c = state.contestants.find(x => x.id === r.contestantId);
-    return (c && c.gender) || '';
-  };
-  const groups = [
-    { key: 'female', label: '👩 Female Contestants', color: '#e88bb4' },
-    { key: 'male',   label: '👨 Male Contestants',   color: '#6fa8dc' },
-    { key: '',       label: 'Gender Not Set',        color: 'var(--text-muted)' }
-  ].map(g => ({ ...g, rows: currentSegment.results.filter(r => genderOf(r) === g.key) }))
-   .filter(g => g.rows.length > 0);
-
-  const breakdownHtml = groups.map((g, i) => `
-    <h4 style="margin: ${i === 0 ? '12px' : '32px'} 0 4px 0; padding: 8px 12px; border-left: 4px solid ${g.color}; background: rgba(255,255,255,0.04); color: ${g.color}; font-size: 0.95rem;">
-      ${g.label} <span class="muted" style="font-weight: 400;">(${g.rows.length})</span>
-    </h4>
-    ${renderJudgeBreakdownTable(g.rows, criteria, judges, segScores)}
-  `).join('');
+  const breakdownHtml = splitByGender(currentSegment.results).map((g, i) =>
+    genderHeadingHtml(g, i === 0) +
+    renderJudgeBreakdownTable(g.rows, criteria, judges, segScores)
+  ).join('');
 
   return `
     <h3 style="margin-top: 0; color: var(--gold);">${currentSegment.name} - Leaderboard &amp; Ranks</h3>
@@ -1048,6 +924,8 @@ function renderBackgroundGallery(backgrounds) {
   }).join('');
 }
 
+// ---------- Segment display overlay ----------
+
 function updateOverlaySegmentDropdown(state) {
   const selectEl = document.getElementById('overlaySegmentSelect');
   const btnEl = document.getElementById('overlayDisplayBtn');
@@ -1170,4 +1048,129 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
+// ---------- Awards (minor + major) ----------
+// Both kinds share the same code. Each needs a <div id="<kind>AwardList"> card in admin.html.
+const AWARD_KINDS = ['minor', 'major'];
+const awardsData = {};
+const awardsKey = {};
+AWARD_KINDS.forEach(kind => {
+  awardsData[kind] = { awards: [], display: { mode: 'none', awardId: null } };
+  awardsKey[kind] = '';
+  socket.on(`${kind}-awards-updated`, (d) => {
+    awardsData[kind] = d;
+    renderAwards(kind);
+  });
+});
+
+const escMA = s => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+async function awardRequest(url, method, body) {
+  try {
+    const res = await fetch(url, {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: body === undefined ? undefined : JSON.stringify(body)
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      showNotice(err.error || 'Something went wrong.');
+    }
+  } catch (e) {
+    console.error('Awards request failed:', e);
+    showNotice('Could not reach the server.');
+  }
+}
+
+async function loadAwards() {
+  for (const kind of AWARD_KINDS) {
+    try {
+      awardsData[kind] = await (await fetch(`/api/${kind}-awards`)).json();
+      renderAwards(kind, true);
+    } catch (e) {
+      console.error(e);
+    }
+  }
+}
+
+// Contestant dropdown options, grouped Female / Male.
+function awardContestantOptions(selectedId) {
+  const list = (state && state.contestants) || [];
+  const opt = c => `<option value="${escMA(c.id)}" ${String(c.id) === String(selectedId) ? 'selected' : ''}>${c.number ? '#' + escMA(c.number) + ' - ' : ''}${escMA(c.name)}</option>`;
+  let html = '<option value="">-- Select Contestant --</option>';
+  [['female', 'Female'], ['male', 'Male'], ['', 'Gender Not Set']].forEach(([key, label]) => {
+    const group = list.filter(c => (c.gender || '') === key);
+    if (group.length) html += `<optgroup label="${label}">${group.map(opt).join('')}</optgroup>`;
+  });
+  return html;
+}
+
+function renderAwards(kind, force) {
+  const el = document.getElementById(`${kind}AwardList`);
+  if (!el) return;
+
+  // Only redraw when something changed, so an open dropdown isn't reset
+  // by unrelated live updates (scores coming in, etc.).
+  const data = awardsData[kind];
+  const contestants = (state && state.contestants) || [];
+  const key = JSON.stringify([data, contestants.map(c => [c.id, c.number, c.name, c.gender])]);
+  if (!force && key === awardsKey[kind]) return;
+  awardsKey[kind] = key;
+
+  if (!data.awards.length) {
+    el.innerHTML = '<span class="muted">No awards yet. Add one above.</span>';
+    return;
+  }
+
+  const d = data.display || {};
+  el.innerHTML = data.awards.map(a => {
+    const live = d.mode === 'award' && d.awardId === a.id;
+    return `
+      <div class="row" style="padding: 10px 0; border-bottom: 1px solid var(--border);">
+        <div style="flex: 1; min-width: 180px;">
+          <strong>${escMA(a.name)}</strong>
+          ${live ? '<span style="color: var(--success); font-size: 0.78rem; margin-left: 8px;">on screen</span>' : ''}
+          ${a.winner ? `<div class="muted">Winner: ${escMA(a.winner.name)}</div>` : ''}
+        </div>
+        <select style="flex: 1; min-width: 200px;" onchange="setAwardWinner('${kind}', '${a.id}', this.value)">
+          ${awardContestantOptions(a.winner && a.winner.contestantId)}
+        </select>
+        <button type="button" onclick="showAward('${kind}', '${a.id}')" style="${a.winner ? '' : 'opacity: .4; pointer-events: none;'}">Show</button>
+        <button type="button" class="danger" onclick="removeAward('${kind}', '${a.id}')">Remove</button>
+      </div>`;
+  }).join('');
+}
+
+async function addAward(kind, inputId) {
+  const input = document.getElementById(inputId);
+  const name = input.value.trim();
+  if (!name) return showNotice('Enter an award name');
+  await awardRequest(`/api/admin/${kind}-awards`, 'POST', { name });
+  input.value = '';
+}
+
+async function removeAward(kind, id) {
+  const ok = await showConfirm('Remove this award?');
+  if (!ok) return;
+  await awardRequest(`/api/admin/${kind}-awards/${id}`, 'DELETE');
+}
+
+// The server looks up the contestant's name, number, barangay and photo itself.
+async function setAwardWinner(kind, awardId, contestantId) {
+  await awardRequest(`/api/admin/${kind}-awards/${awardId}/winner`, 'PUT',
+    contestantId ? { contestantId } : { winner: null });
+}
+
+const showAward = (kind, awardId) => awardRequest(`/api/admin/${kind}-awards/display`, 'POST', { mode: 'award', awardId });
+const showAllWinners = (kind) => awardRequest(`/api/admin/${kind}-awards/display`, 'POST', { mode: 'all' });
+const clearAwardDisplay = (kind) => awardRequest(`/api/admin/${kind}-awards/display`, 'POST', { mode: 'none' });
+
+// Handlers used by the buttons in the admin.html cards
+const addMinorAward = () => addAward('minor', 'maName');
+const showAllMinorWinners = () => showAllWinners('minor');
+const clearMinorDisplay = () => clearAwardDisplay('minor');
+const addMajorAward = () => addAward('major', 'mjName');
+const showAllMajorWinners = () => showAllWinners('major');
+const clearMajorDisplay = () => clearAwardDisplay('major');
+
+loadAwards();
 refresh();

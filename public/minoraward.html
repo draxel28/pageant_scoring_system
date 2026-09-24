@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Minor Awards</title>
+<style>
+  :root { --gold: #c9a24a; --gold-light: #e6c877; --bg: #0f1013; --text: #f3f1ea; --muted: #8b8d92; }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    background: radial-gradient(ellipse at 50% 35%, #211c10 0%, var(--bg) 65%);
+    color: var(--text);
+    font-family: Georgia, 'Times New Roman', serif;
+    overflow: hidden;
+    cursor: none;
+  }
+  #stage {
+    height: 100%; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; text-align: center; padding: 4vh 5vw;
+  }
+  .reveal { animation: reveal 0.9s cubic-bezier(.2,.7,.2,1) both; }
+  @keyframes reveal { from { opacity: 0; transform: scale(.96); } to { opacity: 1; transform: none; } }
+
+  .award-title {
+    font-size: clamp(1.8rem, 4.6vw, 4.2rem); font-weight: 400; font-style: italic;
+    color: var(--gold-light); margin: 0; letter-spacing: 0.02em;
+  }
+  .rule { width: min(360px, 40vw); height: 2px; background: linear-gradient(90deg, transparent, var(--gold), transparent); margin: 2.4vh 0 3.4vh; }
+
+  .avatar {
+    width: 36vh; height: 36vh; border-radius: 50%; object-fit: cover; display: block;
+    border: 6px solid var(--gold); box-shadow: 0 0 0 10px rgba(201,162,74,.12), 0 0 60px rgba(201,162,74,.25);
+  }
+  .avatar.empty { display: flex; align-items: center; justify-content: center; font-size: 12vh; color: var(--gold); background: #1a1810; }
+
+  .winner-name { font-size: clamp(2.6rem, 7.6vw, 7rem); font-weight: 700; line-height: 1.05; margin: 3.4vh 0 0; }
+  .winner-meta { font-size: clamp(1.1rem, 2.4vw, 2.2rem); color: var(--muted); margin-top: 1.4vh; }
+
+  /* "all winners" recap */
+  .recap-title { font-size: clamp(1.8rem, 3.6vw, 3.2rem); color: var(--gold-light); font-style: italic; font-weight: 400; margin: 0 0 3vh; }
+  .grid { width: 100%; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 3vh 2vw; max-height: 78vh; overflow: hidden; }
+  .item { display: flex; flex-direction: column; align-items: center; }
+  .item .avatar { width: 16vh; height: 16vh; border-width: 4px; box-shadow: none; }
+  .item .avatar.empty { font-size: 6vh; }
+  .item .a { color: var(--gold-light); font-style: italic; font-size: clamp(1rem, 1.6vw, 1.5rem); margin-top: 1.4vh; }
+  .item .n { font-weight: 700; font-size: clamp(1.1rem, 2vw, 1.9rem); margin-top: .4vh; }
+
+  .idle { color: rgba(255,255,255,.12); font-size: clamp(1.4rem, 3vw, 2.4rem); font-style: italic; }
+  @media (prefers-reduced-motion: reduce) { .reveal { animation: none; } }
+</style>
+</head>
+<body>
+<div id="stage"></div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  const socket = io({ query: { role: 'display' } });
+  const stage = document.getElementById('stage');
+  let lastSig = '';
+
+  const esc = s => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  const isVideo = u => ['mp4', 'webm', 'ogg', 'mov'].includes(String(u || '').split('?')[0].split('.').pop().toLowerCase());
+
+  function media(w) {
+    if (!w.photo) return `<div class="avatar empty">${esc((w.name || '?').charAt(0))}</div>`;
+    return isVideo(w.photo)
+      ? `<video class="avatar" src="${esc(w.photo)}" autoplay muted loop playsinline></video>`
+      : `<img class="avatar" src="${esc(w.photo)}" alt="">`;
+  }
+
+  function render(data) {
+    const sig = JSON.stringify(data);
+    if (sig === lastSig) return;
+    lastSig = sig;
+
+    const d = data.display || {};
+    const awards = data.awards || [];
+
+    if (d.mode === 'award') {
+      const a = awards.find(x => x.id === d.awardId);
+      if (a && a.winner) {
+        const w = a.winner;
+        const meta = [w.number ? `#${esc(w.number)}` : '', w.barangay ? esc(w.barangay) : ''].filter(Boolean).join('  |  ');
+        stage.innerHTML = `<div class="reveal">
+          <h1 class="award-title">${esc(a.name)}</h1>
+          <div class="rule" style="margin-left:auto;margin-right:auto"></div>
+          <div style="display:flex;justify-content:center">${media(w)}</div>
+          <div class="winner-name">${esc(w.name)}</div>
+          ${meta ? `<div class="winner-meta">${meta}</div>` : ''}
+        </div>`;
+        return;
+      }
+    }
+
+    if (d.mode === 'all') {
+      const won = awards.filter(a => a.winner);
+      stage.innerHTML = `<div class="reveal" style="width:100%">
+        <h1 class="recap-title">Minor Award Winners</h1>
+        <div class="grid">${won.map(a => `
+          <div class="item">${media(a.winner)}<div class="a">${esc(a.name)}</div><div class="n">${esc(a.winner.name)}</div></div>`).join('')}
+        </div>
+        ${won.length ? '' : '<div class="idle">No winners selected yet</div>'}
+      </div>`;
+      return;
+    }
+
+    stage.innerHTML = '<div class="idle">Minor Awards</div>';
+  }
+
+  async function load() {
+    try { render(await (await fetch('/api/minor-awards')).json()); } catch (e) { /* server offline: keep last screen */ }
+  }
+
+  socket.on('minor-awards-updated', render);
+  socket.on('connect', load);
+  load();
+  setInterval(load, 5000); // safety net if a socket event is missed
+</script>
+</body>
+</html>
