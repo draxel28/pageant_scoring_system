@@ -8,7 +8,7 @@
 <style>
   :root {
     --bg-gradient: radial-gradient(circle at center, #141622 0%, #08090e 100%);
-    --card-bg: rgba(15, 17, 26, 0.85);
+    --card-bg: rgba(15, 17, 26, 0.88);
     --border-color: rgba(255, 255, 255, 0.12);
     --gold: #f1c40f;
     --gold-glow: rgba(241, 196, 15, 0.35);
@@ -73,9 +73,9 @@
   }
 
   .segTitle {
-    font-size: 2.4rem;
+    font-size: 2.2rem;
     font-weight: 900;
-    letter-spacing: 3px;
+    letter-spacing: 2px;
     color: var(--gold);
     text-transform: uppercase;
     text-shadow: 0 4px 25px var(--gold-glow);
@@ -128,7 +128,7 @@
 
   .segment-contestant-display-photo,
   .segment-contestant-display-video {
-    max-height: 68vh;
+    max-height: 65vh;
     max-width: 100%;
     object-fit: contain;
     border-radius: 0;
@@ -161,119 +161,117 @@
     background: var(--card-bg);
     backdrop-filter: blur(20px);
     border: 1px solid var(--border-color);
-    border-radius: 30px;
-    padding: 12px 25px;
+    border-radius: 24px;
+    padding: 12px 18px;
     box-sizing: border-box;
     box-shadow: 0 30px 60px rgba(0, 0, 0, 0.8);
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 12px;
     margin-bottom: 15px;
     z-index: 3;
   }
 
-  /* Left Section: Contestant Profile */
+  /* Left Section: Contestant Profile (Location / Category Only) */
   .contestant-section {
     display: flex;
     align-items: center;
-    gap: 15px;
-    position: relative;
+    gap: 10px;
+    flex: 1;
+    min-width: 0;
+    text-align: left;
   }
 
   .contestant-large-avatar {
-    width: 90px;
-    height: 90px;
+    width: 60px;
+    height: 60px;
     border-radius: 50%;
     object-fit: cover;
-    border: 3px solid var(--gold);
+    border: 2px solid var(--gold);
     background: #222;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.6);
-    position: absolute;
-    top: -50px;
-    left: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.6);
+    flex-shrink: 0;
   }
 
   .contestant-avatar-placeholder {
-    width: 90px;
-    height: 90px;
+    width: 60px;
+    height: 60px;
     border-radius: 50%;
-    border: 3px solid var(--gold);
+    border: 2px solid var(--gold);
     background: #1a1c29;
     color: var(--text-muted);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.75rem;
-    position: absolute;
-    top: -50px;
-    left: 10px;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.6);
+    font-size: 0.6rem;
+    flex-shrink: 0;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.6);
+    text-align: center;
   }
 
   .contestant-info {
-    margin-left: 110px;
-    text-align: left;
-  }
-
-  .contestant-name {
-    font-size: 1.3rem;
-    font-weight: 900;
-    color: #fff;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    margin: 0;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
   }
 
   .contestant-location {
-    font-size: 0.85rem;
-    color: var(--text-muted);
+    font-size: 0.9rem;
+    color: var(--text-main);
     text-transform: uppercase;
-    letter-spacing: 2px;
-    margin-top: 2px;
-    font-weight: 600;
+    letter-spacing: 1px;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
-  /* Center Section: Judges Breakdown */
+  .contestant-subtext {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 1px;
+  }
+
+  /* Center Section: Judges Breakdown (Non-Scrollable, Compact Fitted Grid) */
   .judges-section {
     display: flex;
     align-items: center;
-    gap: 12px;
-    overflow-x: auto;
-    padding: 5px;
-    max-width: 100%;
+    justify-content: center;
+    gap: 5px;
+    flex: 2;
+    overflow: visible;
   }
 
   .judge-card {
     display: flex;
     flex-direction: column;
     align-items: center;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    border-radius: 12px;
-    padding: 6px 8px;
-    min-width: 55px;
-  }
-
-  .judge-avatar {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 2px solid var(--gold);
-    margin-bottom: 4px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    padding: 4px 6px;
+    flex: 1;
+    min-width: 0;
   }
 
   .judge-name {
-    font-size: 0.65rem;
+    font-size: 0.55rem;
     color: var(--text-muted);
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 0.5px;
     margin-bottom: 2px;
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-weight: 700;
+    max-width: 100%;
   }
 
   .judge-score {
-    font-size: 1rem;
+    font-size: 0.95rem;
     font-weight: 800;
     color: #fff;
   }
@@ -282,26 +280,27 @@
   .average-section {
     background: rgba(0, 0, 0, 0.4);
     border: 1px solid var(--border-color);
-    border-radius: 16px;
-    padding: 8px 18px;
+    border-radius: 12px;
+    padding: 5px 12px;
     text-align: center;
-    min-width: 95px;
+    min-width: 75px;
+    flex-shrink: 0;
   }
 
   .average-label {
-    font-size: 0.6rem;
+    font-size: 0.5rem;
     text-transform: uppercase;
-    letter-spacing: 2px;
+    letter-spacing: 1px;
     color: var(--text-muted);
-    margin-bottom: 2px;
+    margin-bottom: 1px;
     font-weight: 700;
   }
 
   .average-value {
-    font-size: 1.7rem;
+    font-size: 1.3rem;
     font-weight: 900;
     color: var(--gold);
-    line-height: 1;
+    line-height: 1.1;
   }
 
   .pulse {
@@ -313,6 +312,26 @@
     50% { opacity: 0.4; transform: scale(0.98); }
   }
 
+  .contestant-display-wrapper {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    align-items: center;
+    flex: 1;
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .contestant-column {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    flex: 1;
+    width: 100%;
+    min-width: 450px;
+  }
+
   @media (max-width: 900px) {
     .stage {
       padding: 10px;
@@ -322,64 +341,47 @@
     }
 
     .segTitle {
-      font-size: 1.8rem;
+      font-size: 1.5rem;
       letter-spacing: 1px;
       margin-top: 10px;
     }
 
+    .contestant-column {
+      min-width: 100%;
+    }
+
     .central-photo-container {
-      margin: 20px 0;
+      margin: 15px 0;
     }
 
     .segment-contestant-display-photo,
     .segment-contestant-display-video {
-      max-height: 48vh;
+      max-height: 45vh;
       margin-bottom: 0;
     }
 
     .display-banner {
       flex-direction: column;
-      gap: 20px;
-      padding: 25px 15px 15px 15px;
-      border-radius: 25px;
+      gap: 10px;
+      padding: 12px;
+      border-radius: 20px;
       margin-bottom: 10px;
     }
 
     .contestant-section {
       width: 100%;
-      justify-content: center;
-      text-align: center;
-      margin-top: 25px;
-    }
-
-    .contestant-large-avatar, 
-    .contestant-avatar-placeholder {
-      left: 50%;
-      transform: translateX(-50%);
-      top: -75px;
-      width: 80px;
-      height: 80px;
-    }
-
-    .contestant-info {
-      margin-left: 0;
-      text-align: center;
-    }
-
-    .contestant-name {
-      font-size: 1.2rem;
+      justify-content: flex-start;
     }
 
     .judges-section {
       width: 100%;
-      justify-content: flex-start;
-      padding-bottom: 5px;
+      justify-content: space-between;
     }
 
     .average-section {
       width: 100%;
       box-sizing: border-box;
-      padding: 10px;
+      padding: 6px;
     }
   }
 </style>
@@ -407,7 +409,6 @@ function isVideoFile(mediaObj) {
   const url = mediaObj.url || mediaObj;
   if (typeof url !== 'string') return false;
   
-  // If backend explicitly flags it as a video or mime type contains video
   if (mediaObj.type === 'video' || (mediaObj.mimetype && mediaObj.mimetype.startsWith('video'))) {
     return true;
   }
@@ -416,7 +417,6 @@ function isVideoFile(mediaObj) {
   const ext = cleanUrl.split('.').pop().toLowerCase();
   const videoExtensions = ['mp4', 'webm', 'ogg', 'mov', 'm4v', 'mkv', 'quicktime'];
   
-  // Also check filename patterns or known video format extensions
   return videoExtensions.includes(ext) || /\.(mp4|webm|ogg|mov|m4v|mkv)(\?.*)?$/i.test(url);
 }
 
@@ -462,10 +462,8 @@ function updateBackground(state) {
     return;
   }
 
-  // Check if background URL points to a video file
   if (isVideoFile(bgUrl)) {
     document.body.style.backgroundImage = 'none';
-    // Prevent recreating the video element if it's already playing the exact same source
     const existingVideo = bgContainer.querySelector('video');
     if (!existingVideo || existingVideo.getAttribute('src') !== bgUrl) {
       bgContainer.innerHTML = `<video src="${bgUrl}" class="bg-video-layer" autoplay loop muted playsinline></video>`;
@@ -502,15 +500,9 @@ function render(state) {
     return;
   }
 
-  segTitleEl.textContent = segment.name;
-
-  if (!segment.revealed) {
-    bodyEl.innerHTML = `<div class="waiting pulse">Scores for <strong>${segment.name}</strong> are currently hidden. Please stand by.</div>`;
-    return;
-  }
-
   const contestants = state.contestants || [];
   if (contestants.length === 0) {
+    segTitleEl.textContent = segment.name;
     bodyEl.innerHTML = `<div class="waiting">No contestants registered.</div>`;
     return;
   }
@@ -519,90 +511,106 @@ function render(state) {
     currentContestantIndex = 0;
   }
 
-  const contestant = contestants[currentContestantIndex];
+  const currentContestant = contestants[currentContestantIndex];
+  const targetNumber = currentContestant.number;
+  
+  // Find all contestants sharing the same number (e.g. Male & Female pair)
+  const matchingContestants = (targetNumber !== undefined && targetNumber !== null && targetNumber !== '')
+    ? contestants.filter(c => c.number === targetNumber)
+    : [currentContestant];
+
+  // Set top title with segment name and candidate number combo
+  let candidateNumStr = targetNumber ? ` — CANDIDATE #${targetNumber}` : '';
+  segTitleEl.textContent = segment.name + candidateNumStr;
+
+  if (!segment.revealed) {
+    bodyEl.innerHTML = `<div class="waiting pulse">Scores for <strong>${segment.name}</strong> are currently hidden. Please stand by.</div>`;
+    return;
+  }
+
   const judges = state.judges || [];
   const segScores = state.scores[segment.id] || {};
-  
-  const contestantResult = segment.results ? segment.results.find(r => r.contestantId === contestant.id) : null;
-  const averageScore = contestantResult && contestantResult.average !== null ? contestantResult.average.toFixed(2) : '—';
 
-  let avatarHtml = `<div class="contestant-avatar-placeholder">No Photo</div>`;
-  if (contestant.photo) {
-    avatarHtml = `<img src="${contestant.photo}" class="contestant-large-avatar" alt="${contestant.name}">`;
-  }
+  let contentHtml = '';
 
-  const segmentPhotos = state.segmentPhotos || [];
-  const activeSegmentPhoto = segmentPhotos.expressFind ? null : segmentPhotos.find(
-    p => p.segmentId === segment.id && p.contestantId === contestant.id
-  );
+  matchingContestants.forEach(contestant => {
+    // Use the contestant's main profile picture for both the small avatar and the central display photo
+    let avatarHtml = `<div class="contestant-avatar-placeholder">No Photo</div>`;
+    let centralPhotoHtml = `<div class="segment-contestant-photo-placeholder">No Profile Photo Uploaded</div>`;
 
-  let centralPhotoHtml = `<div class="segment-contestant-photo-placeholder">No Segment Media Uploaded</div>`;
-  if (activeSegmentPhoto && activeSegmentPhoto.url) {
-    // Pass the whole object so type checking works even if extension is saved as .png
-    if (isVideoFile(activeSegmentPhoto)) {
-      centralPhotoHtml = `<video src="${activeSegmentPhoto.url}" class="segment-contestant-display-video" autoplay loop muted playsinline></video>`;
-    } else {
-      centralPhotoHtml = `<img src="${activeSegmentPhoto.url}" class="segment-contestant-display-photo" alt="${contestant.name}" onerror="this.onerror=null; this.outerHTML='<video src=\'${activeSegmentPhoto.url}\' class=\'segment-contestant-display-video\' autoplay loop muted playsinline></video>';">`;
-    }
-  }
-
-  let judgesHtml = '';
-  if (judges.length === 0) {
-    judgesHtml = `<span style="color: var(--text-muted); font-size: 0.9rem;">No judges added yet.</span>`;
-  } else {
-    judges.forEach((j) => {
-      const judgeScores = segScores[j.id] && segScores[j.id][contestant.id];
-      let scoreDisplay = '—';
-      if (judgeScores) {
-        let total = 0;
-        segment.criteria.forEach(cr => {
-          total += Number(judgeScores[cr.id]) || 0;
-        });
-        scoreDisplay = total.toFixed(2);
-      }
-
-      const sampleJudgePhoto = `https://picsum.photos/seed/judge${j.id}/100/100`;
-
-      judgesHtml += `
-        <div class="judge-card">
-          <img src="${sampleJudgePhoto}" class="judge-avatar" alt="${j.name}">
-          <span class="judge-name">${j.name}</span>
-          <span class="judge-score">${scoreDisplay}</span>
-        </div>
-      `;
-    });
-  }
-
-  bodyEl.innerHTML = `
-    <div style="display: flex; flex-direction: column; justify-content: space-between; align-items: center; flex: 1; width: 100%;">
+    if (contestant.photo) {
+      avatarHtml = `<img src="${contestant.photo}" class="contestant-large-avatar" alt="Contestant Avatar">`;
       
-      <!-- Middle Screen: Segment Contestant Media Display with Upward Flashlight Floor Beams -->
-      <div class="central-photo-container">
-        ${centralPhotoHtml}
-      </div>
+      if (isVideoFile(contestant.photo)) {
+        centralPhotoHtml = `<video src="${contestant.photo}" class="segment-contestant-display-video" autoplay loop muted playsinline></video>`;
+      } else {
+        centralPhotoHtml = `<img src="${contestant.photo}" class="segment-contestant-display-photo" alt="Contestant Profile Photo">`;
+      }
+    }
 
-      <!-- Bottom Banner -->
-      <div class="display-banner">
-        <!-- Left: Contestant Profile -->
-        <div class="contestant-section">
-          ${avatarHtml}
-          <div class="contestant-info">
-            <h2 class="contestant-name">${contestant.number ? `#${contestant.number} ` : ''}${contestant.name}</h2>
-            <div class="contestant-location">${contestant.barangay || 'Contestant'}</div>
+    const contestantResult = segment.results ? segment.results.find(r => r.contestantId === contestant.id) : null;
+    const averageScore = contestantResult && contestantResult.average !== null ? contestantResult.average.toFixed(2) : '—';
+
+    let judgesHtml = '';
+    if (judges.length === 0) {
+      judgesHtml = `<span style="color: var(--text-muted); font-size: 0.8rem;">No judges added yet.</span>`;
+    } else {
+      judges.forEach((j) => {
+        const judgeScores = segScores[j.id] && segScores[j.id][contestant.id];
+        let scoreDisplay = '—';
+        if (judgeScores) {
+          let total = 0;
+          segment.criteria.forEach(cr => {
+            total += Number(judgeScores[cr.id]) || 0;
+          });
+          scoreDisplay = total.toFixed(2);
+        }
+
+        judgesHtml += `
+          <div class="judge-card">
+            <span class="judge-name" title="${j.name}">${j.name}</span>
+            <span class="judge-score">${scoreDisplay}</span>
+          </div>
+        `;
+      });
+    }
+
+    contentHtml += `
+      <div class="contestant-column">
+        <!-- Middle Screen: Contestant Main Profile Photo Display with Upward Flashlight Floor Beams -->
+        <div class="central-photo-container">
+          ${centralPhotoHtml}
+        </div>
+
+        <!-- Bottom Banner -->
+        <div class="display-banner">
+          <!-- Left: Contestant Profile (Location / Category) -->
+          <div class="contestant-section">
+            ${avatarHtml}
+            <div class="contestant-info">
+              <div class="contestant-location">${contestant.barangay || 'Contestant'}</div>
+              <div class="contestant-subtext">Official Entry</div>
+            </div>
+          </div>
+
+          <!-- Center: Judges List & Scores (Non-Scrollable Fitted Row) -->
+          <div class="judges-section">
+            ${judgesHtml}
+          </div>
+
+          <!-- Right: Average Score -->
+          <div class="average-section">
+            <div class="average-label">Average Score</div>
+            <div class="average-value">${averageScore}</div>
           </div>
         </div>
-
-        <!-- Center: Judges List & Scores -->
-        <div class="judges-section">
-          ${judgesHtml}
-        </div>
-
-        <!-- Right: Average Score -->
-        <div class="average-section">
-          <div class="average-label">Average Score</div>
-          <div class="average-value">${averageScore}</div>
-        </div>
       </div>
+    `;
+  });
+
+  bodyEl.innerHTML = `
+    <div class="contestant-display-wrapper">
+      ${contentHtml}
     </div>
   `;
 }
