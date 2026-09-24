@@ -865,12 +865,12 @@
       {
         "id": "ma_mue8bmfphqx3m",
         "name": "Mr. Congeniality",
-        "winnerId": null
+        "winnerId": "c_muevs2n8onkaj"
       },
       {
         "id": "ma_mue8bmfp3kw7e",
         "name": "Ms. Congeniality",
-        "winnerId": null
+        "winnerId": "c_muew19trg6af9"
       },
       {
         "id": "ma_mue8bmfpjwgd1",
@@ -948,12 +948,12 @@
       {
         "id": "ma_muevgqf23s7ce",
         "name": "Mr. Winner",
-        "winnerId": null
+        "winnerId": "c_muevs2n8onkaj"
       },
       {
         "id": "ma_muevgqf2y25z6",
         "name": "Ms. Winner",
-        "winnerId": null
+        "winnerId": "c_muevrcpkslq31"
       },
       {
         "id": "ma_muevgqf2wji48",
@@ -977,8 +977,8 @@
       }
     ],
     "display": {
-      "mode": "none",
-      "awardId": null
+      "mode": "award",
+      "awardId": "ma_muevgqf2y25z6"
     }
   }
 }
